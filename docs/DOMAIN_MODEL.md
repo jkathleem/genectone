@@ -748,6 +748,62 @@ Os seguintes conceitos não fazem parte do escopo inicial:
 - Motor de workflow de produção.
 - Geração automática de serviços baseada no produto.
 
+## Primeira modelagem física
+
+O primeiro schema Prisma materializa somente as seguintes entidades conceituais:
+
+| Conceito | Model Prisma |
+| --- | --- |
+| Empresa | `Company` |
+| Cliente | `Customer` |
+| Produto / Referência | `Product` |
+| OP | `ProductionOrder` |
+| Terceirizado | `Contractor` |
+| Serviço | `Service` |
+| Preço de Serviço | `ServicePrice` |
+| Serviço Terceirizado | `OutsourcedService` |
+| Romaneio | `DeliveryNote` |
+| Item de Romaneio | `DeliveryNoteItem` |
+| Retorno | `OutsourcingReturn` |
+
+Decisões da modelagem física:
+
+- Identificadores internos usam `String` com `cuid()`; números de OP e romaneio não são chaves primárias.
+- O número da OP é único por empresa. O número do romaneio permanece apenas indexado até confirmação de sua regra de unicidade.
+- Quantidades de peças usam `Int`.
+- Preços unitários usam `Decimal(14,4)`; não há `Float` monetário.
+- Datas de entrada, vigência, saída e retorno usam o tipo PostgreSQL `date`.
+- Todas as relações históricas usam deleção restritiva.
+- Não foi criado status operacional armazenado; estados ordinários continuam derivados e os status excepcionais permanecem pendentes.
+
+Dados armazenados em `OutsourcedService`:
+
+- OP, Serviço e Terceirizado relacionados.
+- Quantidade prevista opcional.
+- Quantidade aprovada para pagamento.
+- Preço unitário aplicado historicamente.
+- Observações.
+
+Dados não armazenados em `OutsourcedService`:
+
+- Quantidade enviada: soma de `DeliveryNoteItem.quantity`.
+- Quantidade retornada: soma de `OutsourcingReturn.quantity`.
+- Quantidade pendente: quantidade enviada menos quantidade retornada.
+- Valor previsto: quantidade enviada multiplicada pelo preço aplicado.
+- Valor elegível para pagamento: quantidade aprovada multiplicada pelo preço aplicado.
+- Valor total da OP: quantidade da OP multiplicada pelo preço unitário da OP.
+
+`approvedQuantity` existe somente em `OutsourcedService` nesta fase. `OutsourcingReturn` preserva o retorno físico e não cria uma segunda fonte de aprovação. Permanece pendente definir o momento de conferência, elegibilidade para pagamento e eventual sugestão automática da quantidade retornada.
+
+Invariantes deixadas para a futura camada de domínio/aplicação:
+
+- Quantidades de saída e retorno devem ser maiores que zero.
+- Total retornado não deve ultrapassar o total enviado, salvo futura regra explícita.
+- Quantidade aprovada não pode ser negativa nem ultrapassar os limites válidos do negócio.
+- Todo `DeliveryNoteItem` deve apontar para um `OutsourcedService` do mesmo `Contractor` registrado no cabeçalho do `DeliveryNote`.
+- Períodos de `ServicePrice` não devem se sobrepor quando essa validação for implementada.
+- Datas recebidas pela interface devem ser tratadas como dias comerciais, sem deslocamento provocado por timezone.
+
 ## Fontes de verdade e dados derivados
 
 Fontes de verdade principais:

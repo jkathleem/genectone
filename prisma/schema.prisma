@@ -7,4 +7,161 @@ datasource db {
   provider = "postgresql"
 }
 
-// Domain models will be added in a later phase after reviewing docs/DOMAIN_MODEL.md.
+model Company {
+  id               String            @id @default(cuid())
+  name             String
+  tradeName        String?
+  document         String?
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  productionOrders ProductionOrder[]
+}
+
+model Customer {
+  id               String            @id @default(cuid())
+  name             String
+  document         String?
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  productionOrders ProductionOrder[]
+}
+
+model Product {
+  id               String            @id @default(cuid())
+  name             String
+  reference        String?
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  productionOrders ProductionOrder[]
+}
+
+model ProductionOrder {
+  id                 String              @id @default(cuid())
+  number             String
+  entryDate          DateTime            @db.Date
+  companyId          String
+  customerId         String
+  productId          String
+  quantity           Int
+  unitPrice          Decimal             @db.Decimal(14, 4)
+  notes              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  company            Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  product            Product             @relation(fields: [productId], references: [id], onDelete: Restrict)
+  outsourcedServices OutsourcedService[]
+
+  @@unique([companyId, number])
+  @@index([number])
+  @@index([customerId])
+  @@index([productId])
+  @@index([entryDate])
+}
+
+model Contractor {
+  id                 String              @id @default(cuid())
+  name               String
+  document           String?
+  phone              String?
+  address            String?
+  notes              String?
+  active             Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  outsourcedServices OutsourcedService[]
+  deliveryNotes      DeliveryNote[]
+}
+
+model Service {
+  id                 String              @id @default(cuid())
+  name               String
+  description        String?
+  active             Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  prices             ServicePrice[]
+  outsourcedServices OutsourcedService[]
+}
+
+model ServicePrice {
+  id         String    @id @default(cuid())
+  serviceId  String
+  unitPrice  Decimal   @db.Decimal(14, 4)
+  validFrom  DateTime  @db.Date
+  validUntil DateTime? @db.Date
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  service    Service   @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([serviceId, validFrom])
+}
+
+model OutsourcedService {
+  id                String              @id @default(cuid())
+  productionOrderId String
+  serviceId         String
+  contractorId      String
+  plannedQuantity   Int?
+  approvedQuantity  Int                 @default(0)
+  appliedUnitPrice  Decimal             @db.Decimal(14, 4)
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  productionOrder   ProductionOrder     @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  service           Service             @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  contractor        Contractor          @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  deliveryNoteItems DeliveryNoteItem[]
+  returns           OutsourcingReturn[]
+
+  @@index([productionOrderId])
+  @@index([serviceId])
+  @@index([contractorId])
+}
+
+model DeliveryNote {
+  id              String             @id @default(cuid())
+  number          String
+  contractorId    String
+  departureDate   DateTime           @db.Date
+  responsibleName String?
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  contractor      Contractor         @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  items           DeliveryNoteItem[]
+
+  @@index([number])
+  @@index([contractorId])
+  @@index([departureDate])
+}
+
+model DeliveryNoteItem {
+  id                  String            @id @default(cuid())
+  deliveryNoteId      String
+  outsourcedServiceId String
+  quantity            Int
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deliveryNote        DeliveryNote      @relation(fields: [deliveryNoteId], references: [id], onDelete: Restrict)
+  outsourcedService   OutsourcedService @relation(fields: [outsourcedServiceId], references: [id], onDelete: Restrict)
+
+  @@index([deliveryNoteId])
+  @@index([outsourcedServiceId])
+}
+
+model OutsourcingReturn {
+  id                  String            @id @default(cuid())
+  outsourcedServiceId String
+  returnDate          DateTime          @db.Date
+  quantity            Int
+  notes               String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  outsourcedService   OutsourcedService @relation(fields: [outsourcedServiceId], references: [id], onDelete: Restrict)
+
+  @@index([outsourcedServiceId, returnDate])
+}

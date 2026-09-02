@@ -62,7 +62,23 @@ Não haverá backend separado, microserviços ou arquitetura distribuída nesta 
 
 O banco principal será PostgreSQL. Prisma será usado como ORM.
 
-Nesta etapa existe apenas um `schema.prisma` inicial válido, sem modelos de domínio. O modelo completo do banco será criado em fase posterior, depois de nova revisão de `docs/DOMAIN_MODEL.md` e `docs/BUSINESS_RULES.md`.
+O primeiro schema físico cobre somente o núcleo operacional inicial:
+
+- `Company`
+- `Customer`
+- `Product`
+- `ProductionOrder`
+- `Contractor`
+- `Service`
+- `ServicePrice`
+- `OutsourcedService`
+- `DeliveryNote`
+- `DeliveryNoteItem`
+- `OutsourcingReturn`
+
+A migration inicial `20260902000000_initial_operational_schema` foi gerada de forma offline. Sua aplicação permanece pendente até existir uma `DATABASE_URL` confirmada para o banco de desenvolvimento; credenciais de exemplo nunca devem ser usadas para executar migrations.
+
+Entidades financeiras, fechamento, autenticação, usuários e demais módulos continuam fora do schema desta fase.
 
 Não transformar automaticamente o modelo de domínio em schema SQL sem revisão.
 
@@ -92,7 +108,15 @@ Esses conceitos não devem ser misturados automaticamente.
 
 Datas puramente comerciais ou contábeis devem ser tratadas com cuidado para evitar mudança de dia por timezone. O timezone operacional da empresa é `America/Fortaleza`.
 
-Nesta etapa não serão criadas funções complexas de timezone.
+Datas puramente comerciais do núcleo operacional usam colunas PostgreSQL `date`. A aplicação deverá tratar esses valores como dias de calendário e evitar conversões automáticas entre UTC e `America/Fortaleza` que alterem o dia. Nesta etapa não serão criadas funções complexas de timezone.
+
+## Integridade referencial do núcleo operacional
+
+- Relações históricas usam `onDelete: Restrict`; exclusões em cascata não são usadas no núcleo operacional.
+- Cadastros reutilizáveis possuem `active` para desativação sem apagar histórico.
+- Quantidade enviada, retornada e pendente não são colunas de `OutsourcedService`; serão derivadas dos itens de romaneio e retornos.
+- `approvedQuantity` é armazenada somente em `OutsourcedService` nesta fase.
+- A igualdade entre o terceirizado do romaneio e o terceirizado de todos os serviços de seus itens é uma invariável futura da camada de domínio/aplicação.
 
 ## Identificadores
 

@@ -315,6 +315,54 @@ Consequência:
 - Frontend e backend permanecerão na mesma aplicação Next.js nesta etapa.
 - Os módulos serão organizados por domínio e detalhados apenas conforme a necessidade de cada fase.
 
+### DEC-031 - Primeiro schema físico limitado ao núcleo operacional
+
+Decisão confirmada:
+
+- A primeira modelagem física contém apenas Company, Customer, Product, ProductionOrder, Contractor, Service, ServicePrice, OutsourcedService, DeliveryNote, DeliveryNoteItem e OutsourcingReturn.
+
+Consequência:
+
+- Fechamentos, financeiro, faturamento, recebimentos, DRE, fluxo de caixa, orçamento, autenticação e usuários permanecem fora desta migration.
+- Todos os identificadores são internos e usam `String` com `cuid()`; números de OP e romaneio continuam como identificadores de negócio separados.
+
+### DEC-032 - Fonte da quantidade aprovada nesta fase
+
+Decisão confirmada para o primeiro schema:
+
+- `approvedQuantity` será armazenada somente em `OutsourcedService`.
+- `OutsourcingReturn` registra apenas o retorno físico e não duplica a quantidade aprovada.
+
+Consequência:
+
+- Continua pendente definir quando um Serviço Terceirizado se torna elegível para pagamento e se a quantidade retornada será sugerida automaticamente para conferência.
+- Uma futura modelagem de fechamento deverá preservar as quantidades já incluídas sem transformar o retorno físico em aprovação automática.
+
+### DEC-033 - Escopo dos números de OP e romaneio
+
+Decisão técnica desta fase:
+
+- O número da OP é único dentro de uma empresa, por meio de `@@unique([companyId, number])`, e não globalmente.
+- O número do romaneio é indexado, mas não possui unicidade enquanto seu escopo de numeração não estiver confirmado.
+
+Consequência:
+
+- A decisão sobre unicidade do número de romaneio permanece aberta e poderá ser reforçada em migration futura, sem assumir regra não documentada.
+
+### DEC-034 - Integridade histórica e invariantes de aplicação
+
+Decisão confirmada para o primeiro schema:
+
+- Relações do núcleo operacional usam deleção restritiva e não usam cascata.
+- Datas comerciais são persistidas como `date` no PostgreSQL.
+- Valores monetários usam `Decimal(14,4)`.
+- Não haverá enum técnica para status operacional calculável ou excepcional nesta fase.
+
+Consequência:
+
+- Cadastros reutilizáveis serão desativados por `active` em vez de apagar registros históricos.
+- Regras transacionais, como quantidades positivas, retorno não superior ao enviado e compatibilidade entre o terceirizado do romaneio e o dos itens, deverão ser validadas na futura camada de domínio/aplicação.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.
@@ -323,6 +371,7 @@ Consequência:
 - DECISÃO PENDENTE: definir quais são as demais informações comerciais necessárias na OP.
 - DECISÃO PENDENTE: definir ciclo de vida e status da OP.
 - DECISÃO PENDENTE: definir ciclo de vida e status excepcionais dos Serviços Terceirizados.
+- DECISÃO PENDENTE: definir o escopo de unicidade do número do romaneio.
 - DECISÃO PENDENTE: definir quando um Serviço Terceirizado é considerado elegível para pagamento.
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
 - DECISÃO PENDENTE: definir se uma Conta a Pagar poderá possuir múltiplos pagamentos parciais.
