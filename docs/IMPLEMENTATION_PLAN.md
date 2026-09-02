@@ -22,6 +22,8 @@ Critério de aceite:
 
 ## Fase 1 - Base do sistema e cadastros
 
+Estado atual: implementada a interface de cadastro, consulta, edição e ativação/desativação de empresas, clientes, produtos e terceirizados. Serviços e preços permanecem geridos somente pelos dados iniciais nesta fase.
+
 Objetivo:
 
 - Criar a base conceitual necessária para registrar OPs e Serviços Terceirizados.
@@ -50,6 +52,8 @@ Critério de aceite:
 - A base mínima para entrada de OPs e criação manual de Serviços Terceirizados está disponível.
 
 ## Fase 2 - OPs
+
+Estado atual: implementadas entrada, listagem com filtros, detalhe e edição de OP. O valor total permanece derivado e não há exclusão física, cancelamento, autenticação ou bloqueio futuro de edição.
 
 Objetivo:
 

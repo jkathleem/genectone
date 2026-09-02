@@ -390,6 +390,20 @@ Consequência:
 - O seed localiza serviços pelo nome e preços equivalentes por serviço, valor, início e fim de vigência, podendo ser executado novamente sem duplicação.
 - Não são criados dados fictícios de empresas, clientes, produtos, OPs ou terceirizados.
 
+### DEC-037 - Primeira interface operacional com Server Actions
+
+Decisão confirmada:
+
+- Cadastros básicos e OPs usam Server Components para leitura, Server Actions para escrita e Zod para validação obrigatória no servidor.
+- Empresas, clientes, produtos e terceirizados são desativados por `active`; a interface não expõe exclusão física.
+- O valor total da OP continua derivado de quantidade multiplicada pelo preço unitário em `Decimal`.
+- Registros inativos não aparecem em seletores de novas OPs, mas permanecem visíveis nos históricos e disponíveis ao editar uma OP que já os utiliza.
+
+Consequência:
+
+- Não foi criada API REST interna para o próprio frontend.
+- Autenticação, cancelamento e regras futuras de bloqueio de edição continuam pendentes e não foram presumidas nesta fase.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.

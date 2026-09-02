@@ -54,6 +54,10 @@ Cada módulo poderá conter `domain`, `application`, `infrastructure` e `ui` qua
 
 ## Comunicação entre frontend e backend
 
+Os cadastros básicos e as OPs usam Server Components para consultas e Server Actions para gravações. A validação com Zod ocorre no servidor, antes do acesso ao Prisma; o frontend mantém apenas feedback imediato e o cálculo visual estimado.
+
+O acesso ao Prisma permanece fora dos componentes puramente visuais. Erros técnicos do ORM não são apresentados diretamente ao usuário.
+
 Frontend e backend ficarão no mesmo projeto Next.js. Futuras operações de escrita e leitura devem usar recursos do próprio Next.js, como Server Components, Server Actions ou Route Handlers, conforme a necessidade da fase.
 
 Não haverá backend separado, microserviços ou arquitetura distribuída nesta etapa.
@@ -108,6 +112,8 @@ Os preços usam `2026-09-02` como data técnica de início da referência dentro
 
 ## Dinheiro e precisão decimal
 
+O preço unitário da OP é validado e persistido como `Decimal`. O valor total é sempre derivado por `quantity × unitPrice`, sem coluna própria; somente a prévia visual do formulário usa números do navegador.
+
 Valores financeiros não devem utilizar números de ponto flutuante do JavaScript como fonte de verdade.
 
 Quando o banco for modelado:
@@ -117,6 +123,8 @@ Quando o banco for modelado:
 - Nunca utilizar `Float` para armazenar dinheiro.
 
 ## Datas e timezone
+
+Os formulários transmitem datas no formato `YYYY-MM-DD`; a aplicação cria e formata essas datas usando UTC como representação neutra do dia comercial, evitando deslocamento para o dia anterior.
 
 O sistema possui conceitos diferentes de data:
 

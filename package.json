@@ -8,6 +8,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "lint": "eslint .",
+    "test": "vitest run",
     "typecheck": "prisma generate && tsc --noEmit",
     "prisma:generate": "prisma generate"
   },
@@ -16,7 +17,8 @@
     "@prisma/client": "7.8.0",
     "next": "16.2.6",
     "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react-dom": "19.2.6",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.0",
@@ -28,6 +30,7 @@
     "postcss": "^8.5.0",
     "prisma": "7.8.0",
     "tailwindcss": "4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
   }
 }
