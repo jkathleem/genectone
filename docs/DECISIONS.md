@@ -363,6 +363,33 @@ Consequência:
 - Cadastros reutilizáveis serão desativados por `active` em vez de apagar registros históricos.
 - Regras transacionais, como quantidades positivas, retorno não superior ao enviado e compatibilidade entre o terceirizado do romaneio e o dos itens, deverão ser validadas na futura camada de domínio/aplicação.
 
+### DEC-035 - PostgreSQL local isolado por Docker
+
+Decisão confirmada:
+
+- O ambiente local de desenvolvimento utiliza PostgreSQL 16 em um container Docker exclusivo, com banco lógico `genect_dev` e volume nomeado `genect_postgres_data`.
+- A porta do PostgreSQL é publicada somente em `127.0.0.1`.
+
+Consequência:
+
+- Outros containers e bancos locais não são reutilizados ou modificados pelo projeto Genect.
+- Migrations versionadas são a fonte da estrutura e o volume mantém o estado entre reinicializações.
+- Credenciais ficam somente no `.env` ignorado; arquivos versionados usam placeholders.
+
+### DEC-036 - Seed inicial do catálogo de serviços
+
+Decisão confirmada:
+
+- O seed inicial cria Preparação Frente, Pala e Gancho, Frente Completa, Final Frente, Preparação e Bolso Traseiro, Frente e Costas.
+- Somente os cinco serviços com preços confirmados recebem `ServicePrice`.
+- Frente e Costas permanecem sem preço; valor zero não representa preço desconhecido.
+- `2026-09-02` é a data técnica inicial das referências inseridas pelo seed, sem significado histórico ou contratual anterior ao sistema.
+
+Consequência:
+
+- O seed localiza serviços pelo nome e preços equivalentes por serviço, valor, início e fim de vigência, podendo ser executado novamente sem duplicação.
+- Não são criados dados fictícios de empresas, clientes, produtos, OPs ou terceirizados.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.

@@ -76,11 +76,35 @@ O primeiro schema físico cobre somente o núcleo operacional inicial:
 - `DeliveryNoteItem`
 - `OutsourcingReturn`
 
-A migration inicial `20260902000000_initial_operational_schema` foi gerada de forma offline. Sua aplicação permanece pendente até existir uma `DATABASE_URL` confirmada para o banco de desenvolvimento; credenciais de exemplo nunca devem ser usadas para executar migrations.
+A migration inicial `20260902000000_initial_operational_schema` foi aplicada ao banco local de desenvolvimento `genect_dev`. As migrations versionadas em `prisma/migrations` permanecem como fonte de verdade da estrutura; credenciais de exemplo nunca devem ser usadas para executá-las.
 
 Entidades financeiras, fechamento, autenticação, usuários e demais módulos continuam fora do schema desta fase.
 
 Não transformar automaticamente o modelo de domínio em schema SQL sem revisão.
+
+## Banco local de desenvolvimento
+
+O desenvolvimento local usa PostgreSQL `16` em um container Docker exclusivo do projeto:
+
+- Serviço Compose: `postgres`.
+- Container: `genect_postgres_dev`.
+- Banco lógico: `genect_dev`.
+- Porta: `5432`, vinculada somente a `127.0.0.1`.
+- Volume nomeado: `genect_postgres_data`.
+
+O volume preserva migrations e dados entre reinicializações do container. Não utilizar `docker compose down -v`, salvo decisão explícita de descartar o banco local.
+
+As migrations versionadas em `prisma/migrations/` são a fonte da estrutura do banco. Não usar `db push` como substituto do histórico de migrations.
+
+O arquivo `.env` contém apenas a configuração local e permanece ignorado pelo Git. `.env.example` documenta as variáveis com placeholders e nunca deve conter credenciais reais.
+
+## Dados iniciais de referência
+
+O seed em `prisma/seed.mjs` é a fonte dos dados iniciais do catálogo de serviços nesta fase. Ele é idempotente e cria somente os sete Serviços confirmados e os cinco preços conhecidos.
+
+Os preços usam `2026-09-02` como data técnica de início da referência dentro do sistema. Essa data não afirma quando o preço começou a vigorar historicamente ou contratualmente.
+
+`Frente` e `Costas` são cadastrados sem `ServicePrice`, pois ainda não existe preço confirmado. Não utilizar preço zero como substituto de informação desconhecida.
 
 ## Dinheiro e precisão decimal
 
