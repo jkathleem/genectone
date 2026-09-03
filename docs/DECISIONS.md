@@ -440,6 +440,14 @@ Consequência:
 - A migration `20260903000000_add_delivery_note_number_sequence` adiciona a sequence e substitui o índice simples pela constraint de unicidade.
 - Cancelamento, estorno e correção formal de uma emissão permanecem como decisão pendente.
 
+### DEC-040 - Retornos e conferência acumulada
+
+- Múltiplos Retornos preservam data, quantidade e observações individualmente.
+- Retornado e pendente são derivados; o registro usa bloqueio transacional contra sobre-retorno.
+- `approvedQuantity` é um total acumulado confirmado separadamente e limitado ao total retornado.
+- Retorno físico não implica aprovação automática.
+- O painel de cobrança mostra somente pendência física positiva e calcula dias fora pela saída mais recente, sem classificar atraso.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.

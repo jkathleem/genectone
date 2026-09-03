@@ -5,6 +5,7 @@ const navigation = [
   { label: "Início", href: "/" },
   { label: "OPs", href: "/ops" },
   { label: "Terceirização", href: "/terceirizacao" },
+  { label: "Cobranças", href: "/terceirizacao/cobrancas" },
   { label: "Romaneios", href: "/romaneios" },
   { label: "Empresas", href: "/cadastros/empresas", group: "Cadastros" },
   { label: "Clientes", href: "/cadastros/clientes", group: "Cadastros" },

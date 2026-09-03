@@ -125,6 +125,9 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-114: Cada retorno deve preservar data, quantidade retornada, Serviço Terceirizado relacionado e observações quando necessárias.
 - BR-115: O histórico de retorno não deve ser representado apenas por uma única Data de Retorno.
 - BR-116: Enquanto houver quantidade pendente maior que zero, o serviço continua aparecendo como pendente no controle de terceirização.
+- BR-142: Um Retorno não pode superar a quantidade enviada ainda pendente e deve ser validado transacionalmente.
+- BR-143: A quantidade aprovada é um total acumulado confirmado pelo usuário, nunca automático, entre zero e o total retornado.
+- BR-144: O painel de cobrança mostra somente Serviços Terceirizados com pendência física maior que zero.
 
 ## Status de Serviços Terceirizados
 

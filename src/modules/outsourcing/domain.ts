@@ -12,6 +12,11 @@ export function operationalStatus(sent: number, returned: number) {
   return "Retornado";
 }
 export function plannedValue(quantity: number, price: Prisma.Decimal | string) { return new Prisma.Decimal(price).mul(quantity); }
+export function approvedValue(quantity: number, price: Prisma.Decimal | string) { return new Prisma.Decimal(price).mul(quantity); }
+export function daysOutside(lastDeparture: Date, today: Date) { return Math.max(0, Math.floor((Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()) - Date.UTC(lastDeparture.getUTCFullYear(), lastDeparture.getUTCMonth(), lastDeparture.getUTCDate())) / 86400000)); }
+export function appearsInCollections(sent: number, returned: number) { return sent - returned > 0; }
+export function validReturn(quantity: number, pending: number) { return Number.isInteger(quantity) && quantity > 0 && quantity <= pending; }
+export function validApproval(quantity: number, returned: number) { return Number.isInteger(quantity) && quantity >= 0 && quantity <= returned; }
 
 export function canChangeAssignment(
   hasDeliveryNoteItem: boolean,

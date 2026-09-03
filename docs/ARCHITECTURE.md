@@ -168,6 +168,12 @@ Romaneios são persistidos em `DeliveryNote` e seus itens em `DeliveryNoteItem`.
 
 O Romaneio reutiliza OP, cliente, produto, serviço e terceirizado pelos relacionamentos existentes. `sentQuantity` é a soma de todos os `DeliveryNoteItem` da associação, e o saldo disponível é `plannedQuantity - sentQuantity`; nenhum dos dois é armazenado novamente. Depois de emitido, o documento é somente consultado e impresso em duas vias na mesma folha A4. Retorno, edição, exclusão, cancelamento e estorno permanecem fora desta fase.
 
+## Retornos e painel de cobrança
+
+Cada chegada física cria um `OutsourcingReturn` independente. A gravação bloqueia o `OutsourcedService` dentro da transação, recalcula enviado e retornado e rejeita quantidade superior ao pendente, inclusive sob concorrência. `returnedQuantity`, `pendingQuantity` e a situação permanecem derivados.
+
+`approvedQuantity` é o total acumulado explicitamente confirmado no Serviço Terceirizado e nunca aumenta automaticamente com um Retorno. O valor aprovado é derivado por `approvedQuantity × appliedUnitPrice`. O painel de cobrança inclui somente pendências maiores que zero; “dias fora” usa a data da saída mais recente como simplificação operacional e não representa atraso.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.

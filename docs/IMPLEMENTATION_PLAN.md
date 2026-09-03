@@ -145,6 +145,8 @@ Critério de aceite:
 
 ## Fase 5 - Retornos parciais e quantidades derivadas
 
+Estado atual: implementados múltiplos Retornos, histórico, validação transacional contra sobre-retorno, conferência acumulada da quantidade aprovada e painel de cobrança dos serviços com pendência física.
+
 Objetivo:
 
 - Registrar múltiplos retornos e calcular saldos de terceirização.
