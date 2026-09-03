@@ -150,6 +150,16 @@ Datas puramente comerciais do núcleo operacional usam colunas PostgreSQL `date`
 - `approvedQuantity` é armazenada somente em `OutsourcedService` nesta fase.
 - A igualdade entre o terceirizado do romaneio e o terceirizado de todos os serviços de seus itens é uma invariável futura da camada de domínio/aplicação.
 
+## Serviços Terceirizados nas OPs
+
+O catálogo de Serviços mantém um histórico imutável de preços: cada alteração de preço cria um novo `ServicePrice`. Para uma nova associação à OP, o preço padrão sugerido é o registro vigente na data atual com o `validFrom` mais recente. Serviços sem preço padrão exigem que o usuário informe o preço aplicado.
+
+`OutsourcedService.appliedUnitPrice` é um snapshot histórico. Alterações posteriores no catálogo não recalculam associações existentes. O valor previsto exibido nesta etapa é derivado por `plannedQuantity × appliedUnitPrice`, usando `Decimal` no servidor.
+
+As quantidades operacionais não são duplicadas em `OutsourcedService`: enviada é a soma dos futuros `DeliveryNoteItem`, retornada é a soma de `OutsourcingReturn` e pendente é enviada menos retornada. A situação operacional também é derivada dessas quantidades. `approvedQuantity` permanece zero até que a futura regra de conferência para pagamento seja definida.
+
+Após existir o primeiro `DeliveryNoteItem`, Serviço e Terceirizado ficam bloqueados para edição, preservando a coerência das movimentações. Quantidade prevista, preço aplicado e observações continuam editáveis nesta fase.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.

@@ -404,6 +404,24 @@ Consequência:
 - Não foi criada API REST interna para o próprio frontend.
 - Autenticação, cancelamento e regras futuras de bloqueio de edição continuam pendentes e não foram presumidas nesta fase.
 
+### DEC-038 - Serviços Terceirizados e histórico de preços
+
+Decisão confirmada para a primeira interface de Serviços Terceirizados:
+
+- O preço padrão vigente é o `ServicePrice` com início de vigência mais recente que abrange a data atual.
+- Registrar um novo preço cria um novo item no histórico e não sobrescreve preços anteriores.
+- O preço aplicado é copiado para `OutsourcedService.appliedUnitPrice` e não muda quando o catálogo é atualizado.
+- Serviço sem preço padrão exige preço aplicado informado manualmente.
+- O valor previsto da associação nesta etapa é `plannedQuantity × appliedUnitPrice`.
+- Quantidades enviada, retornada e pendente, além da situação operacional, são derivadas das movimentações existentes.
+- `approvedQuantity` permanece zero; retorno físico não implica aprovação para pagamento.
+- Serviço e Terceirizado não podem ser trocados depois que existir um item de romaneio para a associação.
+
+Consequência:
+
+- A interface de OP não duplica movimentações que pertencem a romaneios e retornos.
+- A implementação de romaneios, retornos e conferência para pagamento permanece reservada às fases posteriores.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.

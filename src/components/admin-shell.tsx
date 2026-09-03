@@ -8,6 +8,7 @@ const navigation = [
   { label: "Clientes", href: "/cadastros/clientes", group: "Cadastros" },
   { label: "Produtos", href: "/cadastros/produtos", group: "Cadastros" },
   { label: "Terceirizados", href: "/cadastros/terceirizados", group: "Cadastros" },
+  { label: "Serviços", href: "/cadastros/servicos", group: "Cadastros" },
 ];
 
 const future = ["Terceirização", "Romaneios", "Financeiro", "DRE", "Relatórios", "Configurações"];

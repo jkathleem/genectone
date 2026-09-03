@@ -22,7 +22,7 @@ Critério de aceite:
 
 ## Fase 1 - Base do sistema e cadastros
 
-Estado atual: implementada a interface de cadastro, consulta, edição e ativação/desativação de empresas, clientes, produtos e terceirizados. Serviços e preços permanecem geridos somente pelos dados iniciais nesta fase.
+Estado atual: implementada a interface de cadastro, consulta, edição e ativação/desativação de empresas, clientes, produtos, terceirizados e serviços. O catálogo de serviços permite registrar novos preços sem sobrescrever o histórico e consultar o preço vigente.
 
 Objetivo:
 
@@ -80,6 +80,8 @@ DECISÃO PENDENTE: definir quais campos de produção e informações comerciais
 
 ## Fase 3 - Serviços Terceirizados da OP
 
+Estado atual: implementada a inclusão, listagem e edição de Serviços Terceirizados dentro da OP. A interface sugere o preço padrão vigente, permite informar manualmente serviços sem preço, preserva o preço aplicado e exibe quantidades e situação operacional derivadas. Nesta fase, a quantidade aprovada permanece zero e não há criação de romaneio ou retorno.
+
 Objetivo:
 
 - Permitir que o usuário adicione manualmente os Serviços Terceirizados necessários para uma OP existente.
@@ -99,7 +101,7 @@ Entregáveis testáveis:
 - Escolher Serviço cadastrado.
 - Escolher Terceirizado.
 - Informar quantidade prevista quando aplicável.
-- Informar quantidade a enviar.
+- Exibir a quantidade enviada derivada dos futuros itens de romaneio, sem digitá-la no Serviço Terceirizado.
 - Sugerir preço unitário a partir do Preço de Serviço.
 - Permitir ajuste do preço unitário aplicado.
 - Preservar historicamente o preço unitário aplicado.
