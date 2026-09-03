@@ -1,0 +1,12 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Feedback } from "@/components/feedback";
+import { PageHeader } from "@/components/page-header";
+import { formatDate } from "@/lib/format";
+import { prisma } from "@/lib/prisma";
+import { deliveryNoteTotal } from "@/modules/delivery-notes/domain";
+
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ success?: string }> }) {
+  const { id } = await params; const [note, messages] = await Promise.all([prisma.deliveryNote.findUnique({ where: { id }, include: { contractor: true, items: { include: { outsourcedService: { include: { service: true, productionOrder: { include: { customer: true, product: true } } } } } } } }), searchParams]); if (!note) notFound();
+  return <><PageHeader title={`Romaneio ${note.number}`} description="Movimentação física emitida, disponível somente para consulta e impressão." action={{ label: "Voltar aos Romaneios", href: "/romaneios" }}/><Feedback {...messages}/><section className="panel mb-5"><dl className="detail-grid"><div><dt>Terceirizado</dt><dd>{note.contractor.name}</dd></div><div><dt>Data de saída</dt><dd>{formatDate(note.departureDate)}</dd></div><div><dt>Responsável</dt><dd>{note.responsibleName || "—"}</dd></div><div><dt>Criação</dt><dd>{note.createdAt.toLocaleString("pt-BR")}</dd></div><div className="sm:col-span-2"><dt>Observações</dt><dd>{note.notes || "—"}</dd></div></dl></section><section className="panel"><div className="mb-4 flex items-center justify-between"><h2 className="section-title">Itens</h2><Link className="button-primary" href={`/romaneios/${id}/imprimir`}>Versão para impressão</Link></div><div className="table-wrap"><table><thead><tr><th>OP</th><th>Cliente</th><th>Produto / referência</th><th>Serviço</th><th>Quantidade</th></tr></thead><tbody>{note.items.map((item) => <tr key={item.id}><td>{item.outsourcedService.productionOrder.number}</td><td>{item.outsourcedService.productionOrder.customer.name}</td><td>{item.outsourcedService.productionOrder.product.name}{item.outsourcedService.productionOrder.product.reference ? ` — ${item.outsourcedService.productionOrder.product.reference}` : ""}</td><td>{item.outsourcedService.service.name}</td><td>{item.quantity.toLocaleString("pt-BR")}</td></tr>)}</tbody><tfoot><tr><th colSpan={4}>Total de peças</th><th>{deliveryNoteTotal(note.items).toLocaleString("pt-BR")}</th></tr></tfoot></table></div></section></>;
+}

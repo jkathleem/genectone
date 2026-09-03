@@ -113,6 +113,10 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-110: Um item de romaneio deve estar vinculado a um Serviço Terceirizado e à quantidade enviada naquela movimentação.
 - BR-111: Um mesmo Serviço Terceirizado pode ser enviado em mais de uma movimentação quando necessário.
 - BR-112: O sistema não deve obrigar que toda a quantidade de um Serviço Terceirizado seja enviada de uma única vez.
+- BR-138: O saldo disponível para nova saída deve ser derivado de quantidade prevista menos a soma dos itens de Romaneios anteriores.
+- BR-139: A criação do Romaneio e de todos os seus itens deve ser atômica e deve validar no servidor quantidade disponível e igualdade do Terceirizado.
+- BR-140: Romaneios recebem número sequencial automático global; o usuário não informa o número manualmente.
+- BR-141: Romaneios emitidos não podem ser editados ou excluídos nesta fase.
 
 ## Retornos
 

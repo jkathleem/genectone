@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 const navigation = [
   { label: "Início", href: "/" },
   { label: "OPs", href: "/ops" },
+  { label: "Terceirização", href: "/terceirizacao" },
+  { label: "Romaneios", href: "/romaneios" },
   { label: "Empresas", href: "/cadastros/empresas", group: "Cadastros" },
   { label: "Clientes", href: "/cadastros/clientes", group: "Cadastros" },
   { label: "Produtos", href: "/cadastros/produtos", group: "Cadastros" },
@@ -11,7 +13,7 @@ const navigation = [
   { label: "Serviços", href: "/cadastros/servicos", group: "Cadastros" },
 ];
 
-const future = ["Terceirização", "Romaneios", "Financeiro", "DRE", "Relatórios", "Configurações"];
+const future = ["Financeiro", "DRE", "Relatórios", "Configurações"];
 
 export function AdminShell({ children }: { children: ReactNode }) {
   return (

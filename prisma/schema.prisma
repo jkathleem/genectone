@@ -124,7 +124,7 @@ model OutsourcedService {
 
 model DeliveryNote {
   id              String             @id @default(cuid())
-  number          String
+  number          String             @unique
   contractorId    String
   departureDate   DateTime           @db.Date
   responsibleName String?
@@ -134,7 +134,6 @@ model DeliveryNote {
   contractor      Contractor         @relation(fields: [contractorId], references: [id], onDelete: Restrict)
   items           DeliveryNoteItem[]
 
-  @@index([number])
   @@index([contractorId])
   @@index([departureDate])
 }

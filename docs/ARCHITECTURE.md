@@ -160,6 +160,14 @@ As quantidades operacionais não são duplicadas em `OutsourcedService`: enviada
 
 Após existir o primeiro `DeliveryNoteItem`, Serviço e Terceirizado ficam bloqueados para edição, preservando a coerência das movimentações. Quantidade prevista, preço aplicado e observações continuam editáveis nesta fase.
 
+## Romaneios e numeração
+
+Romaneios são persistidos em `DeliveryNote` e seus itens em `DeliveryNoteItem`. A criação ocorre em uma única transação Prisma: o servidor bloqueia as associações selecionadas, recalcula a quantidade já enviada, valida o saldo, confirma que todos os itens pertencem ao Terceirizado escolhido, obtém o número e grava cabeçalho e itens. O bloqueio das linhas evita que duas saídas concorrentes ultrapassem a quantidade prevista.
+
+`DeliveryNote.number` possui unicidade global no banco. A sequence PostgreSQL `delivery_note_number_seq`, criada pela migration `20260903000000_add_delivery_note_number_sequence`, é um detalhe de infraestrutura porque o Prisma não representa declarativamente essa estratégia para um campo `String`. O acesso a `nextval` fica centralizado em `src/modules/delivery-notes/numbering.ts`; o valor é formatado com no mínimo seis dígitos e não é reutilizado. Lacunas causadas por transações abortadas são esperadas.
+
+O Romaneio reutiliza OP, cliente, produto, serviço e terceirizado pelos relacionamentos existentes. `sentQuantity` é a soma de todos os `DeliveryNoteItem` da associação, e o saldo disponível é `plannedQuantity - sentQuantity`; nenhum dos dois é armazenado novamente. Depois de emitido, o documento é somente consultado e impresso em duas vias na mesma folha A4. Retorno, edição, exclusão, cancelamento e estorno permanecem fora desta fase.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.

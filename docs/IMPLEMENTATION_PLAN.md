@@ -115,6 +115,8 @@ Critério de aceite:
 
 ## Fase 4 - Romaneios e múltiplas saídas
 
+Estado atual: implementada a emissão transacional de Romaneios para um único Terceirizado, com múltiplos Serviços Terceirizados e múltiplas OPs, numeração automática segura, consulta, detalhe e impressão em duas vias. Quantidade enviada e saldo disponível são derivados dos itens; Romaneios emitidos não são editados, excluídos ou cancelados nesta fase.
+
 Objetivo:
 
 - Registrar movimentações físicas de saída para terceirizados.

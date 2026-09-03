@@ -422,6 +422,24 @@ Consequência:
 - A interface de OP não duplica movimentações que pertencem a romaneios e retornos.
 - A implementação de romaneios, retornos e conferência para pagamento permanece reservada às fases posteriores.
 
+### DEC-039 - Emissão e numeração dos Romaneios
+
+Decisão confirmada:
+
+- Cada Romaneio pertence a exatamente um Terceirizado, mas pode reunir itens de múltiplas OPs, clientes, produtos e Serviços.
+- Um mesmo Serviço Terceirizado pode participar de múltiplos Romaneios enquanto possuir saldo disponível.
+- Cabeçalho e itens são criados atomicamente em uma transação; quantidades e Terceirizado são revalidados no servidor.
+- A numeração é sequencial, automática e global, gerada pela sequence PostgreSQL `delivery_note_number_seq`.
+- O número é armazenado em `DeliveryNote.number`, separado do `id` interno, como `String` globalmente única e formatada com no mínimo seis dígitos.
+- Lacunas são aceitáveis e números reservados pela sequence não são reutilizados.
+- Romaneios emitidos são somente visualizados e impressos nesta fase; não há edição, exclusão, cancelamento ou estorno.
+- A impressão contém duas vias na mesma folha A4: Genect e Terceirizada.
+
+Consequência:
+
+- A migration `20260903000000_add_delivery_note_number_sequence` adiciona a sequence e substitui o índice simples pela constraint de unicidade.
+- Cancelamento, estorno e correção formal de uma emissão permanecem como decisão pendente.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.
@@ -430,7 +448,7 @@ Consequência:
 - DECISÃO PENDENTE: definir quais são as demais informações comerciais necessárias na OP.
 - DECISÃO PENDENTE: definir ciclo de vida e status da OP.
 - DECISÃO PENDENTE: definir ciclo de vida e status excepcionais dos Serviços Terceirizados.
-- DECISÃO PENDENTE: definir o escopo de unicidade do número do romaneio.
+- DECISÃO PENDENTE: definir regras de cancelamento, estorno e correção de Romaneios emitidos.
 - DECISÃO PENDENTE: definir quando um Serviço Terceirizado é considerado elegível para pagamento.
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
 - DECISÃO PENDENTE: definir se uma Conta a Pagar poderá possuir múltiplos pagamentos parciais.
