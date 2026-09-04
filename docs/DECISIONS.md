@@ -14,6 +14,14 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-041 - Fechamento monoempresa e Conta a Pagar
+
+- Fechamento pertence a uma única Company e não mistura OPs de empresas diferentes.
+- DRAFT vazio pode trocar Company; com itens não pode, e APPROVED é imutável.
+- Um fechamento aprovado gera no máximo uma Conta a Pagar, com FK única e deleção restritiva.
+- `competenceDate` é o primeiro dia do mês; vencimento e pagamento permanecem distintos.
+- `originalAmount` é snapshot Decimal; status, pago e saldo permanecem derivados.
+
 ### DEC-001 - Documentação antes da implementação
 
 Decisão confirmada:

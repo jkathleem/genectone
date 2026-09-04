@@ -180,7 +180,11 @@ Os fechamentos usam `ContractorSettlement` e `ContractorSettlementItem`. O rascu
 
 A aprovação executa em transação Prisma, ordena os IDs e bloqueia as linhas de `OutsourcedService` com `SELECT ... FOR UPDATE`. Após adquirir os locks, relê apenas itens de fechamentos aprovados e valida o saldo elegível. Um teste concorrente no PostgreSQL `genect_dev` confirmou uma aprovação e uma rejeição por saldo insuficiente, sem timeout ou deadlock.
 
-Rascunhos não entram no cálculo de saldo consumido. Quantidades liquidadas, elegíveis, subtotais e totais são derivados. Retorno físico, aprovação, fechamento e pagamento permanecem conceitos separados; nenhuma Conta a Pagar é criada nesta fase.
+Rascunhos não entram no cálculo de saldo consumido. Quantidades liquidadas, elegíveis, subtotais e totais são derivados. Retorno físico, aprovação, fechamento, Conta a Pagar e pagamento permanecem conceitos separados; apenas fechamentos aprovados podem originar uma Conta a Pagar.
+
+## Contas a pagar de fechamentos
+
+`ContractorSettlement.companyId` torna o fechamento monoempresa. A aplicação valida Company na inclusão e aprovação. `AccountPayable` mantém relação 1:1 por FK única, valor snapshot em `Decimal(14,4)`, competência mensal como primeiro dia e vencimento comercial independente. Não existe `Payment`; pago, saldo e situação são derivados.
 
 ## Identificadores
 

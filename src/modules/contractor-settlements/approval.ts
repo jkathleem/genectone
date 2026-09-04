@@ -15,10 +15,11 @@ export async function approveSettlementById(db: Database, id: string) {
     if (!settlement.items.length) throw new Error("O fechamento precisa possuir pelo menos um item antes de ser aprovado.");
     const ids = [...new Set(settlement.items.map((item) => item.outsourcedServiceId))].sort();
     await tx.$queryRaw`SELECT "id" FROM "OutsourcedService" WHERE "id" IN (${Prisma.join(ids)}) ORDER BY "id" FOR UPDATE`;
-    const services = await tx.outsourcedService.findMany({ where: { id: { in: ids } }, include: { settlementItems: { where: { settlement: { status: "APPROVED" } }, select: { approvedQuantityIncluded: true } } } });
+    const services = await tx.outsourcedService.findMany({ where: { id: { in: ids } }, include: { productionOrder: { select: { companyId: true } }, settlementItems: { where: { settlement: { status: "APPROVED" } }, select: { approvedQuantityIncluded: true } } } });
     for (const item of settlement.items) {
       const service = services.find((candidate) => candidate.id === item.outsourcedServiceId);
       if (!service || service.contractorId !== settlement.contractorId) throw new Error("O serviço não pertence ao terceirizado deste fechamento.");
+      if (service.productionOrder.companyId !== settlement.companyId) throw new Error("O serviço pertence a outra empresa e não pode ser aprovado neste fechamento.");
       const used = service.settlementItems.reduce((sum, settledItem) => sum + settledItem.approvedQuantityIncluded, 0);
       if (!validSettlementQuantity(item.approvedQuantityIncluded, eligibleQuantity(service.approvedQuantity, used))) throw new Error("A quantidade informada ultrapassa o saldo disponível para fechamento.");
     }

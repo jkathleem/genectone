@@ -199,7 +199,7 @@ Critério de aceite:
 
 ## Fase 7 - Fechamento de terceirizados
 
-Status: implementada nesta versão. Inclui criação e edição de rascunhos, inclusão/alteração/remoção de itens, filtros, aprovação transacional, demonstrativo imprimível e bloqueio integral após aprovação. A geração de Conta a Pagar permanece reservada para a Fase 8.
+Status: implementada nesta versão. Inclui criação e edição de rascunhos monoempresa, inclusão/alteração/remoção de itens, filtros, aprovação transacional, demonstrativo imprimível e bloqueio integral após aprovação. A geração de Conta a Pagar foi implementada na Fase 8.
 
 Objetivo:
 
@@ -228,6 +228,8 @@ Critério de aceite:
 - O recibo reflete os serviços e quantidades incluídos no período.
 
 ## Fase 8 - Contas a pagar
+
+Estado atual: implementada a geração exclusiva a partir de fechamento aprovado, com vínculo monoempresa, snapshot financeiro, vencimento, consulta e detalhe. Pagamentos permanecem para a próxima etapa.
 
 Objetivo:
 

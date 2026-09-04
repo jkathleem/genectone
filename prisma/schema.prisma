@@ -8,14 +8,16 @@ datasource db {
 }
 
 model Company {
-  id               String            @id @default(cuid())
+  id               String                 @id @default(cuid())
   name             String
   tradeName        String?
   document         String?
-  active           Boolean           @default(true)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  active           Boolean                @default(true)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
   productionOrders ProductionOrder[]
+  settlements      ContractorSettlement[]
+  accountsPayable  AccountPayable[]
 }
 
 model Customer {
@@ -130,21 +132,43 @@ enum ContractorSettlementStatus {
 }
 
 model ContractorSettlement {
-  id           String                     @id @default(cuid())
-  contractorId String
-  periodYear   Int
-  periodMonth  Int
-  status       ContractorSettlementStatus @default(DRAFT)
-  notes        String?
-  approvedAt   DateTime?
-  createdAt    DateTime                   @default(now())
-  updatedAt    DateTime                   @updatedAt
-  contractor   Contractor                 @relation(fields: [contractorId], references: [id], onDelete: Restrict)
-  items        ContractorSettlementItem[]
+  id             String                     @id @default(cuid())
+  contractorId   String
+  companyId      String
+  periodYear     Int
+  periodMonth    Int
+  status         ContractorSettlementStatus @default(DRAFT)
+  notes          String?
+  approvedAt     DateTime?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+  contractor     Contractor                 @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  company        Company                    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  items          ContractorSettlementItem[]
+  accountPayable AccountPayable?
 
+  @@index([companyId, periodYear, periodMonth])
   @@index([contractorId, periodYear, periodMonth])
   @@index([periodYear, periodMonth])
   @@index([status])
+}
+
+model AccountPayable {
+  id                     String               @id @default(cuid())
+  companyId              String
+  contractorSettlementId String               @unique
+  description            String
+  competenceDate         DateTime             @db.Date
+  dueDate                DateTime             @db.Date
+  originalAmount         Decimal              @db.Decimal(14, 4)
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  company                Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  contractorSettlement   ContractorSettlement @relation(fields: [contractorSettlementId], references: [id], onDelete: Restrict)
+
+  @@index([companyId, dueDate])
+  @@index([dueDate])
+  @@index([competenceDate])
 }
 
 model ContractorSettlementItem {

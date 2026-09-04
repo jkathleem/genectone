@@ -156,7 +156,7 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-165: O preço do item é um snapshot do preço aplicado no Serviço Terceirizado e não muda durante edições posteriores.
 - BR-166: Subtotais e total do fechamento são derivados de quantidade incluída multiplicada pelo preço snapshot.
 - BR-167: Vários fechamentos para o mesmo terceirizado e período são permitidos, respeitando o saldo elegível.
-- BR-168: Nesta fase, um fechamento aprovado não gera Conta a Pagar nem representa pagamento.
+- BR-168: Um fechamento aprovado pode gerar no máximo uma Conta a Pagar, mas não representa pagamento.
 
 - BR-024: O fechamento mensal de um terceirizado deve ser calculado automaticamente a partir dos Serviços Terceirizados elegíveis para pagamento.
 - BR-025: O fechamento mensal deve permitir gerar um recibo.
@@ -170,6 +170,12 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-124: O modelo deve manter rastreabilidade das quantidades incluídas em fechamentos para evitar pagamento duplicado.
 
 ## Financeiro
+
+- BR-169: Fechamento pertence a exatamente uma Company e não aceita itens de OPs de outra empresa.
+- BR-170: Um fechamento aprovado gera no máximo uma Conta a Pagar; Conta a Pagar não equivale a Pagamento.
+- BR-171: A competência usa o primeiro dia do mês, enquanto vencimento e pagamento são fatos distintos.
+- BR-172: O valor original é snapshot Decimal do total dos itens do fechamento.
+- BR-173: Sem Pagamentos, pago é zero, saldo é o valor original e a situação Em aberto/Vencida é derivada.
 
 - BR-028: Contas a pagar alimentam o fluxo de caixa.
 - BR-029: Contas a receber alimentam o fluxo de caixa.

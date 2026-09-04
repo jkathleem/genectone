@@ -12,11 +12,12 @@ const text = (formData: FormData, name: string) => String(formData.get(name) ?? 
 
 export async function createSettlement(formData: FormData) {
   const contractorId = text(formData, "contractorId");
+  const companyId = text(formData, "companyId");
   const periodMonth = Number(formData.get("periodMonth"));
   const periodYear = Number(formData.get("periodYear"));
   const notes = text(formData, "notes") || null;
   const requested = [...formData.entries()].filter(([key]) => key.startsWith("q:")).map(([key, value]) => ({ id: key.slice(2), quantity: Number(value) })).filter((item) => item.quantity > 0);
-  if (!contractorId || periodMonth < 1 || periodMonth > 12 || !Number.isInteger(periodYear)) throw new Error("Dados inválidos para criar o fechamento.");
+  if (!contractorId || !companyId || periodMonth < 1 || periodMonth > 12 || !Number.isInteger(periodYear)) throw new Error("Dados inválidos para criar o fechamento.");
 
   const settlement = await prisma.$transaction(async (tx) => {
     const contractor = await tx.contractor.findUnique({ where: { id: contractorId } });
@@ -28,14 +29,15 @@ export async function createSettlement(formData: FormData) {
       const used = service.settlementItems.filter((item) => item.settlement.status === "APPROVED").reduce((sum, item) => sum + item.approvedQuantityIncluded, 0);
       if (!validSettlementQuantity(request.quantity, eligibleQuantity(service.approvedQuantity, used))) throw new Error("Quantidade superior ao saldo elegível.");
     }
-    return tx.contractorSettlement.create({ data: { contractorId, periodMonth, periodYear, notes, items: { create: requested.map((request) => { const service = services.find((item) => item.id === request.id)!; return { outsourcedServiceId: request.id, approvedQuantityIncluded: request.quantity, appliedUnitPriceSnapshot: service.appliedUnitPrice }; }) } } });
+    return tx.contractorSettlement.create({ data: { contractorId, companyId, periodMonth, periodYear, notes, items: { create: requested.map((request) => { const service = services.find((item) => item.id === request.id)!; return { outsourcedServiceId: request.id, approvedQuantityIncluded: request.quantity, appliedUnitPriceSnapshot: service.appliedUnitPrice }; }) } } });
   });
   redirect(settlementPath(settlement.id));
 }
 
 export async function saveDraft(formData: FormData) {
   const id = text(formData, "id");
-  await updateDraft(prisma, id, { contractorId: text(formData, "contractorId"), periodMonth: Number(formData.get("periodMonth")), periodYear: Number(formData.get("periodYear")), notes: text(formData, "notes") || null });
+  const current = await prisma.contractorSettlement.findUniqueOrThrow({ where: { id }, select: { companyId: true } });
+  await updateDraft(prisma, id, { contractorId: text(formData, "contractorId"), companyId: text(formData, "companyId") || current.companyId, periodMonth: Number(formData.get("periodMonth")), periodYear: Number(formData.get("periodYear")), notes: text(formData, "notes") || null });
   revalidatePath(settlementPath(id));
 }
 

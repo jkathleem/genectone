@@ -469,7 +469,7 @@ Relacionamentos:
 - Um fechamento pertence a um terceirizado.
 - Um fechamento consolida Serviços Terceirizados elegíveis para pagamento.
 - Um fechamento pode ser filtrado por mês, terceirizado, serviço e OP.
-- Um fechamento aprovado pode gerar uma futura Conta a Pagar.
+- Um fechamento aprovado pode gerar no máximo uma Conta a Pagar.
 - Um fechamento deve permitir gerar recibo.
 
 Fonte de verdade:
@@ -609,6 +609,8 @@ Dados derivados:
 - Saldo a receber de uma Conta a Receber.
 
 ### Conta a Pagar
+
+Na implementação inicial, pertence a uma Company e a exatamente um Fechamento aprovado. Guarda descrição, competência no primeiro dia do mês, vencimento e valor original snapshot. Pago, saldo e situação são derivados; ainda não existe Pagamento físico.
 
 Representa um valor a pagar.
 

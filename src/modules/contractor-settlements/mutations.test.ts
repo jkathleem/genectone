@@ -10,28 +10,28 @@ function database(transaction: Transaction): Database {
 describe("mutações de fechamento", () => {
   it("altera competência, observações e terceirizado quando vazio", async () => {
     const update = vi.fn().mockResolvedValue({ id: "s" });
-    const tx = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "DRAFT", contractorId: "a", _count: { items: 0 } }), update }, contractor: { findUnique: vi.fn().mockResolvedValue({ id: "b" }) } };
-    await updateDraft(database(tx), "s", { contractorId: "b", periodMonth: 10, periodYear: 2026, notes: "Revisado" });
-    expect(update).toHaveBeenCalledWith({ where: { id: "s" }, data: { contractorId: "b", periodMonth: 10, periodYear: 2026, notes: "Revisado" } });
+    const tx = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "DRAFT", contractorId: "a", companyId: "c", _count: { items: 0 } }), update }, contractor: { findUnique: vi.fn().mockResolvedValue({ id: "b" }) } };
+    await updateDraft(database(tx), "s", { contractorId: "b", companyId: "c", periodMonth: 10, periodYear: 2026, notes: "Revisado" });
+    expect(update).toHaveBeenCalledWith({ where: { id: "s" }, data: { contractorId: "b", companyId: "c", periodMonth: 10, periodYear: 2026, notes: "Revisado" } });
   });
 
   it("rejeita troca de terceirizado quando existem itens", async () => {
     const tx = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "DRAFT", contractorId: "a", _count: { items: 1 } }), update: vi.fn() }, contractor: { findUnique: vi.fn() } };
-    await expect(updateDraft(database(tx), "s", { contractorId: "b", periodMonth: 9, periodYear: 2026, notes: null })).rejects.toThrow("Remova os itens");
+    await expect(updateDraft(database(tx), "s", { contractorId: "b", companyId: "c", periodMonth: 9, periodYear: 2026, notes: null })).rejects.toThrow("Remova os itens");
   });
 
   it("adiciona item com snapshot de preço", async () => {
     const create = vi.fn().mockResolvedValue({ id: "i" });
-    const tx = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "DRAFT", contractorId: "a" }) }, outsourcedService: { findUnique: vi.fn().mockResolvedValue({ contractorId: "a", approvedQuantity: 10, appliedUnitPrice: "1.10", settlementItems: [] }) }, contractorSettlementItem: { findUnique: vi.fn().mockResolvedValue(null), create } };
+    const tx = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "DRAFT", contractorId: "a", companyId: "c" }) }, outsourcedService: { findUnique: vi.fn().mockResolvedValue({ contractorId: "a", productionOrder: { companyId: "c" }, approvedQuantity: 10, appliedUnitPrice: "1.10", settlementItems: [] }) }, contractorSettlementItem: { findUnique: vi.fn().mockResolvedValue(null), create } };
     await addDraftItem(database(tx), "s", "os", 10);
     expect(create).toHaveBeenCalledWith({ data: { settlementId: "s", outsourcedServiceId: "os", approvedQuantityIncluded: 10, appliedUnitPriceSnapshot: "1.10" } });
   });
 
   it("rejeita item de outro terceirizado e item duplicado", async () => {
-    const base = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "DRAFT", contractorId: "a" }) }, contractorSettlementItem: { findUnique: vi.fn(), create: vi.fn() } };
+    const base = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "DRAFT", contractorId: "a", companyId: "c" }) }, contractorSettlementItem: { findUnique: vi.fn(), create: vi.fn() } };
     await expect(addDraftItem(database({ ...base, outsourcedService: { findUnique: vi.fn().mockResolvedValue({ contractorId: "b", approvedQuantity: 1, appliedUnitPrice: "1", settlementItems: [] }) } }), "s", "os", 1)).rejects.toThrow("outro terceirizado");
     base.contractorSettlementItem.findUnique.mockResolvedValue({ id: "existing" });
-    await expect(addDraftItem(database({ ...base, outsourcedService: { findUnique: vi.fn().mockResolvedValue({ contractorId: "a", approvedQuantity: 1, appliedUnitPrice: "1", settlementItems: [] }) } }), "s", "os", 1)).rejects.toThrow("já está no fechamento");
+    await expect(addDraftItem(database({ ...base, outsourcedService: { findUnique: vi.fn().mockResolvedValue({ contractorId: "a", productionOrder: { companyId: "c" }, approvedQuantity: 1, appliedUnitPrice: "1", settlementItems: [] }) } }), "s", "os", 1)).rejects.toThrow("já está no fechamento");
   });
 
   it("altera quantidade e remove item em DRAFT", async () => {
@@ -50,7 +50,7 @@ describe("mutações de fechamento", () => {
   it("rejeita todas as mutações em APPROVED", async () => {
     const tx = { contractorSettlement: { findUnique: vi.fn().mockResolvedValue({ status: "APPROVED", contractorId: "a", _count: { items: 0 } }), update: vi.fn() }, contractor: { findUnique: vi.fn() }, outsourcedService: { findUnique: vi.fn() }, contractorSettlementItem: { findUnique: vi.fn().mockResolvedValue({ settlement: { status: "APPROVED" }, outsourcedService: { approvedQuantity: 1, settlementItems: [] } }), update: vi.fn(), delete: vi.fn(), create: vi.fn() } };
     const db = database(tx);
-    await expect(updateDraft(db, "s", { contractorId: "a", periodMonth: 9, periodYear: 2026, notes: null })).rejects.toThrow("já foi aprovado");
+    await expect(updateDraft(db, "s", { contractorId: "a", companyId: "c", periodMonth: 9, periodYear: 2026, notes: null })).rejects.toThrow("já foi aprovado");
     await expect(addDraftItem(db, "s", "os", 1)).rejects.toThrow("já foi aprovado");
     await expect(updateDraftItem(db, "i", 1)).rejects.toThrow("já foi aprovado");
     await expect(removeDraftItem(db, "i")).rejects.toThrow("já foi aprovado");
