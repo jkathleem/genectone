@@ -1,0 +1,11 @@
+CREATE TYPE "ContractorSettlementStatus" AS ENUM ('DRAFT', 'APPROVED');
+CREATE TABLE "ContractorSettlement" ("id" TEXT NOT NULL,"contractorId" TEXT NOT NULL,"periodYear" INTEGER NOT NULL,"periodMonth" INTEGER NOT NULL,"status" "ContractorSettlementStatus" NOT NULL DEFAULT 'DRAFT',"notes" TEXT,"approvedAt" TIMESTAMP(3),"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "ContractorSettlement_pkey" PRIMARY KEY ("id"),CONSTRAINT "ContractorSettlement_periodMonth_check" CHECK ("periodMonth" BETWEEN 1 AND 12));
+CREATE TABLE "ContractorSettlementItem" ("id" TEXT NOT NULL,"settlementId" TEXT NOT NULL,"outsourcedServiceId" TEXT NOT NULL,"approvedQuantityIncluded" INTEGER NOT NULL,"appliedUnitPriceSnapshot" DECIMAL(14,4) NOT NULL,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "ContractorSettlementItem_pkey" PRIMARY KEY ("id"),CONSTRAINT "ContractorSettlementItem_quantity_check" CHECK ("approvedQuantityIncluded" > 0));
+CREATE INDEX "ContractorSettlement_contractorId_periodYear_periodMonth_idx" ON "ContractorSettlement"("contractorId","periodYear","periodMonth");
+CREATE INDEX "ContractorSettlement_periodYear_periodMonth_idx" ON "ContractorSettlement"("periodYear","periodMonth");
+CREATE INDEX "ContractorSettlement_status_idx" ON "ContractorSettlement"("status");
+CREATE UNIQUE INDEX "ContractorSettlementItem_settlementId_outsourcedServiceId_key" ON "ContractorSettlementItem"("settlementId","outsourcedServiceId");
+CREATE INDEX "ContractorSettlementItem_outsourcedServiceId_idx" ON "ContractorSettlementItem"("outsourcedServiceId");
+ALTER TABLE "ContractorSettlement" ADD CONSTRAINT "ContractorSettlement_contractorId_fkey" FOREIGN KEY ("contractorId") REFERENCES "Contractor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ContractorSettlementItem" ADD CONSTRAINT "ContractorSettlementItem_settlementId_fkey" FOREIGN KEY ("settlementId") REFERENCES "ContractorSettlement"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ContractorSettlementItem" ADD CONSTRAINT "ContractorSettlementItem_outsourcedServiceId_fkey" FOREIGN KEY ("outsourcedServiceId") REFERENCES "OutsourcedService"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -199,6 +199,8 @@ Critério de aceite:
 
 ## Fase 7 - Fechamento de terceirizados
 
+Status: implementada nesta versão. Inclui criação e edição de rascunhos, inclusão/alteração/remoção de itens, filtros, aprovação transacional, demonstrativo imprimível e bloqueio integral após aprovação. A geração de Conta a Pagar permanece reservada para a Fase 8.
+
 Objetivo:
 
 - Automatizar apuração mensal dos valores devidos a terceirizados.

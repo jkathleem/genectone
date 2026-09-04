@@ -1,5 +1,15 @@
 # Decisões
 
+## Fechamento de terceirizados
+
+- Retorno físico ≠ Aprovação ≠ Fechamento ≠ Pagamento.
+- `DRAFT` é editável e não consome saldo; `APPROVED` consome saldo e é imutável.
+- O item preserva o preço aplicado como snapshot; subtotal e total são derivados com `Decimal`.
+- Vários fechamentos no mesmo período são permitidos.
+- A aprovação bloqueia, em ordem estável, os `OutsourcedService` envolvidos com `FOR UPDATE`, relê o saldo dentro da mesma transação e grava a aprovação atomicamente.
+- A estratégia foi comprovada no PostgreSQL real com duas aprovações concorrentes: uma foi aprovada e outra rejeitada por saldo insuficiente, sem deadlock ou timeout e sem duplicar a quantidade fechada.
+- Fechamento não cria Conta a Pagar nesta fase.
+
 Este documento registra decisões arquiteturais e de produto conhecidas nesta etapa, além de decisões pendentes.
 
 ## Decisões confirmadas

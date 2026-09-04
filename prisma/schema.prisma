@@ -63,17 +63,18 @@ model ProductionOrder {
 }
 
 model Contractor {
-  id                 String              @id @default(cuid())
+  id                 String                 @id @default(cuid())
   name               String
   document           String?
   phone              String?
   address            String?
   notes              String?
-  active             Boolean             @default(true)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  active             Boolean                @default(true)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
   outsourcedServices OutsourcedService[]
   deliveryNotes      DeliveryNote[]
+  settlements        ContractorSettlement[]
 }
 
 model Service {
@@ -101,25 +102,64 @@ model ServicePrice {
 }
 
 model OutsourcedService {
-  id                String              @id @default(cuid())
+  id                String                     @id @default(cuid())
   productionOrderId String
   serviceId         String
   contractorId      String
   plannedQuantity   Int?
-  approvedQuantity  Int                 @default(0)
-  appliedUnitPrice  Decimal             @db.Decimal(14, 4)
+  approvedQuantity  Int                        @default(0)
+  appliedUnitPrice  Decimal                    @db.Decimal(14, 4)
   notes             String?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  productionOrder   ProductionOrder     @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
-  service           Service             @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  contractor        Contractor          @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  productionOrder   ProductionOrder            @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  service           Service                    @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  contractor        Contractor                 @relation(fields: [contractorId], references: [id], onDelete: Restrict)
   deliveryNoteItems DeliveryNoteItem[]
   returns           OutsourcingReturn[]
+  settlementItems   ContractorSettlementItem[]
 
   @@index([productionOrderId])
   @@index([serviceId])
   @@index([contractorId])
+}
+
+enum ContractorSettlementStatus {
+  DRAFT
+  APPROVED
+}
+
+model ContractorSettlement {
+  id           String                     @id @default(cuid())
+  contractorId String
+  periodYear   Int
+  periodMonth  Int
+  status       ContractorSettlementStatus @default(DRAFT)
+  notes        String?
+  approvedAt   DateTime?
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+  contractor   Contractor                 @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  items        ContractorSettlementItem[]
+
+  @@index([contractorId, periodYear, periodMonth])
+  @@index([periodYear, periodMonth])
+  @@index([status])
+}
+
+model ContractorSettlementItem {
+  id                       String               @id @default(cuid())
+  settlementId             String
+  outsourcedServiceId      String
+  approvedQuantityIncluded Int
+  appliedUnitPriceSnapshot Decimal              @db.Decimal(14, 4)
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+  settlement               ContractorSettlement @relation(fields: [settlementId], references: [id], onDelete: Restrict)
+  outsourcedService        OutsourcedService    @relation(fields: [outsourcedServiceId], references: [id], onDelete: Restrict)
+
+  @@unique([settlementId, outsourcedServiceId])
+  @@index([outsourcedServiceId])
 }
 
 model DeliveryNote {

@@ -79,4 +79,7 @@ th, td { border-bottom: 1px solid var(--border); padding: 0.75rem; vertical-alig
   .delivery-note-copy { break-inside: avoid; }
   .delivery-note-copy table { font-size: 0.65rem; }
   .delivery-note-copy th, .delivery-note-copy td { border: 1px solid #333; padding: 0.25rem; }
+  .settlement-print table { font-size: 0.75rem; break-inside: auto; }
+  .settlement-print tr { break-inside: avoid; }
+  .settlement-print th, .settlement-print td { border: 1px solid #333; padding: 0.35rem; }
 }

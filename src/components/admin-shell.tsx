@@ -6,6 +6,7 @@ const navigation = [
   { label: "OPs", href: "/ops" },
   { label: "Terceirização", href: "/terceirizacao" },
   { label: "Cobranças", href: "/terceirizacao/cobrancas" },
+  { label: "Fechamentos", href: "/terceirizacao/fechamentos" },
   { label: "Romaneios", href: "/romaneios" },
   { label: "Empresas", href: "/cadastros/empresas", group: "Cadastros" },
   { label: "Clientes", href: "/cadastros/clientes", group: "Cadastros" },

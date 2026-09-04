@@ -1,5 +1,11 @@
 # Modelo de Domínio
 
+## Fechamentos de terceirizados implementados
+
+`ContractorSettlement` identifica terceirizado, competência, situação (`DRAFT` ou `APPROVED`), observações e instante de aprovação. `ContractorSettlementItem` vincula o fechamento ao `OutsourcedService`, registra a quantidade incluída e preserva `appliedUnitPriceSnapshot`.
+
+Quantidade já fechada é a soma exclusiva dos itens pertencentes a fechamentos `APPROVED`; quantidade elegível é `approvedQuantity - settledQuantity`. Rascunhos não reservam saldo. Subtotais e total são derivados e não são armazenados. Retorno físico ≠ Aprovação ≠ Fechamento ≠ Pagamento.
+
 Este documento descreve entidades conceituais e relacionamentos. Ainda não define schema SQL, tecnologia, banco de dados ou implementação.
 
 ## Princípio de simplificação

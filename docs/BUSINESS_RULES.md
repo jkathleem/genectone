@@ -149,6 +149,15 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 
 ## Fechamento mensal de terceirizados
 
+- BR-161: Retorno físico, aprovação de quantidade, fechamento e pagamento são fatos distintos.
+- BR-162: Um fechamento em Rascunho pode ter competência, observações, terceirizado e itens editados; o terceirizado só pode mudar enquanto não houver itens.
+- BR-163: Fechamentos em Rascunho não reservam nem consomem saldo elegível.
+- BR-164: Somente fechamentos Aprovados consomem saldo; a aprovação é explícita, transacional e torna o fechamento imutável.
+- BR-165: O preço do item é um snapshot do preço aplicado no Serviço Terceirizado e não muda durante edições posteriores.
+- BR-166: Subtotais e total do fechamento são derivados de quantidade incluída multiplicada pelo preço snapshot.
+- BR-167: Vários fechamentos para o mesmo terceirizado e período são permitidos, respeitando o saldo elegível.
+- BR-168: Nesta fase, um fechamento aprovado não gera Conta a Pagar nem representa pagamento.
+
 - BR-024: O fechamento mensal de um terceirizado deve ser calculado automaticamente a partir dos Serviços Terceirizados elegíveis para pagamento.
 - BR-025: O fechamento mensal deve permitir gerar um recibo.
 - BR-026: Um fechamento aprovado pode futuramente gerar uma conta a pagar.

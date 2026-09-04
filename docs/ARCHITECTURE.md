@@ -174,6 +174,14 @@ Cada chegada física cria um `OutsourcingReturn` independente. A gravação bloq
 
 `approvedQuantity` é o total acumulado explicitamente confirmado no Serviço Terceirizado e nunca aumenta automaticamente com um Retorno. O valor aprovado é derivado por `approvedQuantity × appliedUnitPrice`. O painel de cobrança inclui somente pendências maiores que zero; “dias fora” usa a data da saída mais recente como simplificação operacional e não representa atraso.
 
+## Fechamentos de terceirizados
+
+Os fechamentos usam `ContractorSettlement` e `ContractorSettlementItem`. O rascunho é mutável por Server Actions protegidas no servidor; depois de aprovado, todos os caminhos de mutação rejeitam alterações. O preço do item é copiado de `OutsourcedService.appliedUnitPrice` na inclusão e permanece como snapshot.
+
+A aprovação executa em transação Prisma, ordena os IDs e bloqueia as linhas de `OutsourcedService` com `SELECT ... FOR UPDATE`. Após adquirir os locks, relê apenas itens de fechamentos aprovados e valida o saldo elegível. Um teste concorrente no PostgreSQL `genect_dev` confirmou uma aprovação e uma rejeição por saldo insuficiente, sem timeout ou deadlock.
+
+Rascunhos não entram no cálculo de saldo consumido. Quantidades liquidadas, elegíveis, subtotais e totais são derivados. Retorno físico, aprovação, fechamento e pagamento permanecem conceitos separados; nenhuma Conta a Pagar é criada nesta fase.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.
