@@ -524,8 +524,11 @@ Dados derivados:
 Observação:
 
 - O MVP não deve criar faturamento agrupando várias OPs em uma mesma NFe.
-
-DECISÃO PENDENTE: definir se há aprovação obrigatória antes de faturar uma OP.
+- O sistema apenas registra uma NFe emitida externamente; não emite documento fiscal nem integra com a SEFAZ.
+- Qualquer OP ainda não faturada pode ser registrada manualmente nesta versão, sem exigir conclusão produtiva.
+- O número informado é único por Company. `companyId` é copiado da OP para permitir essa integridade no banco.
+- O valor faturado é um snapshot Decimal positivo e pode divergir do valor previsto da OP.
+- Emissão e competência são datas distintas; a competência é armazenada no primeiro dia do mês.
 
 ### Conta a Receber
 
@@ -558,6 +561,10 @@ Observação:
 
 - Valor recebido e saldo a receber não devem ser digitados manualmente.
 - Ainda não há enumeração técnica definitiva para status financeiro.
+- Na implementação inicial, cada Billing origina exatamente uma AccountReceivable na mesma transação.
+- Company e Customer são copiados da OP. Valor original e competência são snapshots do Billing; vencimento é informado separadamente.
+- Sem Receipt, recebido é zero, saldo equivale ao valor original e a situação Em aberto/Vencida é derivada.
+- OP ≠ Faturamento ≠ Conta a Receber ≠ Recebimento.
 
 ### Recebimento
 

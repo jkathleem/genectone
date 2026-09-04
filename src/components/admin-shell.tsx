@@ -9,6 +9,7 @@ const navigation = [
   { label: "Fechamentos", href: "/terceirizacao/fechamentos" },
   { label: "Romaneios", href: "/romaneios" },
   { label: "Contas a Pagar", href: "/financeiro/contas-a-pagar", group: "Financeiro" },
+  { label: "Contas a Receber", href: "/financeiro/contas-a-receber", group: "Financeiro" },
   { label: "Empresas", href: "/cadastros/empresas", group: "Cadastros" },
   { label: "Clientes", href: "/cadastros/clientes", group: "Cadastros" },
   { label: "Produtos", href: "/cadastros/produtos", group: "Cadastros" },
@@ -16,7 +17,7 @@ const navigation = [
   { label: "Serviços", href: "/cadastros/servicos", group: "Cadastros" },
 ];
 
-const future = ["Pagamentos", "Contas a Receber", "Fluxo de Caixa", "DRE", "Relatórios", "Configurações"];
+const future = ["Pagamentos", "Fluxo de Caixa", "DRE", "Relatórios", "Configurações"];
 
 export function AdminShell({ children }: { children: ReactNode }) {
   return (

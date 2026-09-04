@@ -1,0 +1,10 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/page-header";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { prisma } from "@/lib/prisma";
+import { receivableRemainingAmount, receivableStatus, receivedAmount } from "@/modules/accounts-receivable/domain";
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params; const account = await prisma.accountReceivable.findUnique({ where: { id }, include: { company: true, customer: true, billing: { include: { productionOrder: true } } } }); if (!account) notFound();
+  return <><PageHeader title="Conta a Receber" description="A obrigação financeira ainda não representa dinheiro recebido." action={{ label: "Voltar às contas", href: "/financeiro/contas-a-receber" }}/><section className="panel mb-5"><dl className="detail-grid"><div><dt>Empresa</dt><dd>{account.company.tradeName || account.company.name}</dd></div><div><dt>Cliente</dt><dd>{account.customer.name}</dd></div><div><dt>Descrição</dt><dd>{account.description}</dd></div><div><dt>OP</dt><dd><Link className="link-button" href={`/ops/${account.billing.productionOrderId}`}>{account.billing.productionOrder.number}</Link></dd></div><div><dt>Nº da NFe</dt><dd>{account.billing.invoiceNumber}</dd></div><div><dt>Emissão</dt><dd>{formatDate(account.billing.issueDate)}</dd></div><div><dt>Competência</dt><dd>{formatDate(account.competenceDate)}</dd></div><div><dt>Vencimento</dt><dd>{formatDate(account.dueDate)}</dd></div><div><dt>Valor faturado/original</dt><dd>{formatCurrency(account.originalAmount)}</dd></div><div><dt>Recebido</dt><dd>{formatCurrency(receivedAmount())}</dd></div><div><dt>Saldo</dt><dd>{formatCurrency(receivableRemainingAmount(account.originalAmount))}</dd></div><div><dt>Situação</dt><dd>{receivableStatus(account.dueDate)}</dd></div><div><dt>Criado em</dt><dd>{account.createdAt.toLocaleString("pt-BR")}</dd></div></dl></section><section className="panel"><h2 className="section-title">Recebimentos</h2><p className="empty-state mt-4">Nenhum recebimento registrado.</p></section></>;
+}

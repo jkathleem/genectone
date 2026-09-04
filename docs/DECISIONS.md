@@ -476,6 +476,17 @@ Consequência:
 - `Payment.paymentDate` será a data da saída realizada no futuro Fluxo de Caixa.
 - Pagamentos não podem ser editados, excluídos, cancelados ou estornados nesta versão.
 
+### DEC-042 - Faturamento registrado e Conta a Receber
+
+- O sistema não emite NFe; registra internamente o faturamento emitido externamente.
+- Cada OP possui no máximo um Billing e qualquer OP ainda não faturada pode ser registrada manualmente, sem pré-condição operacional nesta versão.
+- `Billing.companyId` é copiado da OP para garantir NFe única por Company junto com `invoiceNumber`.
+- O valor faturado é snapshot Decimal positivo e pode divergir do valor previsto da OP.
+- Billing e AccountReceivable são criados atomicamente.
+- Company e Customer da Conta a Receber vêm da OP; valor original e competência são snapshots do Billing.
+- Competência, emissão e vencimento permanecem datas distintas.
+- Conta a Receber não é dinheiro recebido. Receipt permanece uma entidade futura separada.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.
@@ -489,7 +500,6 @@ Consequência:
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir aprovação, cancelamento, estorno e reabertura de fechamentos.
-- DECISÃO PENDENTE: definir se há aprovação obrigatória antes de faturar uma OP.
 - DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
 - DECISÃO PENDENTE: definir categorias de receitas e despesas para DRE.
 - DECISÃO PENDENTE: definir tratamento de impostos, investimentos e reservas no DRE.

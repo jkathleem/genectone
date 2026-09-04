@@ -1,0 +1,14 @@
+import { notFound, redirect } from "next/navigation";
+import { Feedback } from "@/components/feedback";
+import { PageHeader } from "@/components/page-header";
+import { SubmitButton } from "@/components/submit-button";
+import { formatCurrency } from "@/lib/format";
+import { prisma } from "@/lib/prisma";
+import { registerBilling } from "@/modules/billing/actions";
+import { expectedOrderAmount } from "@/modules/billing/domain";
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
+  const { id } = await params; const [order, messages] = await Promise.all([prisma.productionOrder.findUnique({ where: { id }, include: { company: true, customer: true, product: true, billing: { select: { id: true } } } }), searchParams]);
+  if (!order) notFound(); if (order.billing) redirect(`/ops/${id}`);
+  const now = new Date(), expected = expectedOrderAmount(order.quantity, order.unitPrice);
+  return <><PageHeader title="Registrar faturamento" description="Registro interno de uma NFe emitida externamente; o sistema não emite documento fiscal." action={{ label: "Cancelar", href: `/ops/${id}` }}/><Feedback {...messages}/><section className="panel mb-5"><dl className="detail-grid"><div><dt>OP</dt><dd>{order.number}</dd></div><div><dt>Empresa</dt><dd>{order.company.tradeName || order.company.name}</dd></div><div><dt>Cliente</dt><dd>{order.customer.name}</dd></div><div><dt>Produto / referência</dt><dd>{order.product.reference || order.product.name}</dd></div><div><dt>Quantidade</dt><dd>{order.quantity.toLocaleString("pt-BR")}</dd></div><div><dt>Preço unitário</dt><dd>{formatCurrency(order.unitPrice)}</dd></div><div><dt>Valor previsto da OP</dt><dd>{formatCurrency(expected)}</dd></div></dl></section><form action={registerBilling} className="panel form-grid"><input name="productionOrderId" type="hidden" value={id}/><label className="field">Nº da NFe<input maxLength={100} name="invoiceNumber" required/></label><label className="field">Data de emissão<input defaultValue={now.toISOString().slice(0, 10)} name="issueDate" required type="date"/></label><label className="field">Mês da competência<input defaultValue={now.getMonth() + 1} max={12} min={1} name="competenceMonth" required type="number"/></label><label className="field">Ano da competência<input defaultValue={now.getFullYear()} min={1900} name="competenceYear" required type="number"/></label><label className="field">Valor faturado<input defaultValue={expected.toFixed(2).replace(".", ",")} inputMode="decimal" name="amount" required/></label><label className="field">Vencimento<input name="dueDate" required type="date"/></label><label className="field sm:col-span-2">Observações<textarea maxLength={2000} name="notes" rows={3}/></label><div><SubmitButton>Registrar faturamento</SubmitButton></div></form></>;
+}

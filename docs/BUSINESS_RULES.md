@@ -215,6 +215,15 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-158: Pagamento representa a saída financeira efetivamente realizada.
 - BR-159: Pagamento registra Conta a Pagar relacionada, data do pagamento, valor pago e observações quando aplicáveis.
 - BR-160: Pagamento alimenta o Fluxo de Caixa como saída realizada.
+- BR-179: O sistema registra internamente Faturamento/NFe emitido externamente e não emite, autoriza ou integra documentos fiscais.
+- BR-180: Cada OP possui no máximo um Billing; qualquer OP ainda não faturada pode ser registrada manualmente nesta versão, sem exigir status operacional.
+- BR-181: O número da NFe é texto informado e único por Company; a Company do Billing é sempre copiada da OP.
+- BR-182: `Billing.amount` é o valor efetivamente faturado, Decimal positivo e independente do valor previsto da OP.
+- BR-183: Billing e AccountReceivable são criados atomicamente; um Billing origina exatamente uma Conta a Receber no fluxo normal do MVP.
+- BR-184: Company e Customer da Conta a Receber são copiados da OP, sem escolha ou redigitação.
+- BR-185: `AccountReceivable.originalAmount` copia `Billing.amount` e `competenceDate` copia a competência do Billing como snapshots financeiros.
+- BR-186: Sem Recebimentos, recebido é zero, saldo é o valor original e a situação Em aberto/Vencida é derivada do vencimento.
+- BR-187: OP, Faturamento, Conta a Receber e Recebimento são fatos distintos; apenas o futuro Receipt representará entrada real de caixa.
 
 ## DRE
 
@@ -252,7 +261,6 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - DECISÃO PENDENTE: definir ciclo de vida e status excepcionais dos Serviços Terceirizados.
 - DECISÃO PENDENTE: definir quando um Serviço Terceirizado é considerado elegível para pagamento.
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
-- DECISÃO PENDENTE: definir se há aprovação obrigatória antes de faturar uma OP.
 - DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
 - DECISÃO PENDENTE: definir classificações de receitas, custos, despesas, impostos, investimentos e reservas para o DRE.
 - DECISÃO PENDENTE: definir regras para edição, cancelamento ou estorno de OPs, Serviços Terceirizados, romaneios, retornos, fechamentos, contas e faturamentos.

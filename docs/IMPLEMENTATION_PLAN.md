@@ -254,6 +254,8 @@ Critério de aceite:
 
 ## Fase 9 - Faturamento e contas a receber
 
+Estado atual: implementado o registro interno de faturamento externo por OP e a criação atômica da Conta a Receber, com snapshots de Company, Customer, valor e competência. A consulta financeira deriva recebido zero, saldo e situação enquanto Recebimentos ainda não existem.
+
 Objetivo:
 
 - Usar a OP como origem para faturamento e contas a receber.
@@ -277,7 +279,7 @@ Critério de aceite:
 - Uma OP faturada alimenta faturamento e contas a receber sem redigitação dos dados da OP.
 - OP cadastrada não vira receita realizada automaticamente.
 
-DECISÃO PENDENTE: definir regras de aprovação e momento de faturamento.
+Decisão desta versão: qualquer OP ainda não faturada pode receber o registro manual, sem exigir status produtivo. A regra poderá ser revista quando o ciclo de vida da OP existir.
 
 ## Fase 10 - Fluxo de caixa
 

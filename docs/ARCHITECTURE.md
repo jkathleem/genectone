@@ -188,6 +188,12 @@ Rascunhos não entram no cálculo de saldo consumido. Quantidades liquidadas, el
 
 `Payment` registra a saída efetiva em `Decimal(14,4)` e `date`, relacionado à Conta a Pagar com `onDelete: Restrict`, sem duplicar Company. Pago, saldo e situação são derivados. A criação bloqueia a linha de `AccountPayable` com `SELECT ... FOR UPDATE`, relê a conta e seus pagamentos pelo client transacional e rejeita consumo acima do saldo. Isso serializa pagamentos concorrentes da mesma conta. Fechamento ≠ Conta a Pagar ≠ Pagamento; somente `Payment.paymentDate` alimentará como saída realizada o futuro Fluxo de Caixa.
 
+## Faturamento registrado e contas a receber
+
+`Billing` registra uma NFe emitida externamente e não contém recursos de emissão fiscal. A OP é bloqueada com `SELECT ... FOR UPDATE`; Billing e AccountReceivable são gravados na mesma transação. `productionOrderId` único impede mais de um faturamento por OP. `companyId` é copiado da OP e, com `invoiceNumber`, forma a unicidade da NFe por empresa.
+
+`Billing.amount` é um snapshot independente do valor previsto da OP. `AccountReceivable` copia Company, Customer, valor e competência da origem como snapshots financeiros e mantém o vencimento próprio. Checks SQL exigem valores positivos. Todas as FKs históricas usam `onDelete: Restrict`. Sem Receipt, recebido, saldo e situação são derivados; a Conta a Receber não representa entrada realizada. OP ≠ Faturamento ≠ Conta a Receber ≠ Recebimento.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.

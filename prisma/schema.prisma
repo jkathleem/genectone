@@ -8,26 +8,29 @@ datasource db {
 }
 
 model Company {
-  id               String                 @id @default(cuid())
-  name             String
-  tradeName        String?
-  document         String?
-  active           Boolean                @default(true)
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  productionOrders ProductionOrder[]
-  settlements      ContractorSettlement[]
-  accountsPayable  AccountPayable[]
+  id                 String                 @id @default(cuid())
+  name               String
+  tradeName          String?
+  document           String?
+  active             Boolean                @default(true)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  productionOrders   ProductionOrder[]
+  settlements        ContractorSettlement[]
+  accountsPayable    AccountPayable[]
+  billings           Billing[]
+  accountsReceivable AccountReceivable[]
 }
 
 model Customer {
-  id               String            @id @default(cuid())
-  name             String
-  document         String?
-  active           Boolean           @default(true)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  productionOrders ProductionOrder[]
+  id                 String              @id @default(cuid())
+  name               String
+  document           String?
+  active             Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  productionOrders   ProductionOrder[]
+  accountsReceivable AccountReceivable[]
 }
 
 model Product {
@@ -56,12 +59,54 @@ model ProductionOrder {
   customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
   product            Product             @relation(fields: [productId], references: [id], onDelete: Restrict)
   outsourcedServices OutsourcedService[]
+  billing            Billing?
 
   @@unique([companyId, number])
   @@index([number])
   @@index([customerId])
   @@index([productId])
   @@index([entryDate])
+}
+
+model Billing {
+  id                String             @id @default(cuid())
+  productionOrderId String             @unique
+  companyId         String
+  invoiceNumber     String
+  issueDate         DateTime           @db.Date
+  amount            Decimal            @db.Decimal(14, 4)
+  competenceDate    DateTime           @db.Date
+  notes             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  productionOrder   ProductionOrder    @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  accountReceivable AccountReceivable?
+
+  @@unique([companyId, invoiceNumber])
+  @@index([issueDate])
+  @@index([competenceDate])
+}
+
+model AccountReceivable {
+  id             String   @id @default(cuid())
+  companyId      String
+  customerId     String
+  billingId      String   @unique
+  description    String
+  competenceDate DateTime @db.Date
+  dueDate        DateTime @db.Date
+  originalAmount Decimal  @db.Decimal(14, 4)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  billing        Billing  @relation(fields: [billingId], references: [id], onDelete: Restrict)
+
+  @@index([companyId, dueDate])
+  @@index([customerId, dueDate])
+  @@index([competenceDate])
+  @@index([dueDate])
 }
 
 model Contractor {
