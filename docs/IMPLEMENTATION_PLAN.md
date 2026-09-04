@@ -229,7 +229,7 @@ Critério de aceite:
 
 ## Fase 8 - Contas a pagar
 
-Estado atual: implementada a geração exclusiva a partir de fechamento aprovado, com vínculo monoempresa, snapshot financeiro, vencimento, consulta e detalhe. Pagamentos permanecem para a próxima etapa.
+Estado atual: implementada a geração exclusiva a partir de fechamento aprovado, com vínculo monoempresa, snapshot financeiro, vencimento, consulta e detalhe. Implementados também pagamentos parciais ou totais, histórico, saldo e situação derivados, com bloqueio transacional contra pagamento excedente concorrente.
 
 Objetivo:
 
@@ -246,6 +246,7 @@ Entregáveis testáveis:
 - Manter vínculo entre conta a pagar e fechamento de origem.
 - Registrar vencimento, competência e pagamento como datas distintas.
 - Consultar contas a pagar por vencimento, pagamento, competência e origem.
+- Registrar e consultar múltiplos pagamentos sem edição, exclusão ou estorno nesta fase.
 
 Critério de aceite:
 

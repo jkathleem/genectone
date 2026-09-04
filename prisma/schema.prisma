@@ -165,10 +165,25 @@ model AccountPayable {
   updatedAt              DateTime             @updatedAt
   company                Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
   contractorSettlement   ContractorSettlement @relation(fields: [contractorSettlementId], references: [id], onDelete: Restrict)
+  payments               Payment[]
 
   @@index([companyId, dueDate])
   @@index([dueDate])
   @@index([competenceDate])
+}
+
+model Payment {
+  id               String         @id @default(cuid())
+  accountPayableId String
+  paymentDate      DateTime       @db.Date
+  amount           Decimal        @db.Decimal(14, 4)
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  accountPayable   AccountPayable @relation(fields: [accountPayableId], references: [id], onDelete: Restrict)
+
+  @@index([accountPayableId, paymentDate])
+  @@index([paymentDate])
 }
 
 model ContractorSettlementItem {

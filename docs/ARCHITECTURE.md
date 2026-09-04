@@ -184,7 +184,9 @@ Rascunhos não entram no cálculo de saldo consumido. Quantidades liquidadas, el
 
 ## Contas a pagar de fechamentos
 
-`ContractorSettlement.companyId` torna o fechamento monoempresa. A aplicação valida Company na inclusão e aprovação. `AccountPayable` mantém relação 1:1 por FK única, valor snapshot em `Decimal(14,4)`, competência mensal como primeiro dia e vencimento comercial independente. Não existe `Payment`; pago, saldo e situação são derivados.
+`ContractorSettlement.companyId` torna o fechamento monoempresa. A aplicação valida Company na inclusão e aprovação. `AccountPayable` mantém relação 1:1 por FK única, valor snapshot em `Decimal(14,4)`, competência mensal como primeiro dia e vencimento comercial independente.
+
+`Payment` registra a saída efetiva em `Decimal(14,4)` e `date`, relacionado à Conta a Pagar com `onDelete: Restrict`, sem duplicar Company. Pago, saldo e situação são derivados. A criação bloqueia a linha de `AccountPayable` com `SELECT ... FOR UPDATE`, relê a conta e seus pagamentos pelo client transacional e rejeita consumo acima do saldo. Isso serializa pagamentos concorrentes da mesma conta. Fechamento ≠ Conta a Pagar ≠ Pagamento; somente `Payment.paymentDate` alimentará como saída realizada o futuro Fluxo de Caixa.
 
 ## Identificadores
 

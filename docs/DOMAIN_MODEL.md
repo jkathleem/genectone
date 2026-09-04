@@ -610,14 +610,14 @@ Dados derivados:
 
 ### Conta a Pagar
 
-Na implementação inicial, pertence a uma Company e a exatamente um Fechamento aprovado. Guarda descrição, competência no primeiro dia do mês, vencimento e valor original snapshot. Pago, saldo e situação são derivados; ainda não existe Pagamento físico.
+Pertence a uma Company e a exatamente um Fechamento aprovado. Guarda descrição, competência no primeiro dia do mês, vencimento e valor original snapshot. Pago, saldo e situação são derivados dos Pagamentos.
 
 Representa um valor a pagar.
 
 Relacionamentos:
 
 - Uma conta a pagar pode ser gerada a partir de fechamento mensal aprovado.
-- Uma Conta a Pagar pode possuir Pagamento.
+- Uma Conta a Pagar pode possuir múltiplos Pagamentos parciais ou um Pagamento total.
 - Contas a pagar alimentam o fluxo de caixa.
 - Despesas classificadas alimentam o DRE.
 
@@ -635,8 +635,6 @@ Dados derivados:
 - Saídas previstas e realizadas no fluxo de caixa.
 - Despesa no DRE por competência.
 
-DECISÃO PENDENTE: definir se uma Conta a Pagar poderá possuir múltiplos pagamentos parciais.
-
 ### Pagamento
 
 Representa a saída financeira efetivamente realizada relacionada a uma Conta a Pagar.
@@ -652,6 +650,8 @@ Fonte de verdade:
 - Data do pagamento.
 - Valor pago.
 - Observações quando aplicáveis.
+
+Na implementação física, `Payment` possui `paymentDate` em PostgreSQL `date`, `amount` em `Decimal(14,4)` e relação `onDelete: Restrict`. Não duplica Company, que é alcançada pela Conta a Pagar. Pagamentos são criados e consultados, sem edição, exclusão ou estorno nesta versão. Valor pago, saldo e situação não são persistidos. A situação Parcial prevalece mesmo após o vencimento; Pago exige saldo exatamente zero.
 
 ### Fluxo de Caixa
 

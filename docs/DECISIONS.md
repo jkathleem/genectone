@@ -466,6 +466,16 @@ Consequência:
 - Retorno físico não implica aprovação automática.
 - O painel de cobrança mostra somente pendência física positiva e calcula dias fora pela saída mais recente, sem classificar atraso.
 
+### DEC-041 - Pagamentos parciais de Contas a Pagar
+
+- Fechamento, Conta a Pagar e Pagamento são fatos distintos; somente Pagamento representa saída financeira efetiva.
+- Uma Conta a Pagar aceita múltiplos pagamentos parciais ou um pagamento total.
+- Pago, saldo e situação são derivados; não há enum nem totais persistidos na Conta a Pagar.
+- As situações são Em aberto, Vencida, Parcial e Pago. Parcial prevalece sobre vencida quando já existe pagamento e saldo positivo.
+- O pagamento bloqueia a Conta a Pagar com `FOR UPDATE`, relê e valida o saldo dentro da mesma transação.
+- `Payment.paymentDate` será a data da saída realizada no futuro Fluxo de Caixa.
+- Pagamentos não podem ser editados, excluídos, cancelados ou estornados nesta versão.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.
@@ -477,7 +487,6 @@ Consequência:
 - DECISÃO PENDENTE: definir regras de cancelamento, estorno e correção de Romaneios emitidos.
 - DECISÃO PENDENTE: definir quando um Serviço Terceirizado é considerado elegível para pagamento.
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
-- DECISÃO PENDENTE: definir se uma Conta a Pagar poderá possuir múltiplos pagamentos parciais.
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir aprovação, cancelamento, estorno e reabertura de fechamentos.
 - DECISÃO PENDENTE: definir se há aprovação obrigatória antes de faturar uma OP.

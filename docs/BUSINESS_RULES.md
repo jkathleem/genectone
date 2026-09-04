@@ -176,6 +176,11 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-171: A competência usa o primeiro dia do mês, enquanto vencimento e pagamento são fatos distintos.
 - BR-172: O valor original é snapshot Decimal do total dos itens do fechamento.
 - BR-173: Sem Pagamentos, pago é zero, saldo é o valor original e a situação Em aberto/Vencida é derivada.
+- BR-174: Uma Conta a Pagar aceita um pagamento total ou múltiplos pagamentos parciais, sempre em valor Decimal maior que zero e limitado ao saldo atual.
+- BR-175: Valor pago é a soma dos Pagamentos; saldo é o valor original menos essa soma. Ambos são derivados e não devem ser armazenados na Conta a Pagar.
+- BR-176: A situação financeira é derivada: Em aberto, Vencida, Parcial ou Pago. Parcial prevalece sobre vencida quando já houve pagamento e ainda existe saldo.
+- BR-177: O registro de Pagamento deve bloquear a Conta a Pagar e recalcular o saldo na mesma transação antes da gravação.
+- BR-178: Pagamento é imutável nesta versão e sua `paymentDate` representa a saída financeira efetiva usada pelo futuro Fluxo de Caixa.
 
 - BR-028: Contas a pagar alimentam o fluxo de caixa.
 - BR-029: Contas a receber alimentam o fluxo de caixa.
@@ -208,7 +213,7 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-156: O Fluxo de Caixa não deve somar alocações novamente como novas entradas de caixa.
 - BR-157: Conta a Pagar deve possuir conceitualmente Pagamento.
 - BR-158: Pagamento representa a saída financeira efetivamente realizada.
-- BR-159: Pagamento deve permitir futuramente registrar Conta a Pagar relacionada, data do pagamento, valor pago e observações quando aplicáveis.
+- BR-159: Pagamento registra Conta a Pagar relacionada, data do pagamento, valor pago e observações quando aplicáveis.
 - BR-160: Pagamento alimenta o Fluxo de Caixa como saída realizada.
 
 ## DRE
@@ -247,7 +252,6 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - DECISÃO PENDENTE: definir ciclo de vida e status excepcionais dos Serviços Terceirizados.
 - DECISÃO PENDENTE: definir quando um Serviço Terceirizado é considerado elegível para pagamento.
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
-- DECISÃO PENDENTE: definir se uma Conta a Pagar poderá possuir múltiplos pagamentos parciais.
 - DECISÃO PENDENTE: definir se há aprovação obrigatória antes de faturar uma OP.
 - DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
 - DECISÃO PENDENTE: definir classificações de receitas, custos, despesas, impostos, investimentos e reservas para o DRE.
