@@ -200,6 +200,12 @@ Rascunhos não entram no cálculo de saldo consumido. Quantidades liquidadas, el
 
 A criação é atômica: deduplica e ordena os IDs, bloqueia `AccountReceivable` com `SELECT ... FOR UPDATE`, relê alocações anteriores, valida saldo, Company e Customer e cria Receipt com todas as alocações. Checks SQL exigem valores positivos e FKs usam `onDelete: Restrict`. Recebido, saldo e situação permanecem derivados. Receipt e alocações são imutáveis nesta versão.
 
+## Fluxo de Caixa derivado
+
+Não existe tabela `CashFlow` ou `CashFlowEntry`. A camada `src/modules/cash-flow` consulta diretamente Receipts e Payments para o realizado e saldos remanescentes das contas por vencimento para o previsto. Receipt é contado uma única vez; suas alocações apenas derivam o saldo das Contas a Receber.
+
+As consultas filtram Company e período no PostgreSQL e carregam relacionamentos em lote, sem N+1. Agregação diária, totais, líquido e saldos usam `Prisma.Decimal`. Vencidos anteriores ao período são calculados separadamente. A tela não representa saldo bancário, não usa competência e não mistura Fluxo de Caixa com DRE.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.

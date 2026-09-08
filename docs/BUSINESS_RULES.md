@@ -232,6 +232,13 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-193: A criação bloqueia as Contas a Receber em ordem estável e recalcula seus saldos na mesma transação antes de criar Receipt e alocações.
 - BR-194: Receipt e ReceiptAllocation são imutáveis nesta versão; `receiptDate` representa a entrada real usada pelo futuro Fluxo de Caixa.
 - BR-195: O futuro Fluxo de Caixa deve contar Receipt uma única vez e não somar suas alocações como novas entradas.
+- BR-196: Fluxo de Caixa é uma visão derivada e não deve possuir tabela para duplicar Payment, Receipt ou saldos de contas.
+- BR-197: Realizado usa exclusivamente Receipt por `receiptDate` como entrada e Payment por `paymentDate` como saída.
+- BR-198: Previsto usa somente o saldo remanescente de AccountReceivable e AccountPayable por `dueDate`; contas quitadas não entram.
+- BR-199: ReceiptAllocation baixa Contas a Receber, mas não é movimento adicional de caixa.
+- BR-200: Contas vencidas com saldo permanecem visíveis separadamente e não têm vencimento alterado ou movido para hoje.
+- BR-201: Competência não determina Fluxo de Caixa; ela permanece destinada à futura visão da DRE.
+- BR-202: A movimentação líquida exibida representa apenas os fatos registrados no sistema e não deve ser apresentada como saldo bancário.
 
 ## DRE
 

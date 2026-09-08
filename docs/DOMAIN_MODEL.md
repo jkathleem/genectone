@@ -693,6 +693,10 @@ Dados derivados:
 - Saldo final.
 - Saldo inicial do período seguinte a partir do saldo final do período anterior.
 
+Na implementação inicial, Fluxo de Caixa é exclusivamente derivado e não possui model ou tabela próprios. Previsto usa saldos remanescentes de Contas a Pagar e a Receber por vencimento. Realizado usa Payment por data de pagamento e Receipt por data de recebimento. ReceiptAllocation não é contado como nova entrada. Contas vencidas anteriores ao período permanecem separadas e nenhuma data é alterada.
+
+Sem saldo de abertura, contas bancárias ou conciliação, o sistema apresenta movimentação líquida dos registros existentes, não saldo bancário. Competência não define caixa e permanece reservada à DRE.
+
 ### DRE
 
 Representa a visão gerencial de resultado por competência.

@@ -1,0 +1,7 @@
+import { Prisma } from "@/generated/prisma";
+export type CashDirection = "IN" | "OUT";
+export type CashMovement = { id: string; date: Date; direction: CashDirection; type: string; company: string; description: string; counterparty: string; amount: Prisma.Decimal; href: string; originalAmount?: Prisma.Decimal; settledAmount?: Prisma.Decimal };
+export function flowTotals(movements: Pick<CashMovement, "direction" | "amount">[]) { const zero = new Prisma.Decimal(0); const entries = movements.filter(x => x.direction === "IN").reduce((sum, x) => sum.plus(x.amount), zero); const exits = movements.filter(x => x.direction === "OUT").reduce((sum, x) => sum.plus(x.amount), zero); return { entries, exits, net: entries.minus(exits) }; }
+export function groupByDay(movements: CashMovement[]) { const groups = new Map<string, CashMovement[]>(); for (const movement of movements) { const day = movement.date.toISOString().slice(0, 10); groups.set(day, [...(groups.get(day) ?? []), movement]); } return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, items]) => ({ date, items, ...flowTotals(items) })); }
+export function positiveBalance(original: Prisma.Decimal | string, settled: Prisma.Decimal | string) { const value = new Prisma.Decimal(original).minus(settled); return value.gt(0) ? value : new Prisma.Decimal(0); }
+export function sumBalances(values: (Prisma.Decimal | string)[]) { return values.reduce<Prisma.Decimal>((sum, value) => sum.plus(value), new Prisma.Decimal(0)); }

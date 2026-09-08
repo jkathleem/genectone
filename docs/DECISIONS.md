@@ -498,6 +498,17 @@ Consequência:
 - Receipt e alocações são imutáveis nesta versão.
 - O futuro Fluxo de Caixa contará Receipt uma única vez, nunca cada alocação como nova entrada.
 
+### DEC-044 - Fluxo de Caixa derivado
+
+- Fluxo de Caixa não possui tabela própria nem duplica movimentos financeiros.
+- Realizado soma Receipt uma vez por `receiptDate` e Payment uma vez por `paymentDate`.
+- ReceiptAllocation não é movimento de caixa.
+- Previsto usa saldos remanescentes de contas por `dueDate`; contas quitadas são excluídas.
+- Vencidos anteriores ao período são exibidos separadamente, sem mudar vencimentos.
+- Totais e agrupamento diário usam Decimal e podem ser filtrados por Company e período.
+- O líquido apresentado é dos registros do sistema, não saldo bancário.
+- Competência não determina caixa; Fluxo de Caixa permanece distinto da DRE.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.
