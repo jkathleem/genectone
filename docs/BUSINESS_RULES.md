@@ -224,6 +224,14 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-185: `AccountReceivable.originalAmount` copia `Billing.amount` e `competenceDate` copia a competência do Billing como snapshots financeiros.
 - BR-186: Sem Recebimentos, recebido é zero, saldo é o valor original e a situação Em aberto/Vencida é derivada do vencimento.
 - BR-187: OP, Faturamento, Conta a Receber e Recebimento são fatos distintos; apenas o futuro Receipt representará entrada real de caixa.
+- BR-188: Receipt representa uma única entrada real e pertence a exatamente uma Company e um Customer.
+- BR-189: Um Receipt pode ser distribuído entre várias Contas a Receber do mesmo Customer e Company; uma Conta pode receber alocações de vários Receipts.
+- BR-190: A soma das ReceiptAllocations deve ser exatamente igual a Receipt.amount; não existe saldo não identificado nesta versão.
+- BR-191: Recebido e saldo da Conta a Receber são derivados das alocações e não armazenados novamente.
+- BR-192: A situação derivada é Em aberto, Vencida, Parcial ou Recebida; Parcial prevalece sobre vencida.
+- BR-193: A criação bloqueia as Contas a Receber em ordem estável e recalcula seus saldos na mesma transação antes de criar Receipt e alocações.
+- BR-194: Receipt e ReceiptAllocation são imutáveis nesta versão; `receiptDate` representa a entrada real usada pelo futuro Fluxo de Caixa.
+- BR-195: O futuro Fluxo de Caixa deve contar Receipt uma única vez e não somar suas alocações como novas entradas.
 
 ## DRE
 

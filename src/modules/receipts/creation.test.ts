@@ -1,0 +1,12 @@
+import { describe, expect, it, vi } from "vitest";
+import { Prisma } from "@/generated/prisma";
+import { allocationTotal, createReceipt } from "./creation";
+const base = { companyId: "company", customerId: "customer", receiptDate: new Date("2026-09-08T00:00:00Z"), amount: "100", allocations: [{ accountReceivableId: "account", amount: "100" }] };
+function fixture(overrides: Partial<{ companyId: string; customerId: string; original: string; prior: string }> = {}) { const create = vi.fn(async ({ data }) => ({ id: "receipt", ...data, allocations: data.allocations.create })); const tx = { $queryRaw: vi.fn(), accountReceivable: { findMany: vi.fn(async () => [{ id: "account", companyId: overrides.companyId ?? "company", customerId: overrides.customerId ?? "customer", originalAmount: new Prisma.Decimal(overrides.original ?? "100"), allocations: overrides.prior ? [{ amount: new Prisma.Decimal(overrides.prior) }] : [] }]) }, receipt: { create } }; return { client: { $transaction: async (callback: (value: object) => unknown) => callback(tx) }, create }; }
+describe("criação de recebimento", () => {
+  it("soma alocações com Decimal", () => expect(allocationTotal([{ accountReceivableId: "a", amount: "8000" }, { accountReceivableId: "b", amount: "7000" }, { accountReceivableId: "c", amount: "10000" }]).toFixed(4)).toBe("25000.0000"));
+  it.each(["0", "-1"])("rejeita recebimento não positivo: %s", async amount => await expect(createReceipt(fixture().client as never, { ...base, amount })).rejects.toThrow("maior que zero"));
+  it("rejeita recebimento vazio e soma divergente", async () => { await expect(createReceipt(fixture().client as never, { ...base, allocations: [] })).rejects.toThrow("ao menos uma"); await expect(createReceipt(fixture().client as never, { ...base, allocations: [{ accountReceivableId: "account", amount: "99" }] })).rejects.toThrow("igual ao valor recebido"); });
+  it("rejeita Company, Customer e saldo divergentes", async () => { await expect(createReceipt(fixture({ companyId: "other" }).client as never, base)).rejects.toThrow("empresa"); await expect(createReceipt(fixture({ customerId: "other" }).client as never, base)).rejects.toThrow("cliente"); await expect(createReceipt(fixture({ prior: "1" }).client as never, base)).rejects.toThrow("saldo atual"); });
+  it("cria Receipt e allocations atomicamente", async () => { const f = fixture(); const result = await createReceipt(f.client as never, base); expect(f.create).toHaveBeenCalledOnce(); expect(result.allocations).toHaveLength(1); });
+});

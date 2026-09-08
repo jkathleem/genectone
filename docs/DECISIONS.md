@@ -487,6 +487,17 @@ Consequência:
 - Competência, emissão e vencimento permanecem datas distintas.
 - Conta a Receber não é dinheiro recebido. Receipt permanece uma entidade futura separada.
 
+### DEC-043 - Recebimentos e alocações
+
+- Receipt representa uma única entrada real e pertence a uma Company e um Customer.
+- Um Receipt pode alocar várias Contas a Receber; uma Conta pode receber várias alocações ao longo do tempo.
+- Todas as contas de um Receipt devem pertencer à mesma Company e Customer do cabeçalho.
+- A soma das alocações deve ser exatamente igual ao valor do Receipt.
+- As Contas a Receber são bloqueadas em ordem estável e seus saldos são recalculados dentro da transação.
+- Recebido, saldo e situação são derivados; Parcial prevalece sobre vencida.
+- Receipt e alocações são imutáveis nesta versão.
+- O futuro Fluxo de Caixa contará Receipt uma única vez, nunca cada alocação como nova entrada.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.

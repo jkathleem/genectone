@@ -10,6 +10,7 @@ const navigation = [
   { label: "Romaneios", href: "/romaneios" },
   { label: "Contas a Pagar", href: "/financeiro/contas-a-pagar", group: "Financeiro" },
   { label: "Contas a Receber", href: "/financeiro/contas-a-receber", group: "Financeiro" },
+  { label: "Recebimentos", href: "/financeiro/recebimentos", group: "Financeiro" },
   { label: "Empresas", href: "/cadastros/empresas", group: "Cadastros" },
   { label: "Clientes", href: "/cadastros/clientes", group: "Cadastros" },
   { label: "Produtos", href: "/cadastros/produtos", group: "Cadastros" },

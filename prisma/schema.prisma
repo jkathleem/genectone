@@ -20,6 +20,7 @@ model Company {
   accountsPayable    AccountPayable[]
   billings           Billing[]
   accountsReceivable AccountReceivable[]
+  receipts           Receipt[]
 }
 
 model Customer {
@@ -31,6 +32,7 @@ model Customer {
   updatedAt          DateTime            @updatedAt
   productionOrders   ProductionOrder[]
   accountsReceivable AccountReceivable[]
+  receipts           Receipt[]
 }
 
 model Product {
@@ -89,24 +91,57 @@ model Billing {
 }
 
 model AccountReceivable {
-  id             String   @id @default(cuid())
+  id             String              @id @default(cuid())
   companyId      String
   customerId     String
-  billingId      String   @unique
+  billingId      String              @unique
   description    String
-  competenceDate DateTime @db.Date
-  dueDate        DateTime @db.Date
-  originalAmount Decimal  @db.Decimal(14, 4)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  company        Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  billing        Billing  @relation(fields: [billingId], references: [id], onDelete: Restrict)
+  competenceDate DateTime            @db.Date
+  dueDate        DateTime            @db.Date
+  originalAmount Decimal             @db.Decimal(14, 4)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  company        Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer       Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  billing        Billing             @relation(fields: [billingId], references: [id], onDelete: Restrict)
+  allocations    ReceiptAllocation[]
 
   @@index([companyId, dueDate])
   @@index([customerId, dueDate])
   @@index([competenceDate])
   @@index([dueDate])
+}
+
+model Receipt {
+  id          String              @id @default(cuid())
+  companyId   String
+  customerId  String
+  receiptDate DateTime            @db.Date
+  amount      Decimal             @db.Decimal(14, 4)
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer    Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  allocations ReceiptAllocation[]
+
+  @@index([companyId, receiptDate])
+  @@index([customerId, receiptDate])
+  @@index([receiptDate])
+}
+
+model ReceiptAllocation {
+  id                  String            @id @default(cuid())
+  receiptId           String
+  accountReceivableId String
+  amount              Decimal           @db.Decimal(14, 4)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  receipt             Receipt           @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  accountReceivable   AccountReceivable @relation(fields: [accountReceivableId], references: [id], onDelete: Restrict)
+
+  @@unique([receiptId, accountReceivableId])
+  @@index([accountReceivableId])
 }
 
 model Contractor {

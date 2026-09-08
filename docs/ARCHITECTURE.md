@@ -194,6 +194,12 @@ Rascunhos não entram no cálculo de saldo consumido. Quantidades liquidadas, el
 
 `Billing.amount` é um snapshot independente do valor previsto da OP. `AccountReceivable` copia Company, Customer, valor e competência da origem como snapshots financeiros e mantém o vencimento próprio. Checks SQL exigem valores positivos. Todas as FKs históricas usam `onDelete: Restrict`. Sem Receipt, recebido, saldo e situação são derivados; a Conta a Receber não representa entrada realizada. OP ≠ Faturamento ≠ Conta a Receber ≠ Recebimento.
 
+## Recebimentos e alocações
+
+`Receipt` é a fonte de verdade de uma única entrada real, vinculada a uma Company e um Customer. `ReceiptAllocation` distribui essa entrada entre várias Contas a Receber, sem criar novas entradas de caixa. A soma das alocações deve ser exatamente igual ao valor do Receipt.
+
+A criação é atômica: deduplica e ordena os IDs, bloqueia `AccountReceivable` com `SELECT ... FOR UPDATE`, relê alocações anteriores, valida saldo, Company e Customer e cria Receipt com todas as alocações. Checks SQL exigem valores positivos e FKs usam `onDelete: Restrict`. Recebido, saldo e situação permanecem derivados. Receipt e alocações são imutáveis nesta versão.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.

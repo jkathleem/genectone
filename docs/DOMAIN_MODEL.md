@@ -592,6 +592,9 @@ Observação:
 
 - O Fluxo de Caixa realizado deve considerar o Recebimento financeiro real.
 - As alocações explicam a quais OPs/NFes aquele pagamento pertence, mas não devem ser somadas novamente como novas entradas de caixa.
+- Na implementação física, Receipt pertence a uma Company e um Customer, registra `receiptDate`, valor Decimal positivo e observações.
+- Todo Receipt nasce integralmente alocado e é imutável nesta versão.
+- Um Receipt não mistura contas de empresas ou clientes diferentes.
 
 ### Alocação de Recebimento
 
@@ -614,6 +617,9 @@ Dados derivados:
 
 - Valor recebido de uma Conta a Receber, pela soma das alocações vinculadas.
 - Saldo a receber de uma Conta a Receber.
+- `ReceiptAllocation` possui valor Decimal positivo e unicidade por Receipt e AccountReceivable.
+- A criação bloqueia todas as Contas a Receber selecionadas, em ordem estável, e rejeita sobrealocação concorrente.
+- Recebido é a soma das alocações; saldo é o valor original menos essa soma. A situação é Em aberto, Vencida, Parcial ou Recebida.
 
 ### Conta a Pagar
 

@@ -283,6 +283,8 @@ Decisão desta versão: qualquer OP ainda não faturada pode receber o registro 
 
 ## Fase 10 - Fluxo de caixa
 
+Estado atual: Recebimentos e Alocações foram implementados como pré-requisito do caixa realizado. Um Receipt pode liquidar várias Contas a Receber do mesmo Customer e Company; saldos e situações são derivados. A visão de Fluxo de Caixa ainda não foi implementada.
+
 Objetivo:
 
 - Consolidar entradas e saídas financeiras reais ou previstas.
