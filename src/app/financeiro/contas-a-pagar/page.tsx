@@ -3,14 +3,44 @@ import { PageHeader } from "@/components/page-header";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { financialStatus, paidAmount, remainingAmount } from "@/modules/accounts-payable/domain";
-type P = { companyId?: string; contractorId?: string; from?: string; to?: string; status?: string };
-export default async function Page({ searchParams }: { searchParams: Promise<P> }) {
-  const p = await searchParams, today = new Date();
-  const due = p.from || p.to ? { gte: p.from ? new Date(`${p.from}T00:00:00Z`) : undefined, lte: p.to ? new Date(`${p.to}T00:00:00Z`) : undefined } : undefined;
-  const [rows, companies, contractors] = await Promise.all([
-    prisma.accountPayable.findMany({ where: { companyId: p.companyId || undefined, dueDate: due, contractorSettlement: { contractorId: p.contractorId || undefined } }, include: { company: true, payments: { select: { amount: true } }, contractorSettlement: { include: { contractor: true } } }, orderBy: { dueDate: "asc" } }),
-    prisma.company.findMany({ orderBy: { name: "asc" } }), prisma.contractor.findMany({ orderBy: { name: "asc" } }),
+
+type Params = { companyId?: string; contractorId?: string; classificationId?: string; source?: string; from?: string; to?: string; status?: string };
+const groupLabel = { VARIABLE_COST_EXPENSE: "Custos e Despesas Variáveis", FIXED_COST_EXPENSE: "Custos e Despesas Fixas" } as const;
+
+export default async function Page({ searchParams }: { searchParams: Promise<Params> }) {
+  const params = await searchParams;
+  const today = new Date();
+  const dueDate = params.from || params.to ? { gte: params.from ? new Date(`${params.from}T00:00:00Z`) : undefined, lte: params.to ? new Date(`${params.to}T00:00:00Z`) : undefined } : undefined;
+  const source = params.source === "MANUAL" || params.source === "CONTRACTOR_SETTLEMENT" ? params.source : undefined;
+  const [rows, companies, contractors, classifications] = await Promise.all([
+    prisma.accountPayable.findMany({
+      where: {
+        companyId: params.companyId || undefined,
+        classificationId: params.classificationId || undefined,
+        source,
+        dueDate,
+        contractorSettlement: params.contractorId ? { contractorId: params.contractorId } : undefined,
+      },
+      include: { company: true, payments: { select: { amount: true } } },
+      orderBy: { dueDate: "asc" },
+    }),
+    prisma.company.findMany({ orderBy: { name: "asc" } }),
+    prisma.contractor.findMany({ orderBy: { name: "asc" } }),
+    prisma.financialClassification.findMany({ orderBy: { name: "asc" } }),
   ]);
-  const filtered = rows.filter(row => !p.status || financialStatus(row.originalAmount, row.dueDate, row.payments, today) === p.status);
-  return <><PageHeader title="Contas a Pagar" description="Obrigações e pagamentos realizados, sem antecipar o futuro Fluxo de Caixa."/><form className="panel mb-5 form-grid"><label className="field">Empresa<select name="companyId" defaultValue={p.companyId || ""}><option value="">Todas</option>{companies.map(x => <option key={x.id} value={x.id}>{x.tradeName || x.name}</option>)}</select></label><label className="field">Terceirizado<select name="contractorId" defaultValue={p.contractorId || ""}><option value="">Todos</option>{contractors.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label><label className="field">Vencimento de<input name="from" type="date" defaultValue={p.from}/></label><label className="field">Até<input name="to" type="date" defaultValue={p.to}/></label><label className="field">Situação<select name="status" defaultValue={p.status || ""}><option value="">Todas</option>{["Em aberto", "Vencida", "Parcial", "Pago"].map(x => <option key={x}>{x}</option>)}</select></label><div className="flex items-end gap-2"><button className="button-primary">Filtrar</button><Link className="button-secondary" href="/financeiro/contas-a-pagar">Limpar</Link></div></form><section className="panel"><div className="table-wrap"><table><thead><tr><th>Empresa</th><th>Vencimento</th><th>Descrição</th><th>Terceirizado</th><th>Competência</th><th>Original</th><th>Pago</th><th>Saldo</th><th>Situação</th></tr></thead><tbody>{filtered.map(row => <tr key={row.id}><td>{row.company.tradeName || row.company.name}</td><td>{formatDate(row.dueDate)}</td><td><Link className="link-button" href={`/financeiro/contas-a-pagar/${row.id}`}>{row.description}</Link></td><td>{row.contractorSettlement.contractor.name}</td><td>{formatDate(row.competenceDate)}</td><td>{formatCurrency(row.originalAmount)}</td><td>{formatCurrency(paidAmount(row.payments))}</td><td>{formatCurrency(remainingAmount(row.originalAmount, row.payments))}</td><td>{financialStatus(row.originalAmount, row.dueDate, row.payments, today)}</td></tr>)}</tbody></table></div></section></>;
+  const filtered = rows.filter((row) => !params.status || financialStatus(row.originalAmount, row.dueDate, row.payments, today) === params.status);
+  return <>
+    <PageHeader title="Contas a Pagar" description="Obrigações por competência e pagamentos como fatos distintos." action={{ label: "Nova Conta manual", href: "/financeiro/contas-a-pagar/nova" }} />
+    <form className="panel mb-5 form-grid">
+      <label className="field">Empresa<select name="companyId" defaultValue={params.companyId || ""}><option value="">Todas</option>{companies.map((item) => <option key={item.id} value={item.id}>{item.tradeName || item.name}</option>)}</select></label>
+      <label className="field">Origem<select name="source" defaultValue={params.source || ""}><option value="">Todas</option><option value="CONTRACTOR_SETTLEMENT">Fechamento de Terceirizados</option><option value="MANUAL">Lançamento manual</option></select></label>
+      <label className="field">Beneficiário terceirizado<select name="contractorId" defaultValue={params.contractorId || ""}><option value="">Todos</option>{contractors.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <label className="field">Classificação<select name="classificationId" defaultValue={params.classificationId || ""}><option value="">Todas</option>{classifications.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <label className="field">Vencimento de<input name="from" type="date" defaultValue={params.from} /></label>
+      <label className="field">Até<input name="to" type="date" defaultValue={params.to} /></label>
+      <label className="field">Situação<select name="status" defaultValue={params.status || ""}><option value="">Todas</option>{["Em aberto", "Vencida", "Parcial", "Pago"].map((item) => <option key={item}>{item}</option>)}</select></label>
+      <div className="flex items-end gap-2"><button className="button-primary">Filtrar</button><Link className="button-secondary" href="/financeiro/contas-a-pagar">Limpar</Link></div>
+    </form>
+    <section className="panel"><div className="table-wrap"><table><thead><tr><th>Empresa</th><th>Vencimento</th><th>Descrição</th><th>Origem</th><th>Beneficiário</th><th>Classificação</th><th>Grupo DRE</th><th>Competência</th><th>Original</th><th>Pago</th><th>Saldo</th><th>Situação</th></tr></thead><tbody>{filtered.map((row) => <tr key={row.id}><td>{row.company.tradeName || row.company.name}</td><td>{formatDate(row.dueDate)}</td><td><Link className="link-button" href={`/financeiro/contas-a-pagar/${row.id}`}>{row.description}</Link></td><td>{row.source === "MANUAL" ? "Lançamento manual" : "Fechamento"}</td><td>{row.payeeName}</td><td>{row.classificationNameSnapshot}</td><td>{groupLabel[row.dreGroupSnapshot]}</td><td>{formatDate(row.competenceDate)}</td><td>{formatCurrency(row.originalAmount)}</td><td>{formatCurrency(paidAmount(row.payments))}</td><td>{formatCurrency(remainingAmount(row.originalAmount, row.payments))}</td><td>{financialStatus(row.originalAmount, row.dueDate, row.payments, today)}</td></tr>)}</tbody></table></div></section>
+  </>;
 }

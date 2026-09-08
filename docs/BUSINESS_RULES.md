@@ -242,6 +242,17 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 
 ## DRE
 
+- BR-203: A Receita Bruta da DRE é derivada exclusivamente de `Billing.amount`, por `Billing.competenceDate` e `Billing.companyId`; Receipt e AccountReceivable não são somados novamente como receita.
+- BR-204: O catálogo de Classificações Financeiras é global e usa código técnico estável, nome amigável, grupo DRE, situação e observações.
+- BR-205: Nesta fase, os únicos grupos físicos são Custos e Despesas Variáveis e Custos e Despesas Fixas.
+- BR-206: Toda nova Conta a Pagar possui classificação viva e snapshots de código, nome e grupo; alterações no cadastro não reclassificam fatos históricos.
+- BR-207: Contas originadas de Fechamento recebem automaticamente `OUTSOURCED_PRODUCTION`, no grupo Custos e Despesas Variáveis, sem escolha do usuário.
+- BR-208: Conta a Pagar pode ter origem `CONTRACTOR_SETTLEMENT` ou `MANUAL`; a primeira exige Fechamento e a segunda não pode possuí-lo.
+- BR-209: Conta a Pagar manual exige Company ativa, beneficiário, descrição, classificação ativa, competência mensal, vencimento e valor Decimal positivo; não cria Pagamento.
+- BR-210: O grupo DRE de uma classificação já usada não pode ser alterado nesta versão; código técnico não é editável e classificações não são excluídas fisicamente pela interface.
+- BR-211: Despesas futuras da DRE usam `AccountPayable.originalAmount`, `competenceDate`, `companyId` e `dreGroupSnapshot`, nunca Payment.
+- BR-212: A DRE permanece derivada e sua tela ainda não é implementada nesta fase.
+
 - BR-036: O DRE deve preservar a estrutura conceitual atual:
   - Receita Bruta.
   - (-) Custos e Despesas Variáveis.
@@ -276,8 +287,7 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - DECISÃO PENDENTE: definir ciclo de vida e status excepcionais dos Serviços Terceirizados.
 - DECISÃO PENDENTE: definir quando um Serviço Terceirizado é considerado elegível para pagamento.
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
-- DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
-- DECISÃO PENDENTE: definir classificações de receitas, custos, despesas, impostos, investimentos e reservas para o DRE.
+- DECISÃO PENDENTE: ampliar as classificações e definir o tratamento de impostos, investimentos e reservas para o DRE.
 - DECISÃO PENDENTE: definir regras para edição, cancelamento ou estorno de OPs, Serviços Terceirizados, romaneios, retornos, fechamentos, contas e faturamentos.
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir necessidade de importação de dados históricos das planilhas atuais.

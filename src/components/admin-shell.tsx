@@ -17,6 +17,7 @@ const navigation = [
   { label: "Produtos", href: "/cadastros/produtos", group: "Cadastros" },
   { label: "Terceirizados", href: "/cadastros/terceirizados", group: "Cadastros" },
   { label: "Serviços", href: "/cadastros/servicos", group: "Cadastros" },
+  { label: "Classificações Financeiras", href: "/cadastros/classificacoes-financeiras", group: "Cadastros" },
 ];
 
 const future = ["Pagamentos", "DRE", "Relatórios", "Configurações"];

@@ -310,6 +310,8 @@ Critério de aceite:
 
 ## Fase 11 - DRE
 
+Estado atual: infraestrutura anterior à DRE implementada. Existe catálogo global de Classificações Financeiras, classificação automática da terceirização, snapshots históricos e Contas a Pagar manuais. A tela e os cálculos da DRE ainda não foram implementados; impostos, investimentos, reservas e orçamento continuam pendentes.
+
 Objetivo:
 
 - Apurar resultado por competência sem confundir OP cadastrada com receita realizada.
@@ -334,8 +336,8 @@ Critério de aceite:
 
 - O DRE apresenta visão de competência e não se confunde com fluxo de caixa.
 
-DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
-DECISÃO PENDENTE: definir plano de categorias do DRE.
+Decisão confirmada: Receita Bruta usa Billing por competência e Company; terceirização usa a classificação variável oficial.
+DECISÃO PENDENTE: completar o plano de categorias e a fórmula posterior ao Lucro Operacional.
 
 ## Fase 12 - Previsto x Real
 

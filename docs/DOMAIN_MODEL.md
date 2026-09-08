@@ -161,7 +161,7 @@ Observação:
 
 - A entrada da OP pode fornecer visibilidade econômica, mas não equivale automaticamente a receita realizada no DRE.
 
-DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
+Decisão confirmada: uma OP só alimenta Receita Bruta quando existe Billing, pelo valor e competência desse faturamento.
 
 ### Terceirizado
 
@@ -623,7 +623,9 @@ Dados derivados:
 
 ### Conta a Pagar
 
-Pertence a uma Company e a exatamente um Fechamento aprovado. Guarda descrição, competência no primeiro dia do mês, vencimento e valor original snapshot. Pago, saldo e situação são derivados dos Pagamentos.
+Pertence a uma Company e pode nascer de um Fechamento aprovado ou de lançamento manual. Guarda origem, beneficiário snapshot, descrição, competência no primeiro dia do mês, vencimento e valor original snapshot. Pago, saldo e situação são derivados dos Pagamentos.
+
+Toda Conta a Pagar possui uma `FinancialClassification` e preserva `classificationCodeSnapshot`, `classificationNameSnapshot` e `dreGroupSnapshot`. A relação viva mantém rastreabilidade; renomear ou desativar o cadastro não altera o fato histórico. `CONTRACTOR_SETTLEMENT` exige Fechamento e recebe automaticamente `OUTSOURCED_PRODUCTION`; `MANUAL` não possui Fechamento e exige escolha de classificação ativa.
 
 Representa um valor a pagar.
 
@@ -699,6 +701,8 @@ Sem saldo de abertura, contas bancárias ou conciliação, o sistema apresenta m
 
 ### DRE
 
+Decisão desta versão: Receita Bruta usa `Billing.amount` por `Billing.competenceDate` e Company. Despesas usarão `AccountPayable.originalAmount` por competência, Company e grupo snapshot. `FinancialClassification` é um catálogo global com código estável; inicialmente existem apenas `VARIABLE_COST_EXPENSE` e `FIXED_COST_EXPENSE`. A estrutura da DRE permanece derivada e ainda não possui tela.
+
 Representa a visão gerencial de resultado por competência.
 
 Relacionamentos:
@@ -727,7 +731,7 @@ Observação:
 
 - OP recebida, valor previsto da OP, produção realizada, faturamento, conta a receber, recebimento financeiro e receita reconhecida no DRE são conceitos distintos.
 
-DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
+Decisão confirmada: o reconhecimento gerencial da Receita Bruta ocorre pelo Billing e sua competência, não pela entrada da OP ou pelo recebimento financeiro.
 
 ### Orçamento / Previsto x Real
 

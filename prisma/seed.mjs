@@ -67,6 +67,21 @@ async function ensureReferencePrice(tx, serviceId, unitPrice) {
 
 async function main() {
   await prisma.$transaction(async (tx) => {
+    await tx.financialClassification.upsert({
+      where: { code: "OUTSOURCED_PRODUCTION" },
+      update: {
+        name: "Serviços terceirizados de produção",
+        dreGroup: "VARIABLE_COST_EXPENSE",
+        active: true,
+      },
+      create: {
+        code: "OUTSOURCED_PRODUCTION",
+        name: "Serviços terceirizados de produção",
+        dreGroup: "VARIABLE_COST_EXPENSE",
+        notes: "Classificação padrão das Contas a Pagar originadas de Fechamentos de Terceirizados.",
+      },
+    });
+
     for (const item of serviceCatalog) {
       const service = await ensureService(tx, item.name);
 
@@ -76,7 +91,7 @@ async function main() {
     }
   });
 
-  console.log("Seed completed: 7 services and 5 reference prices ensured.");
+  console.log("Seed completed: official financial classification, 7 services and 5 reference prices ensured.");
 }
 
 main()

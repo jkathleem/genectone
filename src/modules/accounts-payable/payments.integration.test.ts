@@ -15,7 +15,8 @@ describe.runIf(run)("pagamentos no PostgreSQL real", () => {
     const contractor = await prisma.contractor.create({ data: { name: marker } }); contractorId = contractor.id;
     for (const [index, amount] of ["784.0000", "100.0000"].entries()) {
       const settlement = await prisma.contractorSettlement.create({ data: { companyId, contractorId, periodYear: 2099, periodMonth: index + 1, status: "APPROVED", approvedAt: new Date() } });
-      const account = await prisma.accountPayable.create({ data: { companyId, contractorSettlementId: settlement.id, description: marker, competenceDate: new Date(`2099-0${index + 1}-01T00:00:00Z`), dueDate: new Date("2099-12-31T00:00:00Z"), originalAmount: amount } });
+      const classification = await prisma.financialClassification.findUniqueOrThrow({ where: { code: "OUTSOURCED_PRODUCTION" } });
+      const account = await prisma.accountPayable.create({ data: { companyId, contractorSettlementId: settlement.id, source: "CONTRACTOR_SETTLEMENT", classificationId: classification.id, classificationCodeSnapshot: classification.code, classificationNameSnapshot: classification.name, dreGroupSnapshot: classification.dreGroup, payeeName: marker, description: marker, competenceDate: new Date(`2099-0${index + 1}-01T00:00:00Z`), dueDate: new Date("2099-12-31T00:00:00Z"), originalAmount: amount } });
       if (index === 0) partialAccountId = account.id; else concurrentAccountId = account.id;
     }
   });

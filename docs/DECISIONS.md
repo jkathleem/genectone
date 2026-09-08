@@ -509,6 +509,16 @@ Consequência:
 - O líquido apresentado é dos registros do sistema, não saldo bancário.
 - Competência não determina caixa; Fluxo de Caixa permanece distinto da DRE.
 
+### DEC-045 - Classificações financeiras e origens da Conta a Pagar
+
+- A Receita Bruta futura usa exclusivamente `Billing.amount` por competência e Company.
+- O catálogo `FinancialClassification` é global, possui código técnico estável e inicialmente aceita somente os grupos `VARIABLE_COST_EXPENSE` e `FIXED_COST_EXPENSE`.
+- Contas a Pagar preservam relação viva e snapshots de código, nome e grupo; mudanças cadastrais não reclassificam fatos históricos e não existe reclassificação retroativa nesta versão.
+- `AccountPayableSource` diferencia Fechamento de Terceirizados e lançamento manual, com invariantes também protegidas no banco.
+- Fechamentos usam automaticamente `OUTSOURCED_PRODUCTION`, como Custos e Despesas Variáveis, e copiam o nome do Terceirizado como beneficiário snapshot.
+- Contas manuais exigem classificação ativa e beneficiário, mas não criam Pagamento.
+- A DRE continua derivada e não é implementada nesta etapa.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.
@@ -522,8 +532,7 @@ Consequência:
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir aprovação, cancelamento, estorno e reabertura de fechamentos.
-- DECISÃO PENDENTE: definir exatamente em qual momento e com qual data o valor de uma OP deve entrar como receita no DRE gerencial.
-- DECISÃO PENDENTE: definir categorias de receitas e despesas para DRE.
+- DECISÃO PENDENTE: completar as categorias de receitas e despesas para DRE além dos grupos variáveis e fixos já confirmados.
 - DECISÃO PENDENTE: definir tratamento de impostos, investimentos e reservas no DRE.
 - DECISÃO PENDENTE: definir estrutura do orçamento e níveis de comparação Previsto x Real.
 - DECISÃO PENDENTE: definir relatórios e dashboards prioritários.

@@ -23,6 +23,31 @@ model Company {
   receipts           Receipt[]
 }
 
+enum DreGroup {
+  VARIABLE_COST_EXPENSE
+  FIXED_COST_EXPENSE
+}
+
+enum AccountPayableSource {
+  CONTRACTOR_SETTLEMENT
+  MANUAL
+}
+
+model FinancialClassification {
+  id              String           @id @default(cuid())
+  code            String           @unique
+  name            String
+  dreGroup        DreGroup
+  active          Boolean          @default(true)
+  notes           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  accountsPayable AccountPayable[]
+
+  @@index([dreGroup, active])
+  @@index([name])
+}
+
 model Customer {
   id                 String              @id @default(cuid())
   name               String
@@ -234,20 +259,30 @@ model ContractorSettlement {
 }
 
 model AccountPayable {
-  id                     String               @id @default(cuid())
-  companyId              String
-  contractorSettlementId String               @unique
-  description            String
-  competenceDate         DateTime             @db.Date
-  dueDate                DateTime             @db.Date
-  originalAmount         Decimal              @db.Decimal(14, 4)
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
-  company                Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  contractorSettlement   ContractorSettlement @relation(fields: [contractorSettlementId], references: [id], onDelete: Restrict)
-  payments               Payment[]
+  id                         String                  @id @default(cuid())
+  companyId                  String
+  contractorSettlementId     String?                 @unique
+  source                     AccountPayableSource
+  classificationId           String
+  classificationCodeSnapshot String
+  classificationNameSnapshot String
+  dreGroupSnapshot           DreGroup
+  payeeName                  String
+  description                String
+  competenceDate             DateTime                @db.Date
+  dueDate                    DateTime                @db.Date
+  originalAmount             Decimal                 @db.Decimal(14, 4)
+  createdAt                  DateTime                @default(now())
+  updatedAt                  DateTime                @updatedAt
+  company                    Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  contractorSettlement       ContractorSettlement?   @relation(fields: [contractorSettlementId], references: [id], onDelete: Restrict)
+  classification             FinancialClassification @relation(fields: [classificationId], references: [id], onDelete: Restrict)
+  payments                   Payment[]
 
   @@index([companyId, dueDate])
+  @@index([companyId, competenceDate, dreGroupSnapshot])
+  @@index([classificationId])
+  @@index([source])
   @@index([dueDate])
   @@index([competenceDate])
 }
