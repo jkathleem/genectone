@@ -24,6 +24,20 @@ const serviceCatalog = [
   { name: "Costas" },
 ];
 
+const financialClassifications = [
+  { code: "OUTSOURCED_PRODUCTION", name: "Serviços terceirizados de produção", dreGroup: "VARIABLE_COST_EXPENSE", notes: "Serviços produtivos executados por terceirizados." },
+  { code: "PRODUCTION_MATERIALS", name: "Materiais e insumos de produção", dreGroup: "VARIABLE_COST_EXPENSE", notes: "Materiais diretamente ligados à fabricação sem módulo próprio." },
+  { code: "PRODUCTION_SUPPLIES", name: "Suprimentos de produção", dreGroup: "VARIABLE_COST_EXPENSE", notes: "Pequenos insumos operacionais diretamente associados à produção." },
+  { code: "PAYROLL", name: "Salários", dreGroup: "FIXED_COST_EXPENSE", notes: "Folha registrada manualmente por competência, sem integração automática." },
+  { code: "PAYROLL_CHARGES", name: "Encargos sobre folha", dreGroup: "FIXED_COST_EXPENSE", notes: "Encargos sobre folha registrados separadamente dos salários." },
+  { code: "ELECTRICITY", name: "Energia elétrica", dreGroup: "FIXED_COST_EXPENSE", notes: "Energia classificada como fixa nesta versão gerencial." },
+  { code: "RENT", name: "Aluguel", dreGroup: "FIXED_COST_EXPENSE", notes: "Aluguéis operacionais." },
+  { code: "ACCOUNTING", name: "Contabilidade", dreGroup: "FIXED_COST_EXPENSE", notes: "Serviços contábeis recorrentes." },
+  { code: "MAINTENANCE", name: "Manutenção", dreGroup: "FIXED_COST_EXPENSE", notes: "Manutenção classificada como fixa nesta versão gerencial." },
+  { code: "ADMIN_EXPENSES", name: "Despesas administrativas", dreGroup: "FIXED_COST_EXPENSE", notes: "Despesas administrativas operacionais." },
+  { code: "COMMERCIAL_EXPENSES", name: "Despesas comerciais", dreGroup: "FIXED_COST_EXPENSE", notes: "Despesas comerciais operacionais." },
+];
+
 async function ensureService(tx, name) {
   const existing = await tx.service.findFirst({
     where: { name },
@@ -67,20 +81,13 @@ async function ensureReferencePrice(tx, serviceId, unitPrice) {
 
 async function main() {
   await prisma.$transaction(async (tx) => {
-    await tx.financialClassification.upsert({
-      where: { code: "OUTSOURCED_PRODUCTION" },
-      update: {
-        name: "Serviços terceirizados de produção",
-        dreGroup: "VARIABLE_COST_EXPENSE",
-        active: true,
-      },
-      create: {
-        code: "OUTSOURCED_PRODUCTION",
-        name: "Serviços terceirizados de produção",
-        dreGroup: "VARIABLE_COST_EXPENSE",
-        notes: "Classificação padrão das Contas a Pagar originadas de Fechamentos de Terceirizados.",
-      },
-    });
+    for (const classification of financialClassifications) {
+      await tx.financialClassification.upsert({
+        where: { code: classification.code },
+        update: { active: true },
+        create: classification,
+      });
+    }
 
     for (const item of serviceCatalog) {
       const service = await ensureService(tx, item.name);
@@ -91,7 +98,7 @@ async function main() {
     }
   });
 
-  console.log("Seed completed: official financial classification, 7 services and 5 reference prices ensured.");
+  console.log("Seed completed: 11 financial classifications, 7 services and 5 reference prices ensured.");
 }
 
 main()

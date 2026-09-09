@@ -259,6 +259,13 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-217: Payment, Receipt, vencimento, saldo e situação financeira não alteram a DRE por competência.
 - BR-218: A DRE v1 encerra em Lucro Operacional e não deve exibir Resultado Líquido enquanto os grupos pós-operacionais não forem definidos.
 - BR-219: Totais da DRE são derivados em Decimal, não persistidos, e devem aceitar resultados negativos e competências sem movimento.
+- BR-220: O plano inicial oficial possui 11 classificações gerenciais globais e não representa plano contábil fiscal.
+- BR-221: `OUTSOURCED_PRODUCTION`, `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES` pertencem a Custos e Despesas Variáveis.
+- BR-222: `PAYROLL`, `PAYROLL_CHARGES`, `ELECTRICITY`, `RENT`, `ACCOUNTING`, `MAINTENANCE`, `ADMIN_EXPENSES` e `COMMERCIAL_EXPENSES` pertencem a Custos e Despesas Fixas nesta versão.
+- BR-223: Salários e encargos sobre folha são lançamentos manuais independentes e não implicam integração ou cálculo de folha.
+- BR-224: Energia e manutenção permanecem classificadas como fixas nesta primeira versão para garantir regra gerencial simples e consistente.
+- BR-225: Materiais e suprimentos produtivos não implicam estoque, ativo ou consumo automatizado por OP.
+- BR-226: Impostos, investimentos, reservas, empréstimos, juros, amortizações e movimentações patrimoniais não pertencem ao plano operacional inicial.
 
 - BR-036: O DRE deve preservar a estrutura conceitual atual:
   - Receita Bruta.

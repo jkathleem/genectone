@@ -310,7 +310,7 @@ Critério de aceite:
 
 ## Fase 11 - DRE
 
-Estado atual: DRE Gerencial operacional mensal implementada por Company e competência. Inclui Receita Bruta, Custos e Despesas Variáveis, Margem de Contribuição, Custos e Despesas Fixas, Lucro Operacional, percentuais e detalhamento auditável por fatos de origem e snapshots. Resultado Líquido, visão anual definitiva, impostos, investimentos, reservas e orçamento continuam pendentes.
+Estado atual: DRE Gerencial operacional mensal implementada por Company e competência. Inclui Receita Bruta, Custos e Despesas Variáveis, Margem de Contribuição, Custos e Despesas Fixas, Lucro Operacional, percentuais e detalhamento auditável por fatos de origem e snapshots. O plano gerencial oficial inicial possui 11 classificações ativas disponíveis às Contas a Pagar manuais. Resultado Líquido, visão anual definitiva, impostos, investimentos, reservas e orçamento continuam pendentes.
 
 Objetivo:
 

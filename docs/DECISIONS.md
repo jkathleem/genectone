@@ -528,6 +528,16 @@ Consequência:
 - Percentuais usam Receita Bruta e não são calculados quando ela é zero.
 - Resultado Líquido e grupos pós-operacionais não são exibidos até que suas regras sejam confirmadas.
 
+### DEC-047 - Plano gerencial operacional inicial
+
+- O plano oficial inicial é global, gerencial e não constitui plano contábil fiscal.
+- Variáveis: `OUTSOURCED_PRODUCTION`, `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES`.
+- Fixas: `PAYROLL`, `PAYROLL_CHARGES`, `ELECTRICITY`, `RENT`, `ACCOUNTING`, `MAINTENANCE`, `ADMIN_EXPENSES` e `COMMERCIAL_EXPENSES`.
+- Salários e encargos são separados e manuais; energia e manutenção são fixas nesta versão.
+- Materiais e suprimentos não criam estoque nem consumo automático por OP.
+- O seed é idempotente, e snapshots históricos nunca são reclassificados por sua execução.
+- Impostos, investimentos, reservas e demais grupos pós-operacionais permanecem pendentes.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.

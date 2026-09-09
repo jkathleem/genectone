@@ -627,6 +627,8 @@ Pertence a uma Company e pode nascer de um Fechamento aprovado ou de lançamento
 
 Toda Conta a Pagar possui uma `FinancialClassification` e preserva `classificationCodeSnapshot`, `classificationNameSnapshot` e `dreGroupSnapshot`. A relação viva mantém rastreabilidade; renomear ou desativar o cadastro não altera o fato histórico. `CONTRACTOR_SETTLEMENT` exige Fechamento e recebe automaticamente `OUTSOURCED_PRODUCTION`; `MANUAL` não possui Fechamento e exige escolha de classificação ativa.
 
+O plano gerencial inicial contém 11 classificações oficiais. Variáveis: Serviços terceirizados de produção, Materiais e insumos de produção e Suprimentos de produção. Fixas: Salários, Encargos sobre folha, Energia elétrica, Aluguel, Contabilidade, Manutenção, Despesas administrativas e Despesas comerciais. O catálogo pode evoluir, mas alterações não modificam snapshots existentes.
+
 Representa um valor a pagar.
 
 Relacionamentos:

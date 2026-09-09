@@ -12,7 +12,7 @@ const groupLabel = {
 export default async function Page({ searchParams }: { searchParams: Promise<{ success?: string; error?: string }> }) {
   const [messages, classifications] = await Promise.all([
     searchParams,
-    prisma.financialClassification.findMany({ include: { _count: { select: { accountsPayable: true } } }, orderBy: [{ active: "desc" }, { name: "asc" }] }),
+    prisma.financialClassification.findMany({ include: { _count: { select: { accountsPayable: true } } }, orderBy: [{ dreGroup: "asc" }, { name: "asc" }] }),
   ]);
   return <>
     <PageHeader title="Classificações Financeiras" description="Plano gerencial global usado nas despesas por competência." />
