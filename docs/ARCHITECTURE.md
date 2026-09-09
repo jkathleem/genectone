@@ -210,6 +210,10 @@ As consultas filtram Company e período no PostgreSQL e carregam relacionamentos
 
 `FinancialClassification` é um catálogo global com código técnico único e estável. `AccountPayable` mantém a FK viva e snapshots imutáveis de código, nome e `DreGroup`, impedindo que alterações cadastrais reclassifiquem meses históricos. O grupo de uma classificação em uso é bloqueado na aplicação e todas as FKs históricas usam `onDelete: Restrict`.
 
+O catálogo é financeiro gerencial amplo. `FinancialNature` possui inicialmente `OPERATING_EXPENSE` e `NON_DRE`: a primeira exige `DreGroup`, enquanto a segunda exige grupo nulo. CHECK constraints repetem essa coerência em `FinancialClassification` e nos snapshots de `AccountPayable`. Natureza e grupo ficam bloqueados quando a classificação já está em uso.
+
+O Fluxo de Caixa continua derivado de obrigações e pagamentos independentemente da natureza. A DRE filtra explicitamente `financialNatureSnapshot = OPERATING_EXPENSE` e os grupos variável/fixo; `NON_DRE` nunca entra em sua fórmula. Resultado Líquido, empréstimos, investimentos, reservas e distribuições não foram implementados.
+
 O seed idempotente mantém o plano operacional inicial com 11 códigos oficiais. Para preservar decisões administrativas e o histórico, conflitos existentes são apenas reativados; o seed não renomeia nem troca automaticamente o grupo de classificações já cadastradas. O plano é gerencial, não fiscal, e não contém grupos pós-operacionais.
 
 `AccountPayableSource` distingue `CONTRACTOR_SETTLEMENT` e `MANUAL`; uma CHECK constraint garante a presença ou ausência coerente de `contractorSettlementId`. Contas manuais exigem beneficiário snapshot, classificação ativa, competência mensal e valor Decimal positivo. O fluxo de Fechamento busca `OUTSOURCED_PRODUCTION` e copia automaticamente classificação e beneficiário.

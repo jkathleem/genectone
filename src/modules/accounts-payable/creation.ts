@@ -39,6 +39,7 @@ export async function createFromSettlement(db: DB, settlementId: string, dueDate
       if (settlement.accountPayable) throw new Error("Este fechamento já possui uma Conta a Pagar.");
       const classification = await tx.financialClassification.findUnique({ where: { code: OUTSOURCED_PRODUCTION_CODE } });
       if (!classification?.active) throw new Error("A classificação oficial de terceirização não está ativa.");
+      if (classification.financialNature !== "OPERATING_EXPENSE" || !classification.dreGroup) throw new Error("A classificação oficial de terceirização deve ser uma despesa operacional com grupo DRE.");
       const total = settlementTotal(settlement.items.map((item) => ({ quantity: item.approvedQuantityIncluded, price: item.appliedUnitPriceSnapshot })));
       return tx.accountPayable.create({ data: {
         companyId: settlement.companyId,
@@ -47,6 +48,7 @@ export async function createFromSettlement(db: DB, settlementId: string, dueDate
         classificationId: classification.id,
         classificationCodeSnapshot: classification.code,
         classificationNameSnapshot: classification.name,
+        financialNatureSnapshot: classification.financialNature,
         dreGroupSnapshot: classification.dreGroup,
         payeeName: settlement.contractor.name,
         description: `Fechamento de serviços terceirizados — ${settlement.contractor.name} — ${String(settlement.periodMonth).padStart(2, "0")}/${settlement.periodYear}`,
@@ -83,6 +85,7 @@ export async function createManualAccountPayable(db: DB, input: ManualAccountPay
       classificationId: classification.id,
       classificationCodeSnapshot: classification.code,
       classificationNameSnapshot: classification.name,
+      financialNatureSnapshot: classification.financialNature,
       dreGroupSnapshot: classification.dreGroup,
       payeeName,
       description,

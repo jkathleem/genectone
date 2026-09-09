@@ -36,7 +36,7 @@ async function cleanup() {
 }
 
 async function classification(code: string, name: string, dreGroup: "VARIABLE_COST_EXPENSE" | "FIXED_COST_EXPENSE") {
-  const item = await prisma.financialClassification.create({ data: { code, name, dreGroup, notes: marker } });
+  const item = await prisma.financialClassification.create({ data: { code, name, financialNature: "OPERATING_EXPENSE", dreGroup, notes: marker } });
   classificationIds.set(code, item.id);
   return item;
 }
@@ -76,7 +76,7 @@ describe.runIf(run)("DRE operacional no PostgreSQL", () => {
     const official = await prisma.financialClassification.findUniqueOrThrow({ where: { code: "OUTSOURCED_PRODUCTION" } });
     const contractor = await prisma.contractor.create({ data: { name: marker } });
     const settlement = await prisma.contractorSettlement.create({ data: { companyId: companyA, contractorId: contractor.id, periodYear: 2026, periodMonth: 9, status: "APPROVED", notes: marker } });
-    await prisma.accountPayable.create({ data: { companyId: companyA, contractorSettlementId: settlement.id, source: "CONTRACTOR_SETTLEMENT", classificationId: official.id, classificationCodeSnapshot: official.code, classificationNameSnapshot: official.name, dreGroupSnapshot: official.dreGroup, payeeName: marker, description: marker, competenceDate: new Date("2026-09-01T00:00:00Z"), dueDate: new Date("2026-10-15T00:00:00Z"), originalAmount: "25000" } });
+    await prisma.accountPayable.create({ data: { companyId: companyA, contractorSettlementId: settlement.id, source: "CONTRACTOR_SETTLEMENT", classificationId: official.id, classificationCodeSnapshot: official.code, classificationNameSnapshot: official.name, financialNatureSnapshot: official.financialNature, dreGroupSnapshot: official.dreGroup, payeeName: marker, description: marker, competenceDate: new Date("2026-09-01T00:00:00Z"), dueDate: new Date("2026-10-15T00:00:00Z"), originalAmount: "25000" } });
     await manual("MATERIAL_QA", "Material QA", "15000", "2026-10-01");
     await manual("PAYROLL_QA", "Salários QA", "20000", "2026-12-01");
     await manual("ENERGY_QA", "Energia QA", "5000", "2026-08-31");

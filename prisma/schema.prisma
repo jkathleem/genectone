@@ -28,23 +28,29 @@ enum DreGroup {
   FIXED_COST_EXPENSE
 }
 
+enum FinancialNature {
+  OPERATING_EXPENSE
+  NON_DRE
+}
+
 enum AccountPayableSource {
   CONTRACTOR_SETTLEMENT
   MANUAL
 }
 
 model FinancialClassification {
-  id              String           @id @default(cuid())
-  code            String           @unique
+  id              String            @id @default(cuid())
+  code            String            @unique
   name            String
-  dreGroup        DreGroup
-  active          Boolean          @default(true)
+  financialNature FinancialNature
+  dreGroup        DreGroup?
+  active          Boolean           @default(true)
   notes           String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   accountsPayable AccountPayable[]
 
-  @@index([dreGroup, active])
+  @@index([financialNature, dreGroup, active])
   @@index([name])
 }
 
@@ -266,7 +272,8 @@ model AccountPayable {
   classificationId           String
   classificationCodeSnapshot String
   classificationNameSnapshot String
-  dreGroupSnapshot           DreGroup
+  financialNatureSnapshot    FinancialNature
+  dreGroupSnapshot           DreGroup?
   payeeName                  String
   description                String
   competenceDate             DateTime                @db.Date
@@ -280,7 +287,7 @@ model AccountPayable {
   payments                   Payment[]
 
   @@index([companyId, dueDate])
-  @@index([companyId, competenceDate, dreGroupSnapshot])
+  @@index([companyId, competenceDate, financialNatureSnapshot, dreGroupSnapshot])
   @@index([classificationId])
   @@index([source])
   @@index([dueDate])

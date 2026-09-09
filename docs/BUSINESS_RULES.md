@@ -266,6 +266,12 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-224: Energia e manutenção permanecem classificadas como fixas nesta primeira versão para garantir regra gerencial simples e consistente.
 - BR-225: Materiais e suprimentos produtivos não implicam estoque, ativo ou consumo automatizado por OP.
 - BR-226: Impostos, investimentos, reservas, empréstimos, juros, amortizações e movimentações patrimoniais não pertencem ao plano operacional inicial.
+- BR-227: `FinancialClassification` é um catálogo financeiro gerencial amplo; `financialNature` informa se a classificação participa da DRE operacional.
+- BR-228: `OPERATING_EXPENSE` exige `dreGroup`; `NON_DRE` exige `dreGroup` nulo. A coerência deve ser validada na aplicação e no banco.
+- BR-229: Toda nova Conta a Pagar preserva `financialNatureSnapshot`; `dreGroupSnapshot` é obrigatório para `OPERATING_EXPENSE` e nulo para `NON_DRE`.
+- BR-230: A DRE operacional considera somente Contas a Pagar com natureza `OPERATING_EXPENSE` e ignora integralmente `NON_DRE`.
+- BR-231: Uma Conta a Pagar `NON_DRE` continua compondo o Fluxo de Caixa previsto, e seu Payment continua compondo o realizado.
+- BR-232: Natureza financeira e grupo DRE não podem ser alterados em classificação já usada.
 
 - BR-036: O DRE deve preservar a estrutura conceitual atual:
   - Receita Bruta.

@@ -9,6 +9,7 @@ import { createFinancialClassification, setFinancialClassificationActive, update
 
 const path = "/cadastros/classificacoes-financeiras";
 const groupSchema = z.enum(["VARIABLE_COST_EXPENSE", "FIXED_COST_EXPENSE"]);
+const natureSchema = z.enum(["OPERATING_EXPENSE", "NON_DRE"]);
 const idSchema = z.string().min(1);
 
 async function execute(message: string, operation: () => Promise<unknown>) {
@@ -24,20 +25,28 @@ async function execute(message: string, operation: () => Promise<unknown>) {
 }
 
 export async function createClassificationAction(formData: FormData) {
-  await execute("Classificação cadastrada.", () => createFinancialClassification(prisma, {
-    code: String(formData.get("code") ?? ""),
-    name: String(formData.get("name") ?? ""),
-    dreGroup: groupSchema.parse(formData.get("dreGroup")),
-    notes: String(formData.get("notes") ?? ""),
-  }));
+  await execute("Classificação cadastrada.", () => {
+    const financialNature = natureSchema.parse(formData.get("financialNature"));
+    return createFinancialClassification(prisma, {
+      code: String(formData.get("code") ?? ""),
+      name: String(formData.get("name") ?? ""),
+      financialNature,
+      dreGroup: financialNature === "NON_DRE" ? null : groupSchema.parse(formData.get("dreGroup")),
+      notes: String(formData.get("notes") ?? ""),
+    });
+  });
 }
 
 export async function updateClassificationAction(formData: FormData) {
-  await execute("Classificação atualizada.", () => updateFinancialClassification(prisma, idSchema.parse(formData.get("id")), {
-    name: String(formData.get("name") ?? ""),
-    dreGroup: groupSchema.parse(formData.get("dreGroup")),
-    notes: String(formData.get("notes") ?? ""),
-  }));
+  await execute("Classificação atualizada.", () => {
+    const financialNature = natureSchema.parse(formData.get("financialNature"));
+    return updateFinancialClassification(prisma, idSchema.parse(formData.get("id")), {
+      name: String(formData.get("name") ?? ""),
+      financialNature,
+      dreGroup: financialNature === "NON_DRE" ? null : groupSchema.parse(formData.get("dreGroup")),
+      notes: String(formData.get("notes") ?? ""),
+    });
+  });
 }
 
 export async function toggleClassificationAction(formData: FormData) {

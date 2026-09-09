@@ -19,14 +19,14 @@ export async function operationalDre(companyId: string, year: number, month: num
       orderBy: [{ issueDate: "asc" }, { invoiceNumber: "asc" }],
     }),
     prisma.accountPayable.findMany({
-      where: { companyId, competenceDate: { gte: from, lt: to } },
+      where: { companyId, competenceDate: { gte: from, lt: to }, financialNatureSnapshot: "OPERATING_EXPENSE", dreGroupSnapshot: { not: null } },
       orderBy: [{ classificationNameSnapshot: "asc" }, { dueDate: "asc" }, { createdAt: "asc" }],
     }),
   ]);
   const expenses: ClassifiedExpense<(typeof accountsPayable)[number]>[] = accountsPayable.map((account) => ({
     classificationCode: account.classificationCodeSnapshot,
     classificationName: account.classificationNameSnapshot,
-    group: account.dreGroupSnapshot,
+    group: account.dreGroupSnapshot!,
     amount: account.originalAmount,
     detail: account,
   }));

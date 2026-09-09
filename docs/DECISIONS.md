@@ -14,6 +14,15 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-048 - Classificação financeira ampla e natureza financeira
+
+- `FinancialClassification` é um catálogo financeiro gerencial amplo; nem toda classificação afeta a DRE.
+- `FinancialNature` distingue inicialmente `OPERATING_EXPENSE` e `NON_DRE`.
+- `OPERATING_EXPENSE` exige `DreGroup`; `NON_DRE` exige grupo nulo.
+- Contas a Pagar preservam snapshots da natureza e do grupo aplicados no momento da criação.
+- A DRE operacional ignora `NON_DRE`, enquanto o Fluxo de Caixa previsto e realizado continua considerando suas obrigações e pagamentos.
+- Resultado Líquido e os domínios de empréstimos, investimentos, reservas e distribuições permanecem futuros.
+
 ### DEC-041 - Fechamento monoempresa e Conta a Pagar
 
 - Fechamento pertence a uma única Company e não mistura OPs de empresas diferentes.
