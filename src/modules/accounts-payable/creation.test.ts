@@ -44,4 +44,13 @@ describe("Conta a Pagar manual", () => {
     await createManualAccountPayable(item.db as never, input);
     expect(item.create).toHaveBeenCalledWith({ data: expect.objectContaining({ financialNatureSnapshot: "NON_DRE", dreGroupSnapshot: null }) });
   });
+  it("rejeita classificação de receita financeira", async () => {
+    const item = fixture();
+    item.db.$transaction = vi.fn(async (callback) => callback({
+      company: { findUnique: vi.fn(async () => ({ id: "company", active: true })) },
+      financialClassification: { findUnique: vi.fn(async () => ({ id: "classification", code: "FINANCIAL_REVENUE_QA", name: "Receita financeira", financialNature: "DRE_POST_OPERATING", dreGroup: "FINANCIAL_REVENUE", active: true })) },
+      accountPayable: { create: item.create },
+    })) as never;
+    await expect(createManualAccountPayable(item.db as never, input)).rejects.toThrow("receita financeira");
+  });
 });

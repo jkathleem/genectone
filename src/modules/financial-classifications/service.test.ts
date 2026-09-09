@@ -20,8 +20,13 @@ describe("classificações financeiras", () => {
     const db = { financialClassification: { create: vi.fn() } };
     await expect(createFinancialClassification(db as never, { code: "codigo ruim", name: "Nome", financialNature: "OPERATING_EXPENSE", dreGroup: "FIXED_COST_EXPENSE" })).rejects.toThrow("A-Z");
   });
-  it("exige grupo para OPERATING_EXPENSE", () => expect(() => validateNatureAndGroup("OPERATING_EXPENSE", null)).toThrow("grupo DRE"));
+  it("exige grupo para OPERATING_EXPENSE", () => expect(() => validateNatureAndGroup("OPERATING_EXPENSE", null)).toThrow("grupo operacional"));
   it("exige grupo nulo para NON_DRE", () => expect(() => validateNatureAndGroup("NON_DRE", "FIXED_COST_EXPENSE")).toThrow("não podem possuir"));
+  it("exige grupo pós-operacional coerente", () => {
+    expect(() => validateNatureAndGroup("DRE_POST_OPERATING", "FINANCIAL_EXPENSE")).not.toThrow();
+    expect(() => validateNatureAndGroup("DRE_POST_OPERATING", "FIXED_COST_EXPENSE")).toThrow("pós-operacional");
+    expect(() => validateNatureAndGroup("OPERATING_EXPENSE", "INCOME_TAX_EXPENSE")).toThrow("operacional");
+  });
   it("bloqueia troca de natureza quando em uso", async () => {
     const tx = { financialClassification: { findUnique: vi.fn(async () => ({ id: "classification", financialNature: "OPERATING_EXPENSE", dreGroup: "FIXED_COST_EXPENSE", _count: { accountsPayable: 1 } })), update: vi.fn() } };
     const db = { $transaction: vi.fn(async (callback) => callback(tx)) };

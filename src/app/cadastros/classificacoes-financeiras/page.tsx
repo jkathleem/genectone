@@ -8,8 +8,11 @@ import { ClassificationNatureFields } from "@/modules/financial-classifications/
 const groupLabel = {
   VARIABLE_COST_EXPENSE: "Custos e Despesas Variáveis",
   FIXED_COST_EXPENSE: "Custos e Despesas Fixas",
+  FINANCIAL_REVENUE: "Receitas Financeiras",
+  FINANCIAL_EXPENSE: "Despesas Financeiras",
+  INCOME_TAX_EXPENSE: "Tributos sobre o Resultado",
 } as const;
-const natureLabel = { OPERATING_EXPENSE: "Despesa operacional", NON_DRE: "Fora da DRE" } as const;
+const natureLabel = { OPERATING_EXPENSE: "Despesa operacional", DRE_POST_OPERATING: "DRE pós-operacional", NON_DRE: "Fora da DRE" } as const;
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ success?: string; error?: string }> }) {
   const [messages, classifications] = await Promise.all([

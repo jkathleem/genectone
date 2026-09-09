@@ -46,6 +46,11 @@ export function calculateOperationalDre(revenues: Array<Prisma.Decimal | string>
   const fixedExpenses = sumDecimal(expenses.filter((item) => item.group === "FIXED_COST_EXPENSE").map((item) => item.amount));
   const contributionMargin = grossRevenue.minus(variableExpenses);
   const operatingProfit = contributionMargin.minus(fixedExpenses);
+  const financialRevenue = sumDecimal(expenses.filter((item) => item.group === "FINANCIAL_REVENUE").map((item) => item.amount));
+  const financialExpenses = sumDecimal(expenses.filter((item) => item.group === "FINANCIAL_EXPENSE").map((item) => item.amount));
+  const incomeTaxExpenses = sumDecimal(expenses.filter((item) => item.group === "INCOME_TAX_EXPENSE").map((item) => item.amount));
+  const resultBeforeTaxes = operatingProfit.plus(financialRevenue).minus(financialExpenses);
+  const managerialNetIncome = resultBeforeTaxes.minus(incomeTaxExpenses);
   return {
     grossRevenue,
     variableExpenses,
@@ -54,5 +59,11 @@ export function calculateOperationalDre(revenues: Array<Prisma.Decimal | string>
     fixedExpenses,
     operatingProfit,
     operatingMarginPercentage: percentage(operatingProfit, grossRevenue),
+    financialRevenue,
+    financialExpenses,
+    resultBeforeTaxes,
+    incomeTaxExpenses,
+    managerialNetIncome,
+    managerialNetMarginPercentage: percentage(managerialNetIncome, grossRevenue),
   };
 }

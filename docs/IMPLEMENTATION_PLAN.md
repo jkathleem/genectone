@@ -310,9 +310,9 @@ Critério de aceite:
 
 ## Fase 11 - DRE
 
-Estado atual: DRE Gerencial operacional mensal implementada por Company e competência. Inclui Receita Bruta, Custos e Despesas Variáveis, Margem de Contribuição, Custos e Despesas Fixas, Lucro Operacional, percentuais e detalhamento auditável por fatos de origem e snapshots. O plano gerencial oficial inicial possui 11 classificações ativas disponíveis às Contas a Pagar manuais. Resultado Líquido, visão anual definitiva, impostos, investimentos, reservas e orçamento continuam pendentes.
+Estado atual: DRE Gerencial mensal implementada por Company e competência até o Resultado Líquido Gerencial. Inclui Receita Bruta, Variáveis, Margem de Contribuição, Fixas, Lucro Operacional, Receitas e Despesas Financeiras, Resultado Antes dos Tributos, Tributos sobre o Resultado, margens e composição auditável. O plano possui 13 classificações oficiais. Visão anual definitiva, demais impostos, investimentos, reservas e orçamento continuam pendentes.
 
-Evolução estrutural concluída: `FinancialClassification` tornou-se um catálogo financeiro amplo, com natureza `OPERATING_EXPENSE` ou `NON_DRE`. A DRE mantém sua fórmula operacional e ignora `NON_DRE`; Contas a Pagar e Payments dessa natureza continuam no Fluxo de Caixa. As 11 classificações oficiais permanecem despesas operacionais nos grupos originais. Nenhuma classificação pós-operacional oficial foi adicionada.
+Evolução estrutural concluída: `FinancialClassification` é um catálogo financeiro amplo, com `OPERATING_EXPENSE`, `DRE_POST_OPERATING` ou `NON_DRE`. A DRE preserva sua fórmula operacional, acrescenta despesas financeiras e tributos para derivar o Resultado Líquido Gerencial e ignora `NON_DRE`; essas contas continuam no Fluxo de Caixa. O plano oficial possui 13 classificações. Receitas Financeiras permanecem zero até existir uma fonte própria.
 
 Objetivo:
 
@@ -339,7 +339,7 @@ Critério de aceite:
 - O DRE apresenta visão de competência e não se confunde com fluxo de caixa.
 
 Decisão confirmada: Receita Bruta usa Billing por competência e Company; terceirização usa a classificação variável oficial.
-DECISÃO PENDENTE: completar o plano de categorias e a fórmula posterior ao Lucro Operacional.
+Decisão confirmada: a fórmula posterior ao Lucro Operacional deriva o Resultado Líquido Gerencial; Receitas Financeiras ficam zero até existir uma fonte própria.
 
 ## Fase 12 - Previsto x Real
 

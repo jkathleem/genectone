@@ -210,11 +210,11 @@ As consultas filtram Company e período no PostgreSQL e carregam relacionamentos
 
 `FinancialClassification` é um catálogo global com código técnico único e estável. `AccountPayable` mantém a FK viva e snapshots imutáveis de código, nome e `DreGroup`, impedindo que alterações cadastrais reclassifiquem meses históricos. O grupo de uma classificação em uso é bloqueado na aplicação e todas as FKs históricas usam `onDelete: Restrict`.
 
-O catálogo é financeiro gerencial amplo. `FinancialNature` possui inicialmente `OPERATING_EXPENSE` e `NON_DRE`: a primeira exige `DreGroup`, enquanto a segunda exige grupo nulo. CHECK constraints repetem essa coerência em `FinancialClassification` e nos snapshots de `AccountPayable`. Natureza e grupo ficam bloqueados quando a classificação já está em uso.
+O catálogo é financeiro gerencial amplo. `FinancialNature` possui `OPERATING_EXPENSE`, `DRE_POST_OPERATING` e `NON_DRE`. A primeira exige grupo variável/fixo, a segunda exige um grupo pós-operacional e a terceira exige grupo nulo. CHECK constraints repetem a coerência em `FinancialClassification` e nos snapshots de `AccountPayable`; Conta a Pagar rejeita especificamente receita financeira. Natureza e grupo ficam bloqueados quando a classificação já está em uso.
 
-O Fluxo de Caixa continua derivado de obrigações e pagamentos independentemente da natureza. A DRE filtra explicitamente `financialNatureSnapshot = OPERATING_EXPENSE` e os grupos variável/fixo; `NON_DRE` nunca entra em sua fórmula. Resultado Líquido, empréstimos, investimentos, reservas e distribuições não foram implementados.
+O Fluxo de Caixa continua derivado de obrigações e pagamentos independentemente da natureza. A DRE usa snapshots operacionais e pós-operacionais; `NON_DRE` nunca entra em sua fórmula. Resultado Líquido Gerencial é derivado, não persistido. Empréstimos, investimentos, reservas e distribuições não foram implementados.
 
-O seed idempotente mantém o plano operacional inicial com 11 códigos oficiais. Para preservar decisões administrativas e o histórico, conflitos existentes são apenas reativados; o seed não renomeia nem troca automaticamente o grupo de classificações já cadastradas. O plano é gerencial, não fiscal, e não contém grupos pós-operacionais.
+O seed idempotente mantém 13 códigos oficiais: 11 operacionais, `FINANCIAL_EXPENSES` e `INCOME_TAXES`. Para preservar decisões administrativas e o histórico, conflitos existentes são apenas reativados; o seed não reclassifica automaticamente cadastros existentes. O plano é gerencial, não fiscal.
 
 `AccountPayableSource` distingue `CONTRACTOR_SETTLEMENT` e `MANUAL`; uma CHECK constraint garante a presença ou ausência coerente de `contractorSettlementId`. Contas manuais exigem beneficiário snapshot, classificação ativa, competência mensal e valor Decimal positivo. O fluxo de Fechamento busca `OUTSOURCED_PRODUCTION` e copia automaticamente classificação e beneficiário.
 
@@ -224,7 +224,7 @@ A futura DRE será consultada diretamente de Billing e AccountPayable por compet
 
 `src/modules/dre/domain.ts` contém somente cálculos puros em `Prisma.Decimal`; `queries.ts` filtra Billing e AccountPayable no PostgreSQL por Company e intervalo mensal de competência. A receita é consultada uma única vez em Billing. As despesas usam `originalAmount` e os snapshots de classificação, sem joins necessários ao cadastro atual e sem consultar Payments ou Receipts.
 
-A rota `/financeiro/dre` exige Company, mês e ano, apresenta totais, percentuais e composição auditável. Nenhum total é persistido. A versão termina em Lucro Operacional e declara explicitamente que não constitui demonstração contábil/fiscal nem calcula Resultado Líquido.
+A rota `/financeiro/dre` exige Company, mês e ano, apresenta totais, percentuais e composição auditável até o Resultado Líquido Gerencial. Nenhum total é persistido. Receitas Financeiras permanecem zero nesta versão porque não existe fato de origem adequado; Billing e Receipt não são usados artificialmente. A visão não constitui demonstração contábil/fiscal oficial.
 
 ## Identificadores
 

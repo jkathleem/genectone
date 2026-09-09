@@ -6,7 +6,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { financialStatus, paidAmount, remainingAmount } from "@/modules/accounts-payable/domain";
 
-const groupLabel = { VARIABLE_COST_EXPENSE: "Custos e Despesas Variáveis", FIXED_COST_EXPENSE: "Custos e Despesas Fixas" } as const;
+const groupLabel = { VARIABLE_COST_EXPENSE: "Custos e Despesas Variáveis", FIXED_COST_EXPENSE: "Custos e Despesas Fixas", FINANCIAL_REVENUE: "Receitas Financeiras", FINANCIAL_EXPENSE: "Despesas Financeiras", INCOME_TAX_EXPENSE: "Tributos sobre o Resultado" } as const;
 
 export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ success?: string; error?: string }> }) {
   const { id } = await params;

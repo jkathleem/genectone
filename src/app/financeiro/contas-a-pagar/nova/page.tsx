@@ -8,7 +8,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
   const [messages, companies, classifications] = await Promise.all([
     searchParams,
     prisma.company.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
-    prisma.financialClassification.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
+    prisma.financialClassification.findMany({ where: { active: true, NOT: { dreGroup: "FINANCIAL_REVENUE" } }, orderBy: { name: "asc" } }),
   ]);
   const now = new Date();
   return <>
@@ -18,7 +18,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ e
       <label className="field">Empresa<select name="companyId" required defaultValue=""><option disabled value="">Selecione</option>{companies.map((company) => <option key={company.id} value={company.id}>{company.tradeName || company.name}</option>)}</select></label>
       <label className="field">Beneficiário<input maxLength={200} name="payeeName" required /></label>
       <label className="field sm:col-span-2">Descrição<input maxLength={300} name="description" required /></label>
-      <label className="field sm:col-span-2">Classificação<select name="classificationId" required defaultValue=""><option disabled value="">Selecione</option>{classifications.map((classification) => <option key={classification.id} value={classification.id}>{classification.name} — Impacta DRE: {classification.financialNature === "OPERATING_EXPENSE" ? `Sim (${classification.dreGroup === "VARIABLE_COST_EXPENSE" ? "Variável" : "Fixa"})` : "Não"}</option>)}</select></label>
+      <label className="field sm:col-span-2">Classificação<select name="classificationId" required defaultValue=""><option disabled value="">Selecione</option>{classifications.map((classification) => <option key={classification.id} value={classification.id}>{classification.name} — Impacta DRE: {classification.financialNature === "NON_DRE" ? "Não" : "Sim"}</option>)}</select></label>
       <label className="field">Mês da competência<input defaultValue={now.getMonth() + 1} max={12} min={1} name="competenceMonth" required type="number" /></label>
       <label className="field">Ano da competência<input defaultValue={now.getFullYear()} min={1900} name="competenceYear" required type="number" /></label>
       <label className="field">Vencimento<input name="dueDate" required type="date" /></label>

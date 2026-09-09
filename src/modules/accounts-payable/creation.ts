@@ -78,6 +78,7 @@ export async function createManualAccountPayable(db: DB, input: ManualAccountPay
     const classification = await tx.financialClassification.findUnique({ where: { id: input.classificationId } });
     if (!company?.active) throw new Error("Selecione uma empresa ativa.");
     if (!classification?.active) throw new Error("Selecione uma classificação ativa.");
+    if (classification.dreGroup === "FINANCIAL_REVENUE") throw new Error("Conta a Pagar não pode usar classificação de receita financeira.");
     return tx.accountPayable.create({ data: {
       companyId: company.id,
       contractorSettlementId: null,

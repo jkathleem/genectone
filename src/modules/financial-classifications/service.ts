@@ -12,7 +12,10 @@ function required(value: string, message: string) {
 type ClassificationInput = { name: string; financialNature: FinancialNature; dreGroup: DreGroup | null; notes?: string | null };
 
 export function validateNatureAndGroup(financialNature: FinancialNature, dreGroup: DreGroup | null) {
-  if (financialNature === "OPERATING_EXPENSE" && !dreGroup) throw new Error("Informe o grupo DRE para a despesa operacional.");
+  const operatingGroups: DreGroup[] = ["VARIABLE_COST_EXPENSE", "FIXED_COST_EXPENSE"];
+  const postOperatingGroups: DreGroup[] = ["FINANCIAL_REVENUE", "FINANCIAL_EXPENSE", "INCOME_TAX_EXPENSE"];
+  if (financialNature === "OPERATING_EXPENSE" && (!dreGroup || !operatingGroups.includes(dreGroup))) throw new Error("Selecione um grupo operacional variável ou fixo.");
+  if (financialNature === "DRE_POST_OPERATING" && (!dreGroup || !postOperatingGroups.includes(dreGroup))) throw new Error("Selecione um grupo pós-operacional válido.");
   if (financialNature === "NON_DRE" && dreGroup) throw new Error("Classificações fora da DRE não podem possuir grupo DRE.");
 }
 

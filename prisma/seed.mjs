@@ -36,6 +36,8 @@ const financialClassifications = [
   { code: "MAINTENANCE", name: "Manutenção", financialNature: "OPERATING_EXPENSE", dreGroup: "FIXED_COST_EXPENSE", notes: "Manutenção classificada como fixa nesta versão gerencial." },
   { code: "ADMIN_EXPENSES", name: "Despesas administrativas", financialNature: "OPERATING_EXPENSE", dreGroup: "FIXED_COST_EXPENSE", notes: "Despesas administrativas operacionais." },
   { code: "COMMERCIAL_EXPENSES", name: "Despesas comerciais", financialNature: "OPERATING_EXPENSE", dreGroup: "FIXED_COST_EXPENSE", notes: "Despesas comerciais operacionais." },
+  { code: "FINANCIAL_EXPENSES", name: "Despesas financeiras", financialNature: "DRE_POST_OPERATING", dreGroup: "FINANCIAL_EXPENSE", notes: "Despesas financeiras gerenciais reconhecidas por competência." },
+  { code: "INCOME_TAXES", name: "Tributos sobre o resultado", financialNature: "DRE_POST_OPERATING", dreGroup: "INCOME_TAX_EXPENSE", notes: "Tributos gerenciais incidentes sobre o resultado." },
 ];
 
 async function ensureService(tx, name) {
@@ -98,7 +100,7 @@ async function main() {
     }
   });
 
-  console.log("Seed completed: 11 financial classifications, 7 services and 5 reference prices ensured.");
+  console.log("Seed completed: 13 financial classifications, 7 services and 5 reference prices ensured.");
 }
 
 main()

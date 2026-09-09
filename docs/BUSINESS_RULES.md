@@ -259,7 +259,7 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-217: Payment, Receipt, vencimento, saldo e situação financeira não alteram a DRE por competência.
 - BR-218: A DRE v1 encerra em Lucro Operacional e não deve exibir Resultado Líquido enquanto os grupos pós-operacionais não forem definidos.
 - BR-219: Totais da DRE são derivados em Decimal, não persistidos, e devem aceitar resultados negativos e competências sem movimento.
-- BR-220: O plano inicial oficial possui 11 classificações gerenciais globais e não representa plano contábil fiscal.
+- BR-220: O plano operacional inicial possui 11 classificações; com as duas classificações pós-operacionais, o plano oficial totaliza 13 e não representa plano contábil fiscal.
 - BR-221: `OUTSOURCED_PRODUCTION`, `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES` pertencem a Custos e Despesas Variáveis.
 - BR-222: `PAYROLL`, `PAYROLL_CHARGES`, `ELECTRICITY`, `RENT`, `ACCOUNTING`, `MAINTENANCE`, `ADMIN_EXPENSES` e `COMMERCIAL_EXPENSES` pertencem a Custos e Despesas Fixas nesta versão.
 - BR-223: Salários e encargos sobre folha são lançamentos manuais independentes e não implicam integração ou cálculo de folha.
@@ -267,11 +267,17 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-225: Materiais e suprimentos produtivos não implicam estoque, ativo ou consumo automatizado por OP.
 - BR-226: Impostos, investimentos, reservas, empréstimos, juros, amortizações e movimentações patrimoniais não pertencem ao plano operacional inicial.
 - BR-227: `FinancialClassification` é um catálogo financeiro gerencial amplo; `financialNature` informa se a classificação participa da DRE operacional.
-- BR-228: `OPERATING_EXPENSE` exige `dreGroup`; `NON_DRE` exige `dreGroup` nulo. A coerência deve ser validada na aplicação e no banco.
-- BR-229: Toda nova Conta a Pagar preserva `financialNatureSnapshot`; `dreGroupSnapshot` é obrigatório para `OPERATING_EXPENSE` e nulo para `NON_DRE`.
-- BR-230: A DRE operacional considera somente Contas a Pagar com natureza `OPERATING_EXPENSE` e ignora integralmente `NON_DRE`.
+- BR-228: `OPERATING_EXPENSE` exige grupo operacional; `DRE_POST_OPERATING` exige grupo pós-operacional; `NON_DRE` exige grupo nulo. A coerência deve ser validada na aplicação e no banco.
+- BR-229: Toda nova Conta a Pagar preserva `financialNatureSnapshot`; `dreGroupSnapshot` é obrigatório para naturezas que afetam DRE e nulo para `NON_DRE`.
+- BR-230: A DRE considera Contas a Pagar operacionais e pós-operacionais por competência e ignora integralmente `NON_DRE`.
 - BR-231: Uma Conta a Pagar `NON_DRE` continua compondo o Fluxo de Caixa previsto, e seu Payment continua compondo o realizado.
 - BR-232: Natureza financeira e grupo DRE não podem ser alterados em classificação já usada.
+- BR-233: `DRE_POST_OPERATING` exige um dos grupos `FINANCIAL_REVENUE`, `FINANCIAL_EXPENSE` ou `INCOME_TAX_EXPENSE`.
+- BR-234: Conta a Pagar manual aceita `FINANCIAL_EXPENSE` e `INCOME_TAX_EXPENSE`, mas rejeita `FINANCIAL_REVENUE`.
+- BR-235: Resultado Antes dos Tributos é Lucro Operacional mais Receitas Financeiras menos Despesas Financeiras.
+- BR-236: Resultado Líquido Gerencial é Resultado Antes dos Tributos menos Tributos sobre o Resultado; sua margem usa Receita Bruta como denominador e fica indefinida quando ela é zero.
+- BR-237: Enquanto não houver fato de origem próprio, Receitas Financeiras são zero; Billing e Receipt não podem ser usados artificialmente.
+- BR-238: Contas `NON_DRE` não alteram nenhuma linha da DRE, embora obrigações e pagamentos continuem no Fluxo de Caixa.
 
 - BR-036: O DRE deve preservar a estrutura conceitual atual:
   - Receita Bruta.
@@ -307,7 +313,7 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - DECISÃO PENDENTE: definir ciclo de vida e status excepcionais dos Serviços Terceirizados.
 - DECISÃO PENDENTE: definir quando um Serviço Terceirizado é considerado elegível para pagamento.
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
-- DECISÃO PENDENTE: ampliar as classificações e definir o tratamento de impostos, investimentos e reservas para o DRE.
+- DECISÃO PENDENTE: definir o tratamento de impostos distintos dos tributos sobre o resultado, investimentos e reservas.
 - DECISÃO PENDENTE: definir regras para edição, cancelamento ou estorno de OPs, Serviços Terceirizados, romaneios, retornos, fechamentos, contas e faturamentos.
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir necessidade de importação de dados históricos das planilhas atuais.

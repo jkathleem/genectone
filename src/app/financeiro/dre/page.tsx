@@ -26,7 +26,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
   const dre = selectedCompany ? await operationalDre(selectedCompany.id, year, month) : null;
 
   return <>
-    <PageHeader title="DRE Gerencial" description="Resultado operacional derivado por competência, separado do Fluxo de Caixa." />
+    <PageHeader title="DRE Gerencial" description="Resultado gerencial por competência, separado do Fluxo de Caixa." />
     <form className="panel mb-5 form-grid">
       <label className="field">Empresa<select defaultValue={selectedCompany?.id || ""} name="companyId" required><option disabled value="">Selecione</option>{companies.map((company) => <option key={company.id} value={company.id}>{company.tradeName || company.name}{company.active ? "" : " (inativa)"}</option>)}</select></label>
       <label className="field">Mês<select defaultValue={month} name="month">{monthNames.map((name, index) => <option key={name} value={index + 1}>{name}</option>)}</select></label>
@@ -43,14 +43,21 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
           <div className="rounded-lg bg-blue-50 p-4"><p className="font-semibold">(=) Margem de Contribuição</p><strong className="mt-1 block text-2xl">{formatCurrency(dre.contributionMargin)}</strong><span className="text-sm text-slate-600">{percentage(dre.contributionMarginPercentage)}</span></div>
           <div className="rounded-lg border-l-4 border-orange-400 bg-orange-50 p-4"><p className="font-semibold">(-) Custos e Despesas Fixas</p><strong className="mt-1 block text-xl">{formatCurrency(dre.fixedExpenses)}</strong></div>
           <div className="rounded-lg bg-emerald-50 p-4"><p className="font-semibold">(=) Lucro Operacional</p><strong className="mt-1 block text-2xl">{formatCurrency(dre.operatingProfit)}</strong><span className="text-sm text-slate-600">{percentage(dre.operatingMarginPercentage)}</span></div>
+          <div className="rounded-lg bg-sky-50 p-4"><p className="font-semibold">(+) Receitas Financeiras</p><strong className="mt-1 block text-xl">{formatCurrency(dre.financialRevenue)}</strong></div>
+          <div className="rounded-lg border-l-4 border-rose-400 bg-rose-50 p-4"><p className="font-semibold">(-) Despesas Financeiras</p><strong className="mt-1 block text-xl">{formatCurrency(dre.financialExpenses)}</strong></div>
+          <div className="rounded-lg bg-indigo-50 p-4"><p className="font-semibold">(=) Resultado Antes dos Tributos</p><strong className="mt-1 block text-2xl">{formatCurrency(dre.resultBeforeTaxes)}</strong></div>
+          <div className="rounded-lg border-l-4 border-violet-400 bg-violet-50 p-4"><p className="font-semibold">(-) Tributos sobre o Resultado</p><strong className="mt-1 block text-xl">{formatCurrency(dre.incomeTaxExpenses)}</strong></div>
+          <div className="rounded-lg bg-emerald-100 p-4"><p className="font-semibold">(=) Resultado Líquido Gerencial</p><strong className="mt-1 block text-2xl">{formatCurrency(dre.managerialNetIncome)}</strong><span className="text-sm text-slate-600">Margem Líquida Gerencial: {percentage(dre.managerialNetMarginPercentage)}</span></div>
         </div>
-        <p className="mt-5 text-sm text-slate-500">Esta versão da DRE apresenta o resultado operacional gerencial. Resultado líquido e grupos pós-operacionais ainda não estão incluídos; não se trata de demonstração contábil ou fiscal oficial.</p>
+        <p className="mt-5 text-sm text-slate-500">Receitas Financeiras permanecem em R$ 0,00 nesta versão porque ainda não existe fato de origem adequado. Billing e Receipt não são usados artificialmente. Esta é uma visão gerencial, não uma demonstração contábil ou fiscal oficial.</p>
       </section>
 
       <section className="panel mb-5"><h2 className="section-title mb-4">Composição da Receita Bruta</h2>{dre.billings.length ? <div className="table-wrap"><table><thead><tr><th>OP</th><th>NFe</th><th>Cliente</th><th>Emissão</th><th>Valor</th><th /></tr></thead><tbody>{dre.billings.map((billing) => <tr key={billing.id}><td>{billing.productionOrder.number}</td><td>{billing.invoiceNumber}</td><td>{billing.productionOrder.customer.name}</td><td>{formatDate(billing.issueDate)}</td><td>{formatCurrency(billing.amount)}</td><td><Link className="link-button" href={billing.accountReceivable ? `/financeiro/contas-a-receber/${billing.accountReceivable.id}` : `/ops/${billing.productionOrderId}`}>Abrir</Link></td></tr>)}</tbody></table></div> : <p className="empty-state">Nenhum faturamento nesta competência.</p>}</section>
 
       <ExpenseDetails title="Custos e Despesas Variáveis" groups={dre.variableGroups} />
       <ExpenseDetails title="Custos e Despesas Fixas" groups={dre.fixedGroups} />
+      <ExpenseDetails title="Despesas Financeiras" groups={dre.financialExpenseGroups} />
+      <ExpenseDetails title="Tributos sobre o Resultado" groups={dre.incomeTaxGroups} />
     </>}
   </>;
 }

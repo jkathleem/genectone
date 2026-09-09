@@ -19,7 +19,7 @@ export async function operationalDre(companyId: string, year: number, month: num
       orderBy: [{ issueDate: "asc" }, { invoiceNumber: "asc" }],
     }),
     prisma.accountPayable.findMany({
-      where: { companyId, competenceDate: { gte: from, lt: to }, financialNatureSnapshot: "OPERATING_EXPENSE", dreGroupSnapshot: { not: null } },
+      where: { companyId, competenceDate: { gte: from, lt: to }, financialNatureSnapshot: { in: ["OPERATING_EXPENSE", "DRE_POST_OPERATING"] }, dreGroupSnapshot: { not: null } },
       orderBy: [{ classificationNameSnapshot: "asc" }, { dueDate: "asc" }, { createdAt: "asc" }],
     }),
   ]);
@@ -36,5 +36,8 @@ export async function operationalDre(companyId: string, year: number, month: num
     billings,
     variableGroups: groupByClassification(expenses.filter((item) => item.group === "VARIABLE_COST_EXPENSE")),
     fixedGroups: groupByClassification(expenses.filter((item) => item.group === "FIXED_COST_EXPENSE")),
+    financialRevenueGroups: groupByClassification(expenses.filter((item) => item.group === "FINANCIAL_REVENUE")),
+    financialExpenseGroups: groupByClassification(expenses.filter((item) => item.group === "FINANCIAL_EXPENSE")),
+    incomeTaxGroups: groupByClassification(expenses.filter((item) => item.group === "INCOME_TAX_EXPENSE")),
   };
 }

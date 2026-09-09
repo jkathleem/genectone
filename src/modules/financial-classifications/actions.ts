@@ -8,8 +8,8 @@ import { redirectWithMessage } from "@/lib/form";
 import { createFinancialClassification, setFinancialClassificationActive, updateFinancialClassification } from "./service";
 
 const path = "/cadastros/classificacoes-financeiras";
-const groupSchema = z.enum(["VARIABLE_COST_EXPENSE", "FIXED_COST_EXPENSE"]);
-const natureSchema = z.enum(["OPERATING_EXPENSE", "NON_DRE"]);
+const groupSchema = z.enum(["VARIABLE_COST_EXPENSE", "FIXED_COST_EXPENSE", "FINANCIAL_REVENUE", "FINANCIAL_EXPENSE", "INCOME_TAX_EXPENSE"]);
+const natureSchema = z.enum(["OPERATING_EXPENSE", "DRE_POST_OPERATING", "NON_DRE"]);
 const idSchema = z.string().min(1);
 
 async function execute(message: string, operation: () => Promise<unknown>) {

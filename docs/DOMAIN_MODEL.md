@@ -627,9 +627,9 @@ Pertence a uma Company e pode nascer de um Fechamento aprovado ou de lançamento
 
 Toda Conta a Pagar possui uma `FinancialClassification` e preserva `classificationCodeSnapshot`, `classificationNameSnapshot`, `financialNatureSnapshot` e o `dreGroupSnapshot` aplicável. A relação viva mantém rastreabilidade; renomear ou desativar o cadastro não altera o fato histórico. `CONTRACTOR_SETTLEMENT` exige Fechamento e recebe automaticamente `OUTSOURCED_PRODUCTION`; `MANUAL` não possui Fechamento e exige escolha de classificação ativa.
 
-`FinancialClassification` passa a ser um catálogo financeiro gerencial amplo. `FinancialNature.OPERATING_EXPENSE` exige grupo variável ou fixo e participa da DRE operacional; `FinancialNature.NON_DRE` exige grupo nulo e representa obrigações que afetam Caixa sem afetar essa DRE. `AccountPayable` preserva também `financialNatureSnapshot`, e a coerência entre natureza e grupo é histórica. Natureza e grupo de uma classificação em uso não podem mudar.
+`FinancialClassification` passa a ser um catálogo financeiro gerencial amplo. `FinancialNature.OPERATING_EXPENSE` exige grupo variável ou fixo; `DRE_POST_OPERATING` exige receita financeira, despesa financeira ou tributo sobre o resultado; `FinancialNature.NON_DRE` exige grupo nulo. `AccountPayable` preserva também `financialNatureSnapshot`, e a coerência entre natureza e grupo é histórica. Natureza e grupo de uma classificação em uso não podem mudar. Conta a Pagar rejeita receita financeira por representar uma obrigação de saída.
 
-O plano gerencial inicial contém 11 classificações oficiais. Variáveis: Serviços terceirizados de produção, Materiais e insumos de produção e Suprimentos de produção. Fixas: Salários, Encargos sobre folha, Energia elétrica, Aluguel, Contabilidade, Manutenção, Despesas administrativas e Despesas comerciais. O catálogo pode evoluir, mas alterações não modificam snapshots existentes.
+O plano gerencial contém 13 classificações oficiais. As 11 operacionais permanecem nos grupos variável/fixo originais; `FINANCIAL_EXPENSES` representa Despesas Financeiras e `INCOME_TAXES`, Tributos sobre o Resultado. O catálogo pode evoluir, mas alterações não modificam snapshots existentes.
 
 Representa um valor a pagar.
 
@@ -709,7 +709,7 @@ Decisão desta versão: Receita Bruta usa `Billing.amount` por `Billing.competen
 
 A DRE Gerencial v1 foi implementada como consulta mensal monoempresa, sem model ou tabela própria. Receita Bruta menos despesas variáveis resulta na Margem de Contribuição; a subtração das despesas fixas resulta no Lucro Operacional. A composição preserva código, nome e grupo snapshots e permite chegar aos Billing e AccountPayable de origem. Payment, Receipt, vencimento e saldo não participam do cálculo.
 
-Esta primeira versão encerra no Lucro Operacional. Resultado Líquido, impostos, investimentos, reservas e demais grupos pós-operacionais permanecem fora do cálculo.
+Depois do Lucro Operacional, a DRE soma Receitas Financeiras, subtrai Despesas Financeiras, deriva Resultado Antes dos Tributos, subtrai Tributos sobre o Resultado e deriva Resultado Líquido Gerencial e Margem Líquida Gerencial. Sem entidade de origem adequada, Receitas Financeiras permanecem zero; Billing e Receipt não alimentam essa linha.
 
 Contas com `financialNatureSnapshot = NON_DRE` são ignoradas integralmente pela DRE. Essa exclusão não altera sua participação no Fluxo de Caixa previsto nem a participação de seus pagamentos no realizado.
 

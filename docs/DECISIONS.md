@@ -23,6 +23,15 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 - A DRE operacional ignora `NON_DRE`, enquanto o Fluxo de Caixa previsto e realizado continua considerando suas obrigações e pagamentos.
 - Resultado Líquido e os domínios de empréstimos, investimentos, reservas e distribuições permanecem futuros.
 
+### DEC-049 - Resultado Líquido Gerencial
+
+- `DRE_POST_OPERATING` identifica classificações que afetam a DRE depois do Lucro Operacional.
+- A camada usa `FINANCIAL_REVENUE`, `FINANCIAL_EXPENSE` e `INCOME_TAX_EXPENSE`.
+- Resultado Antes dos Tributos é Lucro Operacional mais Receitas Financeiras menos Despesas Financeiras; Resultado Líquido Gerencial subtrai os Tributos sobre o Resultado.
+- Conta a Pagar pode registrar despesas financeiras e tributos, mas nunca receita financeira.
+- Sem fato físico adequado, Receitas Financeiras permanecem zero; Billing e Receipt não são reutilizados artificialmente.
+- `NON_DRE` permanece fora de todos os valores da DRE e continua afetando o Fluxo de Caixa.
+
 ### DEC-041 - Fechamento monoempresa e Conta a Pagar
 
 - Fechamento pertence a uma única Company e não mistura OPs de empresas diferentes.
@@ -545,7 +554,7 @@ Consequência:
 - Salários e encargos são separados e manuais; energia e manutenção são fixas nesta versão.
 - Materiais e suprimentos não criam estoque nem consumo automático por OP.
 - O seed é idempotente, e snapshots históricos nunca são reclassificados por sua execução.
-- Impostos, investimentos, reservas e demais grupos pós-operacionais permanecem pendentes.
+- O plano operacional inicial permanece intacto; despesas financeiras e tributos sobre o resultado foram definidos posteriormente na DEC-049. Investimentos, reservas e demais movimentos patrimoniais permanecem pendentes.
 
 ## Decisões pendentes
 
@@ -561,7 +570,7 @@ Consequência:
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir aprovação, cancelamento, estorno e reabertura de fechamentos.
 - DECISÃO PENDENTE: completar as categorias de receitas e despesas para DRE além dos grupos variáveis e fixos já confirmados.
-- DECISÃO PENDENTE: definir tratamento de impostos, investimentos e reservas no DRE.
+- DECISÃO PENDENTE: definir tratamento de impostos distintos dos tributos sobre o resultado, investimentos e reservas.
 - DECISÃO PENDENTE: definir estrutura do orçamento e níveis de comparação Previsto x Real.
 - DECISÃO PENDENTE: definir relatórios e dashboards prioritários.
 - DECISÃO PENDENTE: definir necessidade de importação de dados históricos das planilhas atuais.
