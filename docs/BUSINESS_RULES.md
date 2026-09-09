@@ -252,6 +252,13 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-210: O grupo DRE de uma classificação já usada não pode ser alterado nesta versão; código técnico não é editável e classificações não são excluídas fisicamente pela interface.
 - BR-211: Despesas futuras da DRE usam `AccountPayable.originalAmount`, `competenceDate`, `companyId` e `dreGroupSnapshot`, nunca Payment.
 - BR-212: A DRE permanece derivada e sua tela ainda não é implementada nesta fase.
+- BR-213: A DRE Gerencial v1 é mensal, exige uma única Company e usa intervalo de competência do primeiro dia inclusive ao primeiro dia do mês seguinte exclusive.
+- BR-214: Receita Bruta é a soma de `Billing.amount`; custos e despesas são a soma de `AccountPayable.originalAmount` agrupada pelos snapshots de classificação.
+- BR-215: Margem de Contribuição é Receita Bruta menos Custos e Despesas Variáveis; Lucro Operacional é Margem de Contribuição menos Custos e Despesas Fixas.
+- BR-216: Percentuais de Margem de Contribuição e Margem Operacional usam Receita Bruta como denominador e ficam indefinidos quando ela é zero.
+- BR-217: Payment, Receipt, vencimento, saldo e situação financeira não alteram a DRE por competência.
+- BR-218: A DRE v1 encerra em Lucro Operacional e não deve exibir Resultado Líquido enquanto os grupos pós-operacionais não forem definidos.
+- BR-219: Totais da DRE são derivados em Decimal, não persistidos, e devem aceitar resultados negativos e competências sem movimento.
 
 - BR-036: O DRE deve preservar a estrutura conceitual atual:
   - Receita Bruta.

@@ -701,7 +701,11 @@ Sem saldo de abertura, contas bancárias ou conciliação, o sistema apresenta m
 
 ### DRE
 
-Decisão desta versão: Receita Bruta usa `Billing.amount` por `Billing.competenceDate` e Company. Despesas usarão `AccountPayable.originalAmount` por competência, Company e grupo snapshot. `FinancialClassification` é um catálogo global com código estável; inicialmente existem apenas `VARIABLE_COST_EXPENSE` e `FIXED_COST_EXPENSE`. A estrutura da DRE permanece derivada e ainda não possui tela.
+Decisão desta versão: Receita Bruta usa `Billing.amount` por `Billing.competenceDate` e Company. Despesas usam `AccountPayable.originalAmount` por competência, Company e grupo snapshot. `FinancialClassification` é um catálogo global com código estável; inicialmente existem apenas `VARIABLE_COST_EXPENSE` e `FIXED_COST_EXPENSE`. A estrutura da DRE permanece derivada.
+
+A DRE Gerencial v1 foi implementada como consulta mensal monoempresa, sem model ou tabela própria. Receita Bruta menos despesas variáveis resulta na Margem de Contribuição; a subtração das despesas fixas resulta no Lucro Operacional. A composição preserva código, nome e grupo snapshots e permite chegar aos Billing e AccountPayable de origem. Payment, Receipt, vencimento e saldo não participam do cálculo.
+
+Esta primeira versão encerra no Lucro Operacional. Resultado Líquido, impostos, investimentos, reservas e demais grupos pós-operacionais permanecem fora do cálculo.
 
 Representa a visão gerencial de resultado por competência.
 

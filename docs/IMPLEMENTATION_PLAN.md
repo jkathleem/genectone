@@ -310,7 +310,7 @@ Critério de aceite:
 
 ## Fase 11 - DRE
 
-Estado atual: infraestrutura anterior à DRE implementada. Existe catálogo global de Classificações Financeiras, classificação automática da terceirização, snapshots históricos e Contas a Pagar manuais. A tela e os cálculos da DRE ainda não foram implementados; impostos, investimentos, reservas e orçamento continuam pendentes.
+Estado atual: DRE Gerencial operacional mensal implementada por Company e competência. Inclui Receita Bruta, Custos e Despesas Variáveis, Margem de Contribuição, Custos e Despesas Fixas, Lucro Operacional, percentuais e detalhamento auditável por fatos de origem e snapshots. Resultado Líquido, visão anual definitiva, impostos, investimentos, reservas e orçamento continuam pendentes.
 
 Objetivo:
 

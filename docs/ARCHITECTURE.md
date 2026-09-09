@@ -214,6 +214,12 @@ As consultas filtram Company e período no PostgreSQL e carregam relacionamentos
 
 A futura DRE será consultada diretamente de Billing e AccountPayable por competência e Company. Não existe tabela de DRE e Payment/Receipt permanecem fontes exclusivas do caixa realizado.
 
+## DRE Gerencial operacional
+
+`src/modules/dre/domain.ts` contém somente cálculos puros em `Prisma.Decimal`; `queries.ts` filtra Billing e AccountPayable no PostgreSQL por Company e intervalo mensal de competência. A receita é consultada uma única vez em Billing. As despesas usam `originalAmount` e os snapshots de classificação, sem joins necessários ao cadastro atual e sem consultar Payments ou Receipts.
+
+A rota `/financeiro/dre` exige Company, mês e ano, apresenta totais, percentuais e composição auditável. Nenhum total é persistido. A versão termina em Lucro Operacional e declara explicitamente que não constitui demonstração contábil/fiscal nem calcula Resultado Líquido.
+
 ## Identificadores
 
 O banco deve ser planejado com identificadores internos independentes dos identificadores de negócio.

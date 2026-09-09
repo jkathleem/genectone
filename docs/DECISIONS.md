@@ -519,6 +519,15 @@ Consequência:
 - Contas manuais exigem classificação ativa e beneficiário, mas não criam Pagamento.
 - A DRE continua derivada e não é implementada nesta etapa.
 
+### DEC-046 - DRE Gerencial v1 termina no Lucro Operacional
+
+- A consulta é derivada, mensal e exige uma Company; não existe consolidação implícita nem tabela de totais.
+- Receita Bruta usa exclusivamente Billing por competência. Despesas usam `AccountPayable.originalAmount` e snapshots de grupo, código e nome.
+- Payment, Receipt, vencimento, saldo e situação financeira são ignorados pelo cálculo por competência.
+- Margem de Contribuição é Receita Bruta menos Variáveis; Lucro Operacional é Margem de Contribuição menos Fixas.
+- Percentuais usam Receita Bruta e não são calculados quando ela é zero.
+- Resultado Líquido e grupos pós-operacionais não são exibidos até que suas regras sejam confirmadas.
+
 ## Decisões pendentes
 
 - DECISÃO PENDENTE: definir perfis de usuários e permissões.
