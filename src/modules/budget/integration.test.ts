@@ -1,0 +1,19 @@
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { prisma } from "@/lib/prisma";
+import { addClassificationEntry, addGrossRevenue, createBudget } from "./service";
+import { budgetComparison } from "./queries";
+
+const enabled=process.env.RUN_DATABASE_TESTS==="1";
+const suite=enabled?describe:describe.skip;
+const marker="TEMP QA BUDGET";
+let companyId="",budgetId="",classificationId="";
+async function cleanup(){const companies=await prisma.company.findMany({where:{name:{startsWith:marker}},select:{id:true}});const ids=companies.map(x=>x.id);if(ids.length){await prisma.budgetEntry.deleteMany({where:{budget:{companyId:{in:ids}}}});await prisma.budget.deleteMany({where:{companyId:{in:ids}}});await prisma.accountPayable.deleteMany({where:{companyId:{in:ids}}});await prisma.billing.deleteMany({where:{companyId:{in:ids}}});await prisma.company.deleteMany({where:{id:{in:ids}}});}await prisma.financialClassification.deleteMany({where:{code:{startsWith:"TEMP_QA_BUDGET"}}});}
+suite("orçamento no PostgreSQL",()=>{
+ beforeAll(async()=>{await cleanup();const c=await prisma.company.create({data:{name:`${marker} COMPANY`}});companyId=c.id;const cl=await prisma.financialClassification.create({data:{code:"TEMP_QA_BUDGET_FIXED",name:"TEMP QA BUDGET FIXED",financialNature:"OPERATING_EXPENSE",dreGroup:"FIXED_COST_EXPENSE"}});classificationId=cl.id;budgetId=(await createBudget(prisma,companyId,2026,9)).id;});
+ afterAll(async()=>{await cleanup();await prisma.$disconnect();});
+ it("mantém uma receita e uma classificação por orçamento",async()=>{await expect(createBudget(prisma,companyId,2026,9)).rejects.toThrow("Já existe orçamento");await addGrossRevenue(prisma,budgetId,"120000");await addClassificationEntry(prisma,budgetId,classificationId,"38000");await expect(addGrossRevenue(prisma,budgetId,"1")).rejects.toThrow("já possui Receita");await expect(addClassificationEntry(prisma,budgetId,classificationId,"1")).rejects.toThrow("já foi incluída");});
+ it("isola Company e competência e calcula orçamento sem fatos",async()=>{const result=await budgetComparison(companyId,2026,9);expect(result.planned.grossRevenue.toFixed(2)).toBe("120000.00");expect(result.actual.grossRevenue.toFixed(2)).toBe("0.00");expect(await prisma.accountPayable.count({where:{companyId}})).toBe(0);expect(await prisma.billing.count({where:{companyId}})).toBe(0);expect((await budgetComparison(companyId,2026,10)).budget).toBeNull();});
+ it("rejeita NON_DRE e aceita valor zero",async()=>{const non=await prisma.financialClassification.create({data:{code:"TEMP_QA_BUDGET_NON_DRE",name:"TEMP QA BUDGET NON DRE",financialNature:"NON_DRE"}});await expect(addClassificationEntry(prisma,budgetId,non.id,"10")).rejects.toThrow("NON_DRE");const zero=await prisma.financialClassification.create({data:{code:"TEMP_QA_BUDGET_ZERO",name:"TEMP QA BUDGET ZERO",financialNature:"OPERATING_EXPENSE",dreGroup:"VARIABLE_COST_EXPENSE"}});expect((await addClassificationEntry(prisma,budgetId,zero.id,"0")).amount.isZero()).toBe(true);});
+ it("rejeita classificação inativa e incoerência no banco",async()=>{const inactive=await prisma.financialClassification.create({data:{code:"TEMP_QA_BUDGET_INACTIVE",name:"TEMP QA BUDGET INACTIVE",active:false,financialNature:"OPERATING_EXPENSE",dreGroup:"FIXED_COST_EXPENSE"}});await expect(addClassificationEntry(prisma,budgetId,inactive.id,"10")).rejects.toThrow("classificação ativa");await expect(prisma.budgetEntry.create({data:{budgetId,entryType:"GROSS_REVENUE",classificationId:inactive.id,amount:"1"}})).rejects.toThrow();});
+ it("preserva snapshots após renomear cadastro",async()=>{await prisma.financialClassification.update({where:{id:classificationId},data:{name:"TEMP QA BUDGET RENAMED"}});const entry=await prisma.budgetEntry.findFirstOrThrow({where:{budgetId,classificationId}});expect(entry.classificationNameSnapshot).toBe("TEMP QA BUDGET FIXED");});
+});

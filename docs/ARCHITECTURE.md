@@ -1,5 +1,11 @@
 # Arquitetura
 
+## Orçamento / Previsto x Realizado
+
+`Budget` tem unicidade `(companyId, competenceDate)` e CHECK para o primeiro dia do mês. `BudgetEntry` tem CHECK de valor não negativo, CHECK de coerência por tipo, unicidade por classificação e índice único parcial para uma Receita Bruta por Budget. Relações históricas usam `onDelete: Restrict`.
+
+A rota `/financeiro/previsto-realizado` consulta o realizado através do módulo DRE, sem duplicar suas fórmulas. O comparativo e suas variações são derivados em memória com `Prisma.Decimal`; Budget nunca é consultado pelo Fluxo de Caixa.
+
 ## Stack
 
 - Next.js `16.2.6` com App Router.

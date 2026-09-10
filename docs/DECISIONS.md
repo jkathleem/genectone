@@ -14,6 +14,14 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-050 - Orçamento mensal da DRE
+
+- `Budget` + `BudgetEntry` representam planejamento mensal por Company; Receita Bruta é linha especial e despesas/resultados usam classificações com snapshots.
+- **Orçamento ≠ DRE realizada ≠ Fluxo de Caixa previsto.** BudgetEntry não gera Billing, contas, pagamentos ou recebimentos.
+- Somente `OPERATING_EXPENSE` e `DRE_POST_OPERATING` participam; `NON_DRE` fica fora.
+- Variação é Realizado menos Previsto, percentual é indefinido quando Previsto é zero e avaliação favorável/desfavorável é derivada conforme a semântica da linha.
+- Edição é livre enquanto não houver fechamento formal. Visão anual, cópia, aprovação e versionamento permanecem futuros.
+
 ### DEC-048 - Classificação financeira ampla e natureza financeira
 
 - `FinancialClassification` é um catálogo financeiro gerencial amplo; nem toda classificação afeta a DRE.

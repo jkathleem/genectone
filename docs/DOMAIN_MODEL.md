@@ -745,6 +745,10 @@ Decisão confirmada: o reconhecimento gerencial da Receita Bruta ocorre pelo Bil
 
 ### Orçamento / Previsto x Real
 
+`Budget` pertence a uma Company e a uma competência mensal única. `BudgetEntry` é Receita Bruta especial ou linha de classificação financeira, guarda valor Decimal e snapshots de código, nome, natureza e grupo. Receita Bruta não possui classificação; linhas classificadas excluem `NON_DRE`.
+
+Nenhum valor realizado é persistido no orçamento. Billing e AccountPayable continuam sendo as fontes do realizado, inclusive para revelar classificações com gasto sem orçamento.
+
 Representa valores planejados e sua comparação com os valores realizados.
 
 Relacionamentos:

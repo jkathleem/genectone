@@ -1,5 +1,15 @@
 # Regras de Negócio
 
+## Orçamento / Previsto x Realizado
+
+- BR-200: Orçamento é planejamento mensal por Company e competência no primeiro dia do mês; não cria fatos financeiros e não altera DRE realizada ou Fluxo de Caixa.
+- BR-201: Cada Company possui no máximo um Budget por competência, com uma Receita Bruta especial e no máximo uma linha por classificação.
+- BR-202: Linhas classificadas aceitam somente classificações ativas `OPERATING_EXPENSE` ou `DRE_POST_OPERATING`; `NON_DRE` não participa.
+- BR-203: Valores previstos são Decimal, podem ser zero e não podem ser negativos. Linhas preservam snapshots completos da classificação.
+- BR-204: O realizado reutiliza Billing e AccountPayable da DRE; Receita Financeira realizada permanece zero até existir origem adequada.
+- BR-205: Variação é Realizado menos Previsto. Com previsto zero, percentual é indefinido. Gastos realizados não orçados continuam visíveis.
+- BR-206: Orçamentos permanecem editáveis nesta versão. Aprovação, fechamento, versões, visão anual e cópia são futuros.
+
 Este documento registra apenas as regras conhecidas nesta etapa. Pontos não informados são marcados como DECISÃO PENDENTE.
 
 ## Empresas, clientes e OPs

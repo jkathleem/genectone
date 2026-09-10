@@ -1,5 +1,13 @@
 # Plano de Implementação
 
+## Orçamento / Previsto x Realizado v1
+
+- [x] Budget mensal monoempresa e BudgetEntry com snapshots.
+- [x] Receita Bruta especial, classificações DRE e exclusão de NON_DRE.
+- [x] Comparação mensal reutilizando fatos da DRE, incluindo gastos não orçados.
+- [x] Criação, alteração e exclusão de linhas na rota financeira.
+- [ ] Visão anual, cópia, aprovação, fechamento e versionamento (futuro).
+
 Este plano propõe fases incrementais. Cada fase deve entregar algo utilizável e testável, preservando o princípio de registrar a informação uma única vez no momento em que o fato ocorre.
 
 Nenhuma tecnologia, banco de dados, frontend, backend ou dependência é escolhida nesta etapa.

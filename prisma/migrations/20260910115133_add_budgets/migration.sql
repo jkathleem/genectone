@@ -1,0 +1,2 @@
+-- RenameIndex
+ALTER INDEX "AccountPayable_companyId_competenceDate_financialNatureSnapshot" RENAME TO "AccountPayable_companyId_competenceDate_financialNatureSnap_idx";

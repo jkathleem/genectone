@@ -21,6 +21,7 @@ model Company {
   billings           Billing[]
   accountsReceivable AccountReceivable[]
   receipts           Receipt[]
+  budgets            Budget[]
 }
 
 enum DreGroup {
@@ -42,6 +43,11 @@ enum AccountPayableSource {
   MANUAL
 }
 
+enum BudgetEntryType {
+  GROSS_REVENUE
+  FINANCIAL_CLASSIFICATION
+}
+
 model FinancialClassification {
   id              String            @id @default(cuid())
   code            String            @unique
@@ -53,9 +59,45 @@ model FinancialClassification {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   accountsPayable AccountPayable[]
+  budgetEntries   BudgetEntry[]
 
   @@index([financialNature, dreGroup, active])
   @@index([name])
+}
+
+model Budget {
+  id             String        @id @default(cuid())
+  companyId      String
+  competenceDate DateTime      @db.Date
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  company        Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  entries        BudgetEntry[]
+
+  @@unique([companyId, competenceDate])
+  @@index([competenceDate])
+}
+
+model BudgetEntry {
+  id                         String                   @id @default(cuid())
+  budgetId                   String
+  entryType                  BudgetEntryType
+  classificationId           String?
+  classificationCodeSnapshot String?
+  classificationNameSnapshot String?
+  financialNatureSnapshot    FinancialNature?
+  dreGroupSnapshot           DreGroup?
+  amount                     Decimal                  @db.Decimal(14, 4)
+  notes                      String?
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  budget                     Budget                   @relation(fields: [budgetId], references: [id], onDelete: Restrict)
+  classification             FinancialClassification? @relation(fields: [classificationId], references: [id], onDelete: Restrict)
+
+  @@unique([budgetId, classificationId])
+  @@index([budgetId, entryType])
+  @@index([classificationId])
 }
 
 model Customer {
