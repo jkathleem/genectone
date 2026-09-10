@@ -53,3 +53,34 @@ export async function updateBudgetEntry(db: DB, id: string, amountValue: Prisma.
 export async function deleteBudgetEntry(db: DB, id: string) {
   return db.$transaction(tx => tx.budgetEntry.delete({ where: { id } }));
 }
+
+export async function copyBudget(db: DB, sourceBudgetId: string, destinationYear: number, destinationMonth: number) {
+  const competenceDate = monthlyCompetence(destinationYear, destinationMonth);
+  try {
+    return await db.$transaction(async tx => {
+      const source = await tx.budget.findUnique({ where: { id: sourceBudgetId }, include: { entries: true } });
+      if (!source) throw new Error("Orçamento de origem não encontrado.");
+      if (await tx.budget.findUnique({ where: { companyId_competenceDate: { companyId: source.companyId, competenceDate } }, select: { id: true } })) throw new Error("Já existe um orçamento para esta competência.");
+      const classificationIds = source.entries.flatMap(entry => entry.classificationId ? [entry.classificationId] : []);
+      const classifications = await tx.financialClassification.findMany({ where: { id: { in: classificationIds } } });
+      const byId = new Map(classifications.map(item => [item.id, item]));
+      const invalid = source.entries.flatMap(entry => {
+        if (entry.entryType === "GROSS_REVENUE") return [];
+        const current = entry.classificationId ? byId.get(entry.classificationId) : undefined;
+        return !current || !current.active || current.financialNature === "NON_DRE" || !current.dreGroup ? [entry.classificationNameSnapshot ?? entry.classificationCodeSnapshot ?? "Classificação não identificada"] : [];
+      });
+      if (invalid.length) throw new Error(`Não foi possível copiar. Classificações inativas ou inelegíveis: ${invalid.join(", ")}.`);
+      return tx.budget.create({ data: {
+        companyId: source.companyId, competenceDate, notes: null,
+        entries: { create: source.entries.map(entry => {
+          if (entry.entryType === "GROSS_REVENUE") return { entryType: "GROSS_REVENUE" as const, amount: entry.amount, notes: entry.notes };
+          const current = byId.get(entry.classificationId!)!;
+          return { entryType: "FINANCIAL_CLASSIFICATION" as const, classificationId: current.id, classificationCodeSnapshot: current.code, classificationNameSnapshot: current.name, financialNatureSnapshot: current.financialNature, dreGroupSnapshot: current.dreGroup!, amount: entry.amount, notes: entry.notes };
+        }) },
+      }, include: { entries: true } });
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") throw new Error("Já existe um orçamento para esta competência.");
+    throw error;
+  }
+}

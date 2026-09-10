@@ -6,6 +6,10 @@
 
 A rota `/financeiro/previsto-realizado` consulta o realizado através do módulo DRE, sem duplicar suas fórmulas. O comparativo e suas variações são derivados em memória com `Prisma.Decimal`; Budget nunca é consultado pelo Fluxo de Caixa.
 
+`/financeiro/previsto-realizado/anual` executa três consultas limitadas ao intervalo anual: Billing, AccountPayable e Budget com entries. A agregação mensal e anual reutiliza `calculateOperationalDre`; percentuais anuais usam totais agregados.
+
+A cópia ocorre em uma transação: valida origem, destino e classificações vivas, cria o Budget sem notes gerais e recria todas as linhas. A unicidade existente `(companyId, competenceDate)` é a barreira final contra concorrência, e `P2002` vira erro de domínio amigável. Nenhuma migration adicional foi necessária.
+
 ## Stack
 
 - Next.js `16.2.6` com App Router.

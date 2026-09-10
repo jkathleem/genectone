@@ -8,7 +8,10 @@
 - BR-203: Valores previstos são Decimal, podem ser zero e não podem ser negativos. Linhas preservam snapshots completos da classificação.
 - BR-204: O realizado reutiliza Billing e AccountPayable da DRE; Receita Financeira realizada permanece zero até existir origem adequada.
 - BR-205: Variação é Realizado menos Previsto. Com previsto zero, percentual é indefinido. Gastos realizados não orçados continuam visíveis.
-- BR-206: Orçamentos permanecem editáveis nesta versão. Aprovação, fechamento, versões, visão anual e cópia são futuros.
+- BR-206: Orçamentos permanecem editáveis nesta versão. Aprovação, fechamento e versões são futuros.
+- BR-207: A visão anual soma as 12 competências da mesma Company; mês sem Budget tem previsto zero e percentuais anuais são calculados sobre totais anuais.
+- BR-208: A cópia de orçamento ocorre apenas entre competências da mesma Company, não copia fatos realizados nem sobrescreve destino existente.
+- BR-209: A cópia é atômica e refaz snapshots conforme o cadastro atual; classificação inativa, ausente, `NON_DRE` ou inelegível rejeita toda a operação.
 
 Este documento registra apenas as regras conhecidas nesta etapa. Pontos não informados são marcados como DECISÃO PENDENTE.
 

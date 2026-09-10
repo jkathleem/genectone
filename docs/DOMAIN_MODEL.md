@@ -749,6 +749,8 @@ Decisão confirmada: o reconhecimento gerencial da Receita Bruta ocorre pelo Bil
 
 Nenhum valor realizado é persistido no orçamento. Billing e AccountPayable continuam sendo as fontes do realizado, inclusive para revelar classificações com gasto sem orçamento.
 
+A visão anual deriva os 12 meses e calcula percentuais sobre os totais anuais. Copiar um Budget cria outro na mesma Company com as linhas planejadas, valores e observações das linhas; fatos realizados e observações gerais não são copiados. Os snapshots do destino refletem o cadastro ativo atual.
+
 Representa valores planejados e sua comparação com os valores realizados.
 
 Relacionamentos:

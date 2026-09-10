@@ -6,7 +6,9 @@
 - [x] Receita Bruta especial, classificações DRE e exclusão de NON_DRE.
 - [x] Comparação mensal reutilizando fatos da DRE, incluindo gastos não orçados.
 - [x] Criação, alteração e exclusão de linhas na rota financeira.
-- [ ] Visão anual, cópia, aprovação, fechamento e versionamento (futuro).
+- [x] Visão anual com totais e margens calculadas sobre os totais.
+- [x] Cópia transacional entre competências da mesma Company.
+- [ ] Aprovação, fechamento e versionamento (futuro).
 
 Este plano propõe fases incrementais. Cada fase deve entregar algo utilizável e testável, preservando o princípio de registrar a informação uma única vez no momento em que o fato ocorre.
 

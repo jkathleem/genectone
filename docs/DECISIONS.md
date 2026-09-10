@@ -14,6 +14,15 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-051 - Visão anual e cópia de orçamento
+
+- A visão anual agrega Budgets, Billing e AccountPayable por Company e intervalo anual, sem consultas mensais repetidas.
+- Totais absolutos somam os 12 meses; margens e variações percentuais anuais usam os totais anuais, nunca médias de percentuais mensais.
+- Ausência de Budget significa previsto zero e não cria registros automaticamente.
+- A cópia é monoempresa, atômica, não sobrescreve destino e não copia fatos realizados.
+- Snapshots do destino usam o cadastro atual. Classificação inativa, ausente, `NON_DRE` ou inelegível impede toda a cópia.
+- Aprovação, fechamento e versionamento continuam futuros.
+
 ### DEC-050 - Orçamento mensal da DRE
 
 - `Budget` + `BudgetEntry` representam planejamento mensal por Company; Receita Bruta é linha especial e despesas/resultados usam classificações com snapshots.
