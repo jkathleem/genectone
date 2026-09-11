@@ -8,9 +8,9 @@ export async function createPayment(db: DB, accountPayableId: string, input: Pay
   if (!amount.gt(0)) throw new Error("O valor do pagamento deve ser maior que zero.");
   return db.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT "id" FROM "AccountPayable" WHERE "id" = ${accountPayableId} FOR UPDATE`;
-    const account = await tx.accountPayable.findUnique({ where: { id: accountPayableId }, include: { payments: { select: { amount: true } } } });
+    const account = await tx.accountPayable.findUnique({ where: { id: accountPayableId }, include: { payments: { select: { amount: true, reversal: { select: { id: true } } } } } });
     if (!account) throw new Error("Conta a Pagar não encontrada.");
-    const paid = account.payments.reduce((sum, payment) => sum.plus(payment.amount), new Prisma.Decimal(0));
+    const paid = account.payments.filter(payment=>!payment.reversal).reduce((sum, payment) => sum.plus(payment.amount), new Prisma.Decimal(0));
     const remaining = account.originalAmount.minus(paid);
     if (remaining.lte(0)) throw new Error("Esta Conta a Pagar já está paga.");
     if (amount.gt(remaining)) throw new Error("O valor do pagamento não pode ultrapassar o saldo atual.");

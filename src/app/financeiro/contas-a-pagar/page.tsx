@@ -21,7 +21,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
         dueDate,
         contractorSettlement: params.contractorId ? { contractorId: params.contractorId } : undefined,
       },
-      include: { company: true, payments: { select: { amount: true } } },
+      include: { company: true, payments: { select: { amount: true, reversal: { select: { id: true } } } } },
       orderBy: { dueDate: "asc" },
     }),
     prisma.company.findMany({ orderBy: { name: "asc" } }),

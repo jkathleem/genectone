@@ -187,6 +187,10 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 
 ## Financeiro
 
+- BR-213: Correção financeira ocorre por estorno total e novo lançamento; Payment, Receipt e allocations não são apagados.
+- BR-214: PaymentReversal e ReceiptReversal exigem motivo e data não anterior ao fato original, com no máximo um estorno por fato.
+- BR-215: Estornos reabrem saldos efetivos e geram movimento inverso no Fluxo de Caixa pela data do estorno, sem alterar a DRE.
+
 - BR-169: Fechamento pertence a exatamente uma Company e não aceita itens de OPs de outra empresa.
 - BR-170: Um fechamento aprovado gera no máximo uma Conta a Pagar; Conta a Pagar não equivale a Pagamento.
 - BR-171: A competência usa o primeiro dia do mês, enquanto vencimento e pagamento são fatos distintos.

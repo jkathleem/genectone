@@ -16,14 +16,14 @@ export async function createReceipt(db: DB, input: ReceiptInput) {
   const orderedIds = [...ids].sort();
   return db.$transaction(async tx => {
     await tx.$queryRaw`SELECT "id" FROM "AccountReceivable" WHERE "id" IN (${Prisma.join(orderedIds)}) ORDER BY "id" FOR UPDATE`;
-    const accounts = await tx.accountReceivable.findMany({ where: { id: { in: orderedIds } }, include: { allocations: { select: { amount: true } } } });
+    const accounts = await tx.accountReceivable.findMany({ where: { id: { in: orderedIds } }, include: { allocations: { select: { amount: true, receipt: { select: { reversal: { select: { id: true } } } } } } } });
     if (accounts.length !== orderedIds.length) throw new Error("Uma ou mais Contas a Receber não foram encontradas.");
     const byId = new Map(accounts.map(account => [account.id, account]));
     for (const allocation of input.allocations) {
       const account = byId.get(allocation.accountReceivableId)!;
       if (account.companyId !== input.companyId) throw new Error("Todas as Contas a Receber devem pertencer à empresa selecionada.");
       if (account.customerId !== input.customerId) throw new Error("Todas as Contas a Receber devem pertencer ao cliente selecionado.");
-      const alreadyReceived = account.allocations.reduce((sum, item) => sum.plus(item.amount), new Prisma.Decimal(0));
+      const alreadyReceived = account.allocations.filter(item=>!item.receipt?.reversal).reduce((sum, item) => sum.plus(item.amount), new Prisma.Decimal(0));
       const remaining = account.originalAmount.minus(alreadyReceived);
       if (new Prisma.Decimal(allocation.amount).gt(remaining)) throw new Error("Uma alocação não pode ultrapassar o saldo atual da Conta a Receber.");
     }

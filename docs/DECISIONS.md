@@ -14,6 +14,13 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-053 - Estornos financeiros
+
+- **Correção financeira = Estorno + novo lançamento.** Fatos e allocations não são apagados ou editados.
+- Estorno é total, único, exige motivo e data igual ou posterior ao fato original.
+- Estorno reabre saldo e aparece como movimento inverso no Fluxo de Caixa; DRE permanece baseada em Billing e AccountPayable.
+- Estorno parcial e autoria permanecem futuros.
+
 ### DEC-052 - Governança do orçamento
 
 - Budget segue somente `DRAFT → APPROVED → CLOSED`; não há desaprovação ou reabertura nesta versão.

@@ -7,7 +7,7 @@ import { paidAmount, remainingAmount } from "@/modules/accounts-payable/domain";
 import { registerPayment } from "@/modules/accounts-payable/payment-actions";
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const account = await prisma.accountPayable.findUnique({ where: { id }, include: { company: true, payments: { select: { amount: true } } } });
+  const account = await prisma.accountPayable.findUnique({ where: { id }, include: { company: true, payments: { select: { amount: true, reversal: { select: { id: true } } } } } });
   if (!account) notFound();
   const paid = paidAmount(account.payments), remaining = remainingAmount(account.originalAmount, account.payments);
   if (remaining.lte(0)) redirect(`/financeiro/contas-a-pagar/${id}`);

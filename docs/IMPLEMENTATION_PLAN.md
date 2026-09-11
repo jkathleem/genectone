@@ -1,5 +1,11 @@
 # Plano de Implementação
 
+## Estornos financeiros
+
+- [x] Estorno total de Payment e Receipt sem exclusão física.
+- [x] Reabertura de saldos e movimentos inversos no Fluxo de Caixa.
+- [ ] Estorno parcial e autoria (futuro).
+
 ## Orçamento / Previsto x Realizado v1
 
 - [x] Budget mensal monoempresa e BudgetEntry com snapshots.

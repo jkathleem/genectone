@@ -211,10 +211,22 @@ model Receipt {
   company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
   customer    Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
   allocations ReceiptAllocation[]
+  reversal    ReceiptReversal?
 
   @@index([companyId, receiptDate])
   @@index([customerId, receiptDate])
   @@index([receiptDate])
+}
+
+model ReceiptReversal {
+  id           String   @id @default(cuid())
+  receiptId    String   @unique
+  reversalDate DateTime @db.Date
+  reason       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  receipt      Receipt  @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  @@index([reversalDate])
 }
 
 model ReceiptAllocation {
@@ -359,9 +371,21 @@ model Payment {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   accountPayable   AccountPayable @relation(fields: [accountPayableId], references: [id], onDelete: Restrict)
+  reversal         PaymentReversal?
 
   @@index([accountPayableId, paymentDate])
   @@index([paymentDate])
+}
+
+model PaymentReversal {
+  id           String   @id @default(cuid())
+  paymentId    String   @unique
+  reversalDate DateTime @db.Date
+  reason       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  payment      Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  @@index([reversalDate])
 }
 
 model ContractorSettlementItem {

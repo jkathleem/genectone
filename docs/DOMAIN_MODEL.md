@@ -656,6 +656,8 @@ Dados derivados:
 
 ### Pagamento
 
+`PaymentReversal` registra estorno total, data e motivo sem apagar Payment. Pagamentos estornados deixam de consumir saldo, mas ambos os movimentos permanecem no Fluxo de Caixa.
+
 Representa a saída financeira efetivamente realizada relacionada a uma Conta a Pagar.
 
 Relacionamentos:
@@ -673,6 +675,8 @@ Fonte de verdade:
 Na implementação física, `Payment` possui `paymentDate` em PostgreSQL `date`, `amount` em `Decimal(14,4)` e relação `onDelete: Restrict`. Não duplica Company, que é alcançada pela Conta a Pagar. Pagamentos são criados e consultados, sem edição, exclusão ou estorno nesta versão. Valor pago, saldo e situação não são persistidos. A situação Parcial prevalece mesmo após o vencimento; Pago exige saldo exatamente zero.
 
 ### Fluxo de Caixa
+
+ReceiptReversal gera saída e PaymentReversal gera entrada na data do estorno. Allocations permanecem para auditoria, mas as de Receipt estornado deixam de compor o recebido efetivo.
 
 Representa a visão de entradas e saídas financeiras reais ou previstas.
 

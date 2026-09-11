@@ -12,6 +12,10 @@ A cópia ocorre em uma transação: valida origem, destino e classificações vi
 
 ## Governança do orçamento
 
+## Estornos financeiros
+
+`PaymentReversal` e `ReceiptReversal` são relações opcionais 1:1 com unicidade e deleção restritiva. Serviços transacionais bloqueiam o fato e sua conta; Receipt bloqueia todas as contas alocadas em ordem estável. Saldos ignoram fatos estornados e o caixa registra o movimento inverso.
+
 `BudgetStatus` e os timestamps `approvedAt`/`closedAt` possuem CHECK de coerência no PostgreSQL. Budgets anteriores foram mantidos como DRAFT por default e sem inferência histórica.
 
 Todas as mutações carregam o Budget com `SELECT ... FOR UPDATE` dentro da mesma transação antes de validar DRAFT. Aprovação e fechamento usam o mesmo lock, tornando determinística a ordem entre edições e transições concorrentes. A UI reflete os estados, mas a proteção efetiva permanece server-side.
