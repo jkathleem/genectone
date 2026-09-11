@@ -48,6 +48,12 @@ enum BudgetEntryType {
   FINANCIAL_CLASSIFICATION
 }
 
+enum BudgetStatus {
+  DRAFT
+  APPROVED
+  CLOSED
+}
+
 model FinancialClassification {
   id              String            @id @default(cuid())
   code            String            @unique
@@ -70,6 +76,9 @@ model Budget {
   companyId      String
   competenceDate DateTime      @db.Date
   notes          String?
+  status         BudgetStatus  @default(DRAFT)
+  approvedAt     DateTime?
+  closedAt       DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   company        Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
@@ -77,6 +86,7 @@ model Budget {
 
   @@unique([companyId, competenceDate])
   @@index([competenceDate])
+  @@index([status])
 }
 
 model BudgetEntry {

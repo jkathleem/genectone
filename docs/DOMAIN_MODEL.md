@@ -751,6 +751,8 @@ Nenhum valor realizado é persistido no orçamento. Billing e AccountPayable con
 
 A visão anual deriva os 12 meses e calcula percentuais sobre os totais anuais. Copiar um Budget cria outro na mesma Company com as linhas planejadas, valores e observações das linhas; fatos realizados e observações gerais não são copiados. Os snapshots do destino refletem o cadastro ativo atual.
 
+`BudgetStatus` estabelece `DRAFT → APPROVED → CLOSED`. Somente DRAFT aceita mutações e exige timestamps nulos; APPROVED possui `approvedAt`; CLOSED possui também `closedAt`. Aprovação e fechamento não criam fatos nem recalculam valores. Não há reabertura nesta versão.
+
 Representa valores planejados e sua comparação com os valores realizados.
 
 Relacionamentos:

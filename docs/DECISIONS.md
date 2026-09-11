@@ -14,6 +14,15 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-052 - Governança do orçamento
+
+- Budget segue somente `DRAFT → APPROVED → CLOSED`; não há desaprovação ou reabertura nesta versão.
+- Somente DRAFT é mutável e um orçamento vazio não pode ser aprovado.
+- APPROVED congela o planejamento; CLOSED encerra a competência. Nenhuma transição cria fatos financeiros ou altera o realizado.
+- Locks pessimistas no Budget serializam aprovação, fechamento e mutações de linhas, evitando edição após congelamento.
+- Qualquer status pode ser origem de cópia, mas o destino sempre nasce DRAFT, sem status ou timestamps da origem.
+- Sem autenticação, não existem `approvedBy` ou `closedBy`; autoria e versionamento pós-aprovação ficam futuros.
+
 ### DEC-051 - Visão anual e cópia de orçamento
 
 - A visão anual agrega Budgets, Billing e AccountPayable por Company e intervalo anual, sem consultas mensais repetidas.

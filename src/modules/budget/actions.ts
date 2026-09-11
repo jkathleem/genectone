@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { addClassificationEntry, addGrossRevenue, copyBudget, createBudget, deleteBudgetEntry, updateBudgetEntry, updateBudgetNotes } from "./service";
+import { addClassificationEntry, addGrossRevenue, approveBudget, closeBudget, copyBudget, createBudget, deleteBudgetEntry, updateBudgetEntry, updateBudgetNotes } from "./service";
 
 const path = "/financeiro/previsto-realizado";
 const text = z.string().min(1);
@@ -18,3 +18,5 @@ export async function addClassificationAction(form: FormData) { await run(form, 
 export async function updateEntryAction(form: FormData) { await run(form, "Linha atualizada.", () => updateBudgetEntry(prisma, text.parse(form.get("entryId")), amount.parse(form.get("amount")), String(form.get("notes") ?? ""))); }
 export async function deleteEntryAction(form: FormData) { await run(form, "Linha removida.", () => deleteBudgetEntry(prisma, text.parse(form.get("entryId")))); }
 export async function copyBudgetAction(form: FormData) { await run(form, "Orçamento copiado para a nova competência.", () => copyBudget(prisma, text.parse(form.get("budgetId")), Number(form.get("destinationYear")), Number(form.get("destinationMonth")))); }
+export async function approveBudgetAction(form: FormData) { await run(form, "Orçamento aprovado.", () => approveBudget(prisma, text.parse(form.get("budgetId")))); }
+export async function closeBudgetAction(form: FormData) { await run(form, "Orçamento fechado.", () => closeBudget(prisma, text.parse(form.get("budgetId")))); }

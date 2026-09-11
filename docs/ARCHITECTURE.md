@@ -10,6 +10,12 @@ A rota `/financeiro/previsto-realizado` consulta o realizado através do módulo
 
 A cópia ocorre em uma transação: valida origem, destino e classificações vivas, cria o Budget sem notes gerais e recria todas as linhas. A unicidade existente `(companyId, competenceDate)` é a barreira final contra concorrência, e `P2002` vira erro de domínio amigável. Nenhuma migration adicional foi necessária.
 
+## Governança do orçamento
+
+`BudgetStatus` e os timestamps `approvedAt`/`closedAt` possuem CHECK de coerência no PostgreSQL. Budgets anteriores foram mantidos como DRAFT por default e sem inferência histórica.
+
+Todas as mutações carregam o Budget com `SELECT ... FOR UPDATE` dentro da mesma transação antes de validar DRAFT. Aprovação e fechamento usam o mesmo lock, tornando determinística a ordem entre edições e transições concorrentes. A UI reflete os estados, mas a proteção efetiva permanece server-side.
+
 ## Stack
 
 - Next.js `16.2.6` com App Router.

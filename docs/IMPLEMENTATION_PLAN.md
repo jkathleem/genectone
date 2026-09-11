@@ -8,7 +8,8 @@
 - [x] Criação, alteração e exclusão de linhas na rota financeira.
 - [x] Visão anual com totais e margens calculadas sobre os totais.
 - [x] Cópia transacional entre competências da mesma Company.
-- [ ] Aprovação, fechamento e versionamento (futuro).
+- [x] Governança DRAFT → APPROVED → CLOSED com congelamento transacional.
+- [ ] Autoria, reabertura controlada e versionamento/revisão (futuro).
 
 Este plano propõe fases incrementais. Cada fase deve entregar algo utilizável e testável, preservando o princípio de registrar a informação uma única vez no momento em que o fato ocorre.
 
