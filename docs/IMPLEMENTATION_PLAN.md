@@ -1,5 +1,18 @@
 # Plano de Implementação
 
+## Etapa 1 pós-MVP - Base operacional
+
+- [x] Setores internos configuráveis e ordenáveis.
+- [x] Capacidades N:N de Serviço por setor interno ou Terceirizado.
+- [x] Urgência, previsão opcional e conclusão opcional da OP sem status persistido duplicado.
+- [x] Ciclo da OP e disponibilidade para Montagem preparados como derivações.
+- [x] Produto ampliado com cliente padrão, cor, preço atual e URL opcional de imagem, preservando o preço snapshot da OP.
+- [x] Insumos proporcionais por Produto sem estoque ou snapshot prematuro.
+- [x] Cadastro de Terceirizado ampliado com campos opcionais compatíveis.
+- [x] Perfil `CONTRACTOR`, vínculo obrigatório e acesso mínimo.
+- [x] Pendências operacionais com autoria, resolução e integridade relacional.
+- [ ] Telas de cadastros ampliados, nova experiência de OP, Kanban e portal do Terceirizado (etapas futuras).
+
 ## Estornos financeiros
 
 - [x] Estorno total de Payment e Receipt sem exclusão física.

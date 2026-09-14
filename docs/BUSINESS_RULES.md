@@ -1,5 +1,24 @@
 # Regras de Negócio
 
+## Base operacional pós-MVP
+
+- BR-239: `InternalSector` é um cadastro configurável; nome, ordem, observações e situação podem mudar, mas setor relacionado a um Serviço não pode ser apagado fisicamente.
+- BR-240: `Service` representa o trabalho independentemente de quem o executa. Um mesmo Serviço pode habilitar vários setores internos e vários terceirizados, sem duplicar o catálogo.
+- BR-241: Os vínculos de executor são capacidades cadastrais; `OutsourcedService` continua sendo o fato de uma execução externa real e preserva todas as regras auditadas de preço e movimentação.
+- BR-242: A OP possui flag explícita de urgência, data opcional de previsão e instante opcional de conclusão. A previsão não é calculada automaticamente nesta etapa.
+- BR-243: O ciclo conceitual da OP é derivado: `EM_PRODUCAO`, `CONCLUIDA`, `FATURADA` e `RECEBIDA`. Urgência e demais alertas não são status; cancelamento continua sem regra funcional.
+- BR-244: Montagem fica parcialmente disponível quando ao menos um Serviço Terceirizado necessário possui envio e retorno integral; fica completamente disponível quando todos possuem retorno integral. Sem serviço concluído, não está disponível.
+- BR-245: `Product.name` continua sendo a descrição e `reference` o código já existente. Cliente, cor, preço atual e URL opcional de imagem ampliam o cadastro sem alterar OPs históricas.
+- BR-246: `ProductionOrder.unitPrice` permanece o snapshot comercial; alterar `Product.currentUnitPrice` não recalcula OP antiga.
+- BR-247: `Supply` é um insumo reutilizável e ativo/inativo. `ProductSupply` relaciona Produto e Insumo sem criar estoque nem movimentação física.
+- BR-248: A regra de consumo de `ProductSupply`, quando informada, exige `quantityPerBase` e `baseQuantity` positivas em conjunto; o previsto é `quantidade da OP × quantityPerBase ÷ baseQuantity`, calculado em Decimal.
+- BR-249: Dados cadastrais adicionais de Terceirizado são opcionais para preservar prestadores informais e registros históricos; CPF/CNPJ continua não obrigatório.
+- BR-250: Usuário `CONTRACTOR` exige exatamente um `contractorId`; outros perfis não podem possuir esse vínculo. O perfil não recebe mutações internas nem acesso financeiro ou operacional amplo nesta etapa.
+- BR-251: `OperationalIssue` pertence a uma OP e a um Terceirizado, pode apontar para um Serviço Terceirizado coerente e preserva criador, tipo, descrição e histórico de resolução.
+- BR-252: Tipos iniciais de pendência são `MISSING_THREAD`, `MISSING_TRIM`, `MISSING_COMPONENT`, `QUANTITY_ISSUE`, `EXECUTION_QUESTION` e `OTHER`.
+- BR-253: Pendências seguem `OPEN`, `IN_PROGRESS` ou `RESOLVED`; somente resolvidas possuem `resolvedAt` e `resolvedByUserId`, e não são apagadas ou reabertas nesta etapa.
+- BR-254: O catálogo de preço existente permanece global por Serviço. Esta etapa não introduz preço específico por Terceirizado e não altera `ServicePrice` nem snapshots existentes.
+
 ## Autenticação e permissões
 
 - Somente usuário ativo com sessão válida acessa o sistema interno.

@@ -8,13 +8,13 @@ export const SESSION_COOKIE = "genect_session";
 const SESSION_DAYS = 7;
 const digest = (token: string) => createHash("sha256").update(token).digest("hex");
 
-export type AuthenticatedUser = { id: string; name: string; email: string; role: UserRole };
+export type AuthenticatedUser = { id: string; name: string; email: string; role: UserRole; contractorId: string | null };
 
 export async function findUserByToken(token?: string | null): Promise<AuthenticatedUser | null> {
   if (!token) return null;
   const session = await prisma.session.findUnique({
     where: { tokenHash: digest(token) },
-    include: { user: { select: { id: true, name: true, email: true, role: true, active: true } } },
+    include: { user: { select: { id: true, name: true, email: true, role: true, contractorId: true, active: true } } },
   });
   if (!session || session.expiresAt <= new Date() || !session.user.active) return null;
   return {
@@ -22,6 +22,7 @@ export async function findUserByToken(token?: string | null): Promise<Authentica
     name: session.user.name,
     email: session.user.email,
     role: session.user.role,
+    contractorId: session.user.contractorId,
   };
 }
 

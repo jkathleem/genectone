@@ -14,6 +14,18 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-055 - Base operacional pós-MVP
+
+- Setores internos são cadastros configuráveis e não status fixos nem etapas de workflow. Os valores iniciais são Frente Interna, Carleano e Montagem.
+- Serviço é independente do executor. Duas tabelas de capacidade com FKs reais representam setores internos e terceirizados habilitados, evitando associação polimórfica nullable e serviços duplicados.
+- A tabela de preços auditada permanece global por Serviço. Embora a referência inicial mencionasse Contractor + Service + Price, o schema vigente não possui preço por Contractor; essa semântica não foi alterada sem decisão específica.
+- OP não recebe enum persistido de status. Urgência é flag, previsão e conclusão são fatos opcionais, e estados financeiro-operacionais permanecem derivados.
+- `Product.name` e `reference` são reutilizados como descrição e código. Preço atual do Produto é cadastral e `ProductionOrder.unitPrice` continua protegendo o histórico.
+- Insumos são somente uma composição proporcional do Produto, sem estoque e sem snapshot na OP nesta etapa. A dupla de consumo pode ficar vazia, mas nunca parcialmente preenchida ou não positiva.
+- O perfil `CONTRACTOR` exige `contractorId` e começa sem permissões internas; portal e telas próprias permanecem futuros.
+- Pendências operacionais são fatos históricos com autoria, três estados e seis tipos iniciais. Pendência resolvida não é apagada nem reaberta nesta etapa.
+- Os terceirizados existentes foram apenas relacionados por nomes inequívocos; nenhuma pessoa foi criada ou renomeada pelo seed. `Pricila` e `Neudenio` foram preservados como cadastrados.
+
 ### DEC-054 - Autenticação, perfis e autoria básica
 
 - O acesso interno exige usuário ativo e sessão opaca persistida no PostgreSQL, enviada em cookie `HttpOnly`, `SameSite=Lax` e `Secure` em produção.

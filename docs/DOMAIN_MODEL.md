@@ -1,5 +1,22 @@
 # Modelo de Domínio
 
+## Base operacional pós-MVP
+
+- **InternalSector**: setor interno configurável, ordenável e desativável. Não representa execução nem etapa de workflow.
+- **ServiceInternalSector**: capacidade que habilita um setor interno a executar um Serviço.
+- **ServiceContractor**: capacidade que habilita um Terceirizado a executar um Serviço.
+- **Supply**: insumo reutilizável com unidade e situação cadastral, sem estoque.
+- **ProductSupply**: associação Produto–Insumo. A dupla opcional `quantityPerBase`/`baseQuantity`, quando preenchida, permite derivar consumo previsto proporcional à quantidade da OP.
+- **OperationalIssue**: pendência histórica vinculada à OP, ao Terceirizado e opcionalmente ao `OutsourcedService`, com autoria e resolução preservadas.
+
+`Product` reutiliza `name` como descrição e `reference` como código e passa a aceitar Customer padrão, cor, preço unitário atual e URL de imagem. `ProductionOrder.unitPrice` continua sendo o snapshot; não existe snapshot de insumos nesta etapa porque consumo previsto ainda não é fato histórico nem movimentação de estoque.
+
+`ProductionOrder` recebe `isUrgent`, `expectedCompletionDate` e `completedAt`, sem coluna de status. O ciclo é derivado dos fatos: conclusão explícita, Billing e alocações de Receipt. A disponibilidade para Montagem é derivada dos `OutsourcedService`, itens de Romaneio e Retornos: qualquer serviço integralmente retornado libera disponibilidade parcial; todos integralmente retornados indicam disponibilidade completa.
+
+`UserRole.CONTRACTOR` exige vínculo a um único `Contractor` por usuário. Isso não limita um Contractor a apenas um usuário. O perfil está preparado no domínio, porém permanece restrito à Home até existir um portal próprio.
+
+`OperationalIssueType` possui `MISSING_THREAD`, `MISSING_TRIM`, `MISSING_COMPONENT`, `QUANTITY_ISSUE`, `EXECUTION_QUESTION` e `OTHER`. `OperationalIssueStatus` possui `OPEN`, `IN_PROGRESS` e `RESOLVED`; resolução exige instante e usuário responsável, sem exclusão ou reabertura nesta etapa.
+
 ## Acesso interno
 
 - **User**: usuário interno com nome, e-mail único, hash de senha, perfil e situação ativa.

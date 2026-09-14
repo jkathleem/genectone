@@ -49,6 +49,20 @@ const financialClassifications = [
   { code: "INCOME_TAXES", name: "Tributos sobre o resultado", financialNature: "DRE_POST_OPERATING", dreGroup: "INCOME_TAX_EXPENSE", notes: "Tributos gerenciais incidentes sobre o resultado." },
 ];
 
+const initialInternalSectors = [
+  { name: "Frente Interna", displayOrder: 10 },
+  { name: "Carleano", displayOrder: 20 },
+  { name: "Montagem", displayOrder: 30 },
+];
+
+const knownContractorCapabilities = [
+  { contractorNames: ["Priscila", "Pricila"], serviceName: "Frente Completa" },
+  { contractorNames: ["Rafael"], serviceName: "Pala e Gancho" },
+  { contractorNames: ["Paulo"], serviceName: "Final Frente" },
+  { contractorNames: ["Neudênio", "Neudenio"], serviceName: "Preparação Frente" },
+  { contractorNames: ["Paulo Romes"], serviceName: "Preparação e Bolso Traseiro" },
+];
+
 async function ensureService(tx, name) {
   const existing = await tx.service.findFirst({
     where: { name },
@@ -90,6 +104,45 @@ async function ensureReferencePrice(tx, serviceId, unitPrice) {
   });
 }
 
+async function ensureInitialOperationalStructure(tx) {
+  if (await tx.internalSector.count() === 0) {
+    await tx.internalSector.createMany({ data: initialInternalSectors });
+  }
+
+  const [sectors, services, contractors] = await Promise.all([
+    tx.internalSector.findMany(),
+    tx.service.findMany(),
+    tx.contractor.findMany({ orderBy: { createdAt: "asc" } }),
+  ]);
+  const serviceByName = new Map(services.map((service) => [service.name, service]));
+  const sectorByName = new Map(sectors.map((sector) => [sector.name, sector]));
+  const frontService = serviceByName.get("Frente Completa");
+
+  if (frontService) {
+    for (const sectorName of ["Frente Interna", "Carleano"]) {
+      const sector = sectorByName.get(sectorName);
+      if (sector) {
+        await tx.serviceInternalSector.upsert({
+          where: { serviceId_internalSectorId: { serviceId: frontService.id, internalSectorId: sector.id } },
+          update: {},
+          create: { serviceId: frontService.id, internalSectorId: sector.id },
+        });
+      }
+    }
+  }
+
+  for (const capability of knownContractorCapabilities) {
+    const service = serviceByName.get(capability.serviceName);
+    const candidates = contractors.filter((contractor) => capability.contractorNames.includes(contractor.name));
+    if (!service || candidates.length !== 1) continue;
+    await tx.serviceContractor.upsert({
+      where: { serviceId_contractorId: { serviceId: service.id, contractorId: candidates[0].id } },
+      update: {},
+      create: { serviceId: service.id, contractorId: candidates[0].id },
+    });
+  }
+}
+
 async function main() {
   await prisma.$transaction(async (tx) => {
     for (const classification of financialClassifications) {
@@ -107,6 +160,8 @@ async function main() {
         await ensureReferencePrice(tx, service.id, item.unitPrice);
       }
     }
+
+    await ensureInitialOperationalStructure(tx);
   });
 
   const adminName = process.env.SEED_ADMIN_NAME?.trim();
@@ -116,7 +171,7 @@ async function main() {
     if (adminPassword.length < 8) throw new Error("SEED_ADMIN_PASSWORD must contain at least 8 characters.");
     await prisma.user.upsert({
       where: { email: adminEmail },
-      update: { name: adminName, role: "ADMIN", active: true },
+      update: { name: adminName, role: "ADMIN", contractorId: null, active: true },
       create: { name: adminName, email: adminEmail, role: "ADMIN", passwordHash: await hashPassword(adminPassword) },
     });
     console.log("Initial ADMIN ensured from environment variables.");
@@ -124,7 +179,7 @@ async function main() {
     console.log("Initial ADMIN not created: configure SEED_ADMIN_NAME, SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD.");
   }
 
-  console.log("Seed completed: 13 financial classifications, 7 services and 5 reference prices ensured.");
+  console.log("Seed completed: official financial, service and post-MVP operational references ensured.");
 }
 
 main()

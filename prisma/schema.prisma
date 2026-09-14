@@ -29,27 +29,33 @@ enum UserRole {
   FINANCE
   OPERATIONS
   VIEWER
+  CONTRACTOR
 }
 
 model User {
-  id               String            @id @default(cuid())
+  id               String             @id @default(cuid())
   name             String
-  email            String            @unique
+  email            String             @unique
   passwordHash     String
   role             UserRole
-  active           Boolean           @default(true)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  contractorId     String?
+  active           Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
   sessions         Session[]
-  approvedBudgets  Budget[]          @relation("BudgetApprovedBy")
-  closedBudgets    Budget[]          @relation("BudgetClosedBy")
+  approvedBudgets  Budget[]           @relation("BudgetApprovedBy")
+  closedBudgets    Budget[]           @relation("BudgetClosedBy")
   payments         Payment[]
   receipts         Receipt[]
   manualPayables   AccountPayable[]
   paymentReversals PaymentReversal[]
   receiptReversals ReceiptReversal[]
+  contractor       Contractor?        @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  createdIssues    OperationalIssue[] @relation("OperationalIssueCreatedBy")
+  resolvedIssues   OperationalIssue[] @relation("OperationalIssueResolvedBy")
 
   @@index([active, role])
+  @@index([contractorId])
 }
 
 model Session {
@@ -164,35 +170,49 @@ model Customer {
   productionOrders   ProductionOrder[]
   accountsReceivable AccountReceivable[]
   receipts           Receipt[]
+  products           Product[]
 }
 
 model Product {
   id               String            @id @default(cuid())
   name             String
   reference        String?
+  customerId       String?
+  color            String?
+  currentUnitPrice Decimal?          @db.Decimal(14, 4)
+  imageUrl         String?
   active           Boolean           @default(true)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  customer         Customer?         @relation(fields: [customerId], references: [id], onDelete: Restrict)
   productionOrders ProductionOrder[]
+  supplies         ProductSupply[]
+
+  @@index([customerId])
+  @@index([reference])
 }
 
 model ProductionOrder {
-  id                 String              @id @default(cuid())
-  number             String
-  entryDate          DateTime            @db.Date
-  companyId          String
-  customerId         String
-  productId          String
-  quantity           Int
-  unitPrice          Decimal             @db.Decimal(14, 4)
-  notes              String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  company            Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  product            Product             @relation(fields: [productId], references: [id], onDelete: Restrict)
-  outsourcedServices OutsourcedService[]
-  billing            Billing?
+  id                     String              @id @default(cuid())
+  number                 String
+  entryDate              DateTime            @db.Date
+  companyId              String
+  customerId             String
+  productId              String
+  quantity               Int
+  unitPrice              Decimal             @db.Decimal(14, 4)
+  isUrgent               Boolean             @default(false)
+  expectedCompletionDate DateTime?           @db.Date
+  completedAt            DateTime?
+  notes                  String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  company                Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer               Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  product                Product             @relation(fields: [productId], references: [id], onDelete: Restrict)
+  outsourcedServices     OutsourcedService[]
+  billing                Billing?
+  operationalIssues      OperationalIssue[]
 
   @@unique([companyId, number])
   @@index([number])
@@ -293,29 +313,105 @@ model ReceiptAllocation {
 }
 
 model Contractor {
-  id                 String                 @id @default(cuid())
-  name               String
-  document           String?
-  phone              String?
-  address            String?
-  notes              String?
-  active             Boolean                @default(true)
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  outsourcedServices OutsourcedService[]
-  deliveryNotes      DeliveryNote[]
-  settlements        ContractorSettlement[]
+  id                  String                 @id @default(cuid())
+  name                String
+  document            String?
+  phone               String?
+  whatsapp            String?
+  email               String?
+  postalCode          String?
+  address             String?
+  addressNumber       String?
+  addressComplement   String?
+  neighborhood        String?
+  city                String?
+  state               String?
+  pixKey              String?
+  notes               String?
+  active              Boolean                @default(true)
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  outsourcedServices  OutsourcedService[]
+  deliveryNotes       DeliveryNote[]
+  settlements         ContractorSettlement[]
+  serviceCapabilities ServiceContractor[]
+  users               User[]
+  operationalIssues   OperationalIssue[]
 }
 
 model Service {
-  id                 String              @id @default(cuid())
-  name               String
-  description        String?
-  active             Boolean             @default(true)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  prices             ServicePrice[]
-  outsourcedServices OutsourcedService[]
+  id                         String                  @id @default(cuid())
+  name                       String
+  description                String?
+  active                     Boolean                 @default(true)
+  createdAt                  DateTime                @default(now())
+  updatedAt                  DateTime                @updatedAt
+  prices                     ServicePrice[]
+  outsourcedServices         OutsourcedService[]
+  internalSectorCapabilities ServiceInternalSector[]
+  contractorCapabilities     ServiceContractor[]
+}
+
+model InternalSector {
+  id                  String                  @id @default(cuid())
+  name                String                  @unique
+  active              Boolean                 @default(true)
+  displayOrder        Int                     @default(0)
+  notes               String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  serviceCapabilities ServiceInternalSector[]
+
+  @@index([active, displayOrder])
+}
+
+model ServiceInternalSector {
+  serviceId        String
+  internalSectorId String
+  createdAt        DateTime       @default(now())
+  service          Service        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  internalSector   InternalSector @relation(fields: [internalSectorId], references: [id], onDelete: Restrict)
+
+  @@id([serviceId, internalSectorId])
+  @@index([internalSectorId])
+}
+
+model ServiceContractor {
+  serviceId    String
+  contractorId String
+  createdAt    DateTime   @default(now())
+  service      Service    @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  contractor   Contractor @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+
+  @@id([serviceId, contractorId])
+  @@index([contractorId])
+}
+
+model Supply {
+  id        String          @id @default(cuid())
+  name      String          @unique
+  unit      String
+  active    Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  products  ProductSupply[]
+
+  @@index([active, name])
+}
+
+model ProductSupply {
+  productId       String
+  supplyId        String
+  quantityPerBase Decimal? @db.Decimal(14, 4)
+  baseQuantity    Int?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  supply          Supply   @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+
+  @@id([productId, supplyId])
+  @@index([supplyId])
 }
 
 model ServicePrice {
@@ -348,10 +444,52 @@ model OutsourcedService {
   deliveryNoteItems DeliveryNoteItem[]
   returns           OutsourcingReturn[]
   settlementItems   ContractorSettlementItem[]
+  operationalIssues OperationalIssue[]
 
   @@index([productionOrderId])
   @@index([serviceId])
   @@index([contractorId])
+}
+
+enum OperationalIssueType {
+  MISSING_THREAD
+  MISSING_TRIM
+  MISSING_COMPONENT
+  QUANTITY_ISSUE
+  EXECUTION_QUESTION
+  OTHER
+}
+
+enum OperationalIssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+model OperationalIssue {
+  id                  String                 @id @default(cuid())
+  productionOrderId   String
+  outsourcedServiceId String?
+  contractorId        String
+  createdByUserId     String
+  type                OperationalIssueType
+  description         String
+  status              OperationalIssueStatus @default(OPEN)
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  resolvedAt          DateTime?
+  resolvedByUserId    String?
+  productionOrder     ProductionOrder        @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  outsourcedService   OutsourcedService?     @relation(fields: [outsourcedServiceId], references: [id], onDelete: Restrict)
+  contractor          Contractor             @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  createdBy           User                   @relation("OperationalIssueCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  resolvedBy          User?                  @relation("OperationalIssueResolvedBy", fields: [resolvedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([productionOrderId, status])
+  @@index([outsourcedServiceId])
+  @@index([contractorId, status])
+  @@index([createdByUserId])
+  @@index([resolvedByUserId])
 }
 
 enum ContractorSettlementStatus {

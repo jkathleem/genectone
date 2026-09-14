@@ -1,5 +1,19 @@
 # Arquitetura
 
+## Base operacional pós-MVP
+
+A migration `20260914120000_add_post_mvp_operational_domain` amplia o schema sem alterar migrations anteriores. Novas colunas de registros existentes são nullable ou possuem default compatível; `ProductionOrder.unitPrice`, `OutsourcedService.appliedUnitPrice` e todos os fatos financeiros permanecem inalterados.
+
+`ServiceInternalSector` e `ServiceContractor` são associações N:N separadas. Essa escolha mantém FKs simples e restritivas, permite vários executores para o mesmo Serviço e evita uma tabela polimórfica com duas FKs opcionais. Elas representam habilitação cadastral, não execução histórica; `OutsourcedService` mantém esse papel para trabalho externo realizado.
+
+`ProductSupply` usa chave composta Produto–Insumo. Um CHECK aceita consumo totalmente não configurado ou exige `quantityPerBase` Decimal positivo e `baseQuantity` inteira positiva. O cálculo proporcional fica em `src/modules/products/domain.ts`; não há estoque, movimentação ou snapshot de consumo na OP.
+
+O CHECK `User_role_contractor_check` trata NULL explicitamente: `CONTRACTOR` exige `contractorId`, enquanto qualquer outro perfil exige valor nulo. O papel não aparece no cadastro atual de usuários e `canAccessPath` limita-o à Home; também não integra nenhuma lista de permissões internas.
+
+`OperationalIssue` usa FKs restritivas para OP, Terceirizado, Serviço Terceirizado opcional, criador e resolvedor. O CHECK de resolução exige `resolvedAt` e `resolvedByUserId` apenas em `RESOLVED`. A camada `src/modules/operational-issues/service.ts` valida também que o Serviço Terceirizado pertence à OP e ao Terceirizado indicados, regra transversal que um CHECK simples não pode consultar.
+
+O seed cria os três setores somente quando o catálogo de setores está vazio, preservando renomes administrativos em execuções futuras. Capacidades são feitas por upsert; vínculos externos só são criados quando há exatamente um Contractor existente com nome conhecido. Nenhum Contractor é criado ou renomeado automaticamente.
+
 ## Orçamento / Previsto x Realizado
 
 `Budget` tem unicidade `(companyId, competenceDate)` e CHECK para o primeiro dia do mês. `BudgetEntry` tem CHECK de valor não negativo, CHECK de coerência por tipo, unicidade por classificação e índice único parcial para uma Receita Bruta por Budget. Relações históricas usam `onDelete: Restrict`.

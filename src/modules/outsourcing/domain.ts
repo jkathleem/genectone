@@ -18,6 +18,20 @@ export function appearsInCollections(sent: number, returned: number) { return se
 export function validReturn(quantity: number, pending: number) { return Number.isInteger(quantity) && quantity > 0 && quantity <= pending; }
 export function validApproval(quantity: number, returned: number) { return Number.isInteger(quantity) && quantity >= 0 && quantity <= returned; }
 
+export type MountingAvailability = "NOT_AVAILABLE" | "PARTIALLY_AVAILABLE" | "FULLY_AVAILABLE";
+
+export function mountingAvailability(
+  services: { deliveryNoteItems: { quantity: number }[]; returns: { quantity: number }[] }[],
+): MountingAvailability {
+  if (services.length === 0) return "NOT_AVAILABLE";
+  const completed = services.filter((service) => {
+    const quantities = derivedQuantities(service.deliveryNoteItems, service.returns);
+    return quantities.sentQuantity > 0 && quantities.pendingQuantity <= 0;
+  }).length;
+  if (completed === 0) return "NOT_AVAILABLE";
+  return completed === services.length ? "FULLY_AVAILABLE" : "PARTIALLY_AVAILABLE";
+}
+
 export function canChangeAssignment(
   hasDeliveryNoteItem: boolean,
   current: { serviceId: string; contractorId: string },
