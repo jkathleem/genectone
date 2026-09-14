@@ -1,2 +1,2 @@
-"use server";import{redirect}from"next/navigation";import{prisma}from"@/lib/prisma";import{createFromSettlement}from"./creation";
-export async function generateAccountPayable(f:FormData){const settlementId=String(f.get("settlementId"));const due=String(f.get("dueDate"));const account=await createFromSettlement(prisma,settlementId,new Date(`${due}T00:00:00.000Z`));redirect(`/financeiro/contas-a-pagar/${account.id}`)}
+"use server";import{redirect}from"next/navigation";import{prisma}from"@/lib/prisma";import{requireUser}from"@/modules/auth/session";import{createFromSettlement}from"./creation";
+export async function generateAccountPayable(f:FormData){await requireUser("FINANCE_MUTATE");const settlementId=String(f.get("settlementId")),due=String(f.get("dueDate")),account=await createFromSettlement(prisma,settlementId,new Date(`${due}T00:00:00.000Z`));redirect(`/financeiro/contas-a-pagar/${account.id}`)}

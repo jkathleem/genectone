@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { optionalText, redirectWithMessage } from "@/lib/form";
+import { requireUser } from "@/modules/auth/session";
 
 const requiredName = z.string().trim().min(1, "Informe o nome.").max(200, "Nome muito longo.");
 const idSchema = z.string().cuid();
@@ -13,7 +14,7 @@ function parseBase(data: FormData) {
 }
 
 async function execute(path: string, success: string, operation: () => Promise<unknown>) {
-  try { await operation(); revalidatePath(path); }
+  try { await requireUser("OPERATION_MUTATE"); await operation(); revalidatePath(path); }
   catch (error) { if (error instanceof z.ZodError) redirectWithMessage(path, "error", error.issues[0]?.message ?? "Dados inválidos."); redirectWithMessage(path, "error", "Não foi possível salvar. Revise os dados e tente novamente."); }
   redirectWithMessage(path, "success", success);
 }

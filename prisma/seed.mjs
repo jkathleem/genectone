@@ -1,5 +1,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.js";
+import { randomBytes, scrypt as scryptCallback } from "node:crypto";
+import { promisify } from "node:util";
 
 process.loadEnvFile();
 
@@ -11,6 +13,13 @@ if (!databaseUrl) {
 
 const adapter = new PrismaPg(databaseUrl);
 const prisma = new PrismaClient({ adapter });
+const scrypt = promisify(scryptCallback);
+
+async function hashPassword(password) {
+  const salt = randomBytes(16).toString("hex");
+  const key = await scrypt(password, salt, 64);
+  return `scrypt:${salt}:${key.toString("hex")}`;
+}
 
 const SYSTEM_REFERENCE_DATE = new Date("2026-09-02T00:00:00.000Z");
 
@@ -99,6 +108,21 @@ async function main() {
       }
     }
   });
+
+  const adminName = process.env.SEED_ADMIN_NAME?.trim();
+  const adminEmail = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (adminName && adminEmail && adminPassword) {
+    if (adminPassword.length < 8) throw new Error("SEED_ADMIN_PASSWORD must contain at least 8 characters.");
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: { name: adminName, role: "ADMIN", active: true },
+      create: { name: adminName, email: adminEmail, role: "ADMIN", passwordHash: await hashPassword(adminPassword) },
+    });
+    console.log("Initial ADMIN ensured from environment variables.");
+  } else {
+    console.log("Initial ADMIN not created: configure SEED_ADMIN_NAME, SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD.");
+  }
 
   console.log("Seed completed: 13 financial classifications, 7 services and 5 reference prices ensured.");
 }

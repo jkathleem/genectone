@@ -6,6 +6,7 @@ import { Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import { redirectWithMessage } from "@/lib/form";
 import { createFinancialClassification, setFinancialClassificationActive, updateFinancialClassification } from "./service";
+import { requireUser } from "@/modules/auth/session";
 
 const path = "/cadastros/classificacoes-financeiras";
 const groupSchema = z.enum(["VARIABLE_COST_EXPENSE", "FIXED_COST_EXPENSE", "FINANCIAL_REVENUE", "FINANCIAL_EXPENSE", "INCOME_TAX_EXPENSE"]);
@@ -14,6 +15,7 @@ const idSchema = z.string().min(1);
 
 async function execute(message: string, operation: () => Promise<unknown>) {
   try {
+    await requireUser("FINANCE_MUTATE");
     await operation();
     revalidatePath(path);
   } catch (error) {

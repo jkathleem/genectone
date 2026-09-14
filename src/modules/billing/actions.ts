@@ -4,7 +4,9 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseMoneyInput } from "@/modules/production-orders/validation";
 import { createBillingAndReceivable } from "./creation";
+import { requireUser } from "@/modules/auth/session";
 export async function registerBilling(formData: FormData) {
+  await requireUser("FINANCE_MUTATE");
   const id = String(formData.get("productionOrderId") ?? ""), path = `/ops/${id}/faturamento/novo`;
   try {
     const issueDate = String(formData.get("issueDate") ?? ""), dueDate = String(formData.get("dueDate") ?? "");

@@ -6,11 +6,13 @@ import { prisma } from "@/lib/prisma";
 import { approveSettlementById } from "./approval";
 import { eligibleQuantity, sameContractor, validSettlementQuantity } from "./domain";
 import { addDraftItem, removeDraftItem, updateDraft, updateDraftItem } from "./mutations";
+import { requireUser } from "@/modules/auth/session";
 
 const settlementPath = (id: string) => `/terceirizacao/fechamentos/${id}`;
 const text = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
 
 export async function createSettlement(formData: FormData) {
+  await requireUser("OPERATION_MUTATE");
   const contractorId = text(formData, "contractorId");
   const companyId = text(formData, "companyId");
   const periodMonth = Number(formData.get("periodMonth"));
@@ -35,13 +37,14 @@ export async function createSettlement(formData: FormData) {
 }
 
 export async function saveDraft(formData: FormData) {
+  await requireUser("OPERATION_MUTATE");
   const id = text(formData, "id");
   const current = await prisma.contractorSettlement.findUniqueOrThrow({ where: { id }, select: { companyId: true } });
   await updateDraft(prisma, id, { contractorId: text(formData, "contractorId"), companyId: text(formData, "companyId") || current.companyId, periodMonth: Number(formData.get("periodMonth")), periodYear: Number(formData.get("periodYear")), notes: text(formData, "notes") || null });
   revalidatePath(settlementPath(id));
 }
 
-export async function addItem(formData: FormData) { const id = text(formData, "id"); await addDraftItem(prisma, id, text(formData, "outsourcedServiceId"), Number(formData.get("quantity"))); revalidatePath(settlementPath(id)); }
-export async function saveItemQuantity(formData: FormData) { const id = text(formData, "settlementId"); await updateDraftItem(prisma, text(formData, "itemId"), Number(formData.get("quantity"))); revalidatePath(settlementPath(id)); }
-export async function removeItem(formData: FormData) { const id = text(formData, "settlementId"); await removeDraftItem(prisma, text(formData, "itemId")); revalidatePath(settlementPath(id)); }
-export async function approveSettlement(formData: FormData) { const id = text(formData, "id"); await approveSettlementById(prisma, id); revalidatePath(settlementPath(id)); revalidatePath("/terceirizacao/fechamentos"); }
+export async function addItem(formData: FormData) { await requireUser("OPERATION_MUTATE"); const id = text(formData, "id"); await addDraftItem(prisma, id, text(formData, "outsourcedServiceId"), Number(formData.get("quantity"))); revalidatePath(settlementPath(id)); }
+export async function saveItemQuantity(formData: FormData) { await requireUser("OPERATION_MUTATE"); const id = text(formData, "settlementId"); await updateDraftItem(prisma, text(formData, "itemId"), Number(formData.get("quantity"))); revalidatePath(settlementPath(id)); }
+export async function removeItem(formData: FormData) { await requireUser("OPERATION_MUTATE"); const id = text(formData, "settlementId"); await removeDraftItem(prisma, text(formData, "itemId")); revalidatePath(settlementPath(id)); }
+export async function approveSettlement(formData: FormData) { await requireUser("OPERATION_MUTATE"); const id = text(formData, "id"); await approveSettlementById(prisma, id); revalidatePath(settlementPath(id)); revalidatePath("/terceirizacao/fechamentos"); }

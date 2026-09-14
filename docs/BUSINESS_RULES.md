@@ -1,5 +1,14 @@
 # Regras de Negócio
 
+## Autenticação e permissões
+
+- Somente usuário ativo com sessão válida acessa o sistema interno.
+- ADMIN administra usuários e possui acesso completo.
+- OPERATIONS altera cadastros e fluxo operacional; FINANCE altera fluxo financeiro e orçamento; VIEWER possui somente consulta gerencial.
+- Autorizações de escrita são verificadas no servidor e não dependem apenas do menu.
+- Desativar um usuário encerra suas sessões; usuários não são excluídos fisicamente.
+- Registros históricos sem autoria confiável permanecem sem autor.
+
 ## Orçamento / Previsto x Realizado
 
 - BR-200: Orçamento é planejamento mensal por Company e competência no primeiro dia do mês; não cria fatos financeiros e não altera DRE realizada ou Fluxo de Caixa.

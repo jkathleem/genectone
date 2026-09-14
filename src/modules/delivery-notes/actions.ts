@@ -9,8 +9,10 @@ import { redirectWithMessage } from "@/lib/form";
 import { allItemsBelongToContractor, availableToSend, validateRequestedQuantity } from "./domain";
 import { nextDeliveryNoteNumber } from "./numbering";
 import { deliveryNoteSchema } from "./validation";
+import { requireUser } from "@/modules/auth/session";
 
 export async function createDeliveryNote(data: FormData) {
+  await requireUser("OPERATION_MUTATE");
   const path = "/romaneios/novo";
   try {
     const input = deliveryNoteSchema.parse({

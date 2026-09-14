@@ -1,22 +1,14 @@
 "use server";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { addClassificationEntry, addGrossRevenue, approveBudget, closeBudget, copyBudget, createBudget, deleteBudgetEntry, updateBudgetEntry, updateBudgetNotes } from "./service";
-
-const path = "/financeiro/previsto-realizado";
-const text = z.string().min(1);
-const amount = z.string().trim().transform(v => v.replace(/\.(?=\d{3}(?:\D|$))/g, "").replace(",", ".")).pipe(z.string().regex(/^\d+(\.\d{1,4})?$/, "Informe um valor válido."));
-function target(form: FormData, kind: "success" | "error", message: string) { const q = new URLSearchParams({ companyId: String(form.get("companyId") ?? ""), month: String(form.get("month") ?? ""), year: String(form.get("year") ?? ""), [kind]: message }); return `${path}?${q}`; }
-async function run(form: FormData, message: string, fn: () => Promise<unknown>) { try { await fn(); revalidatePath(path); } catch (e) { redirect(target(form, "error", e instanceof Error ? e.message : "Não foi possível concluir.")); } redirect(target(form, "success", message)); }
-
-export async function createBudgetAction(form: FormData) { await run(form, "Orçamento criado.", () => createBudget(prisma, text.parse(form.get("companyId")), Number(form.get("year")), Number(form.get("month")), String(form.get("notes") ?? ""))); }
-export async function updateBudgetAction(form: FormData) { await run(form, "Observações do orçamento atualizadas.", () => updateBudgetNotes(prisma, text.parse(form.get("budgetId")), String(form.get("notes") ?? ""))); }
-export async function addRevenueAction(form: FormData) { await run(form, "Receita Bruta prevista adicionada.", () => addGrossRevenue(prisma, text.parse(form.get("budgetId")), amount.parse(form.get("amount")), String(form.get("notes") ?? ""))); }
-export async function addClassificationAction(form: FormData) { await run(form, "Classificação adicionada.", () => addClassificationEntry(prisma, text.parse(form.get("budgetId")), text.parse(form.get("classificationId")), amount.parse(form.get("amount")), String(form.get("notes") ?? ""))); }
-export async function updateEntryAction(form: FormData) { await run(form, "Linha atualizada.", () => updateBudgetEntry(prisma, text.parse(form.get("entryId")), amount.parse(form.get("amount")), String(form.get("notes") ?? ""))); }
-export async function deleteEntryAction(form: FormData) { await run(form, "Linha removida.", () => deleteBudgetEntry(prisma, text.parse(form.get("entryId")))); }
-export async function copyBudgetAction(form: FormData) { await run(form, "Orçamento copiado para a nova competência.", () => copyBudget(prisma, text.parse(form.get("budgetId")), Number(form.get("destinationYear")), Number(form.get("destinationMonth")))); }
-export async function approveBudgetAction(form: FormData) { await run(form, "Orçamento aprovado.", () => approveBudget(prisma, text.parse(form.get("budgetId")))); }
-export async function closeBudgetAction(form: FormData) { await run(form, "Orçamento fechado.", () => closeBudget(prisma, text.parse(form.get("budgetId")))); }
+import{revalidatePath}from"next/cache";import{redirect}from"next/navigation";import{z}from"zod";import{prisma}from"@/lib/prisma";import{requireUser}from"@/modules/auth/session";import{addClassificationEntry,addGrossRevenue,approveBudget,closeBudget,copyBudget,createBudget,deleteBudgetEntry,updateBudgetEntry,updateBudgetNotes}from"./service";
+const path="/financeiro/previsto-realizado",text=z.string().min(1),amount=z.string().trim().transform(v=>v.replace(/\.(?=\d{3}(?:\D|$))/g,"").replace(",",".")).pipe(z.string().regex(/^\d+(\.\d{1,4})?$/,"Informe um valor válido."));
+function target(f:FormData,k:"success"|"error",m:string){return `${path}?${new URLSearchParams({companyId:String(f.get("companyId")??""),month:String(f.get("month")??""),year:String(f.get("year")??""),[k]:m})}`}
+async function run(f:FormData,message:string,fn:(userId:string)=>Promise<unknown>){try{const user=await requireUser("FINANCE_MUTATE");await fn(user.id);revalidatePath(path)}catch(e){redirect(target(f,"error",e instanceof Error?e.message:"Não foi possível concluir."))}redirect(target(f,"success",message))}
+export async function createBudgetAction(f:FormData){await run(f,"Orçamento criado.",()=>createBudget(prisma,text.parse(f.get("companyId")),Number(f.get("year")),Number(f.get("month")),String(f.get("notes")??"")))}
+export async function updateBudgetAction(f:FormData){await run(f,"Observações do orçamento atualizadas.",()=>updateBudgetNotes(prisma,text.parse(f.get("budgetId")),String(f.get("notes")??"")))}
+export async function addRevenueAction(f:FormData){await run(f,"Receita Bruta prevista adicionada.",()=>addGrossRevenue(prisma,text.parse(f.get("budgetId")),amount.parse(f.get("amount")),String(f.get("notes")??"")))}
+export async function addClassificationAction(f:FormData){await run(f,"Classificação adicionada.",()=>addClassificationEntry(prisma,text.parse(f.get("budgetId")),text.parse(f.get("classificationId")),amount.parse(f.get("amount")),String(f.get("notes")??"")))}
+export async function updateEntryAction(f:FormData){await run(f,"Linha atualizada.",()=>updateBudgetEntry(prisma,text.parse(f.get("entryId")),amount.parse(f.get("amount")),String(f.get("notes")??"")))}
+export async function deleteEntryAction(f:FormData){await run(f,"Linha removida.",()=>deleteBudgetEntry(prisma,text.parse(f.get("entryId"))))}
+export async function copyBudgetAction(f:FormData){await run(f,"Orçamento copiado.",()=>copyBudget(prisma,text.parse(f.get("budgetId")),Number(f.get("destinationYear")),Number(f.get("destinationMonth"))))}
+export async function approveBudgetAction(f:FormData){await run(f,"Orçamento aprovado.",userId=>approveBudget(prisma,text.parse(f.get("budgetId")),userId))}
+export async function closeBudgetAction(f:FormData){await run(f,"Orçamento fechado.",userId=>closeBudget(prisma,text.parse(f.get("budgetId")),userId))}

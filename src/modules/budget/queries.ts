@@ -7,7 +7,7 @@ const groups: DreGroup[] = ["VARIABLE_COST_EXPENSE", "FIXED_COST_EXPENSE", "FINA
 export async function budgetComparison(companyId: string, year: number, month: number) {
   const competenceDate = monthlyCompetence(year, month);
   const [budget, actual] = await Promise.all([
-    prisma.budget.findUnique({ where: { companyId_competenceDate: { companyId, competenceDate } }, include: { entries: { orderBy: [{ entryType: "asc" }, { classificationNameSnapshot: "asc" }] } } }),
+    prisma.budget.findUnique({ where: { companyId_competenceDate: { companyId, competenceDate } }, include: { approvedBy: { select: { name: true } }, closedBy: { select: { name: true } }, entries: { orderBy: [{ entryType: "asc" }, { classificationNameSnapshot: "asc" }] } } }),
     operationalDre(companyId, year, month),
   ]);
   const gross = budget?.entries.find(x => x.entryType === "GROSS_REVENUE")?.amount ?? new Prisma.Decimal(0);

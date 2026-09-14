@@ -99,19 +99,19 @@ export async function copyBudget(db: DB, sourceBudgetId: string, destinationYear
   }
 }
 
-export async function approveBudget(db: DB, budgetId: string) {
+export async function approveBudget(db: DB, budgetId: string, approvedByUserId?: string) {
   return db.$transaction(async tx => {
     const budget=await lockBudget(tx,budgetId);
     if(budget.status!=="DRAFT")throw new Error("Somente orçamento em Rascunho pode ser aprovado.");
     if(await tx.budgetEntry.count({where:{budgetId}})===0)throw new Error("Não é possível aprovar um orçamento sem linhas.");
-    return tx.budget.update({where:{id:budgetId},data:{status:"APPROVED",approvedAt:new Date(),closedAt:null}});
+    return tx.budget.update({where:{id:budgetId},data:{status:"APPROVED",approvedAt:new Date(),closedAt:null,approvedByUserId}});
   });
 }
 
-export async function closeBudget(db: DB, budgetId: string) {
+export async function closeBudget(db: DB, budgetId: string, closedByUserId?: string) {
   return db.$transaction(async tx => {
     const budget=await lockBudget(tx,budgetId);
     if(budget.status!=="APPROVED")throw new Error("Somente orçamento Aprovado pode ser fechado.");
-    return tx.budget.update({where:{id:budgetId},data:{status:"CLOSED",closedAt:new Date()}});
+    return tx.budget.update({where:{id:budgetId},data:{status:"CLOSED",closedAt:new Date(),closedByUserId}});
   });
 }

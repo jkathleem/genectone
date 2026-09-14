@@ -24,6 +24,46 @@ model Company {
   budgets            Budget[]
 }
 
+enum UserRole {
+  ADMIN
+  FINANCE
+  OPERATIONS
+  VIEWER
+}
+
+model User {
+  id               String            @id @default(cuid())
+  name             String
+  email            String            @unique
+  passwordHash     String
+  role             UserRole
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  sessions         Session[]
+  approvedBudgets  Budget[]          @relation("BudgetApprovedBy")
+  closedBudgets    Budget[]          @relation("BudgetClosedBy")
+  payments         Payment[]
+  receipts         Receipt[]
+  manualPayables   AccountPayable[]
+  paymentReversals PaymentReversal[]
+  receiptReversals ReceiptReversal[]
+
+  @@index([active, role])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 enum DreGroup {
   VARIABLE_COST_EXPENSE
   FIXED_COST_EXPENSE
@@ -55,15 +95,15 @@ enum BudgetStatus {
 }
 
 model FinancialClassification {
-  id              String            @id @default(cuid())
-  code            String            @unique
+  id              String           @id @default(cuid())
+  code            String           @unique
   name            String
   financialNature FinancialNature
   dreGroup        DreGroup?
-  active          Boolean           @default(true)
+  active          Boolean          @default(true)
   notes           String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   accountsPayable AccountPayable[]
   budgetEntries   BudgetEntry[]
 
@@ -72,17 +112,21 @@ model FinancialClassification {
 }
 
 model Budget {
-  id             String        @id @default(cuid())
-  companyId      String
-  competenceDate DateTime      @db.Date
-  notes          String?
-  status         BudgetStatus  @default(DRAFT)
-  approvedAt     DateTime?
-  closedAt       DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  company        Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  entries        BudgetEntry[]
+  id               String        @id @default(cuid())
+  companyId        String
+  competenceDate   DateTime      @db.Date
+  notes            String?
+  status           BudgetStatus  @default(DRAFT)
+  approvedAt       DateTime?
+  closedAt         DateTime?
+  approvedByUserId String?
+  closedByUserId   String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  company          Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  entries          BudgetEntry[]
+  approvedBy       User?         @relation("BudgetApprovedBy", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  closedBy         User?         @relation("BudgetClosedBy", fields: [closedByUserId], references: [id], onDelete: Restrict)
 
   @@unique([companyId, competenceDate])
   @@index([competenceDate])
@@ -200,18 +244,20 @@ model AccountReceivable {
 }
 
 model Receipt {
-  id          String              @id @default(cuid())
-  companyId   String
-  customerId  String
-  receiptDate DateTime            @db.Date
-  amount      Decimal             @db.Decimal(14, 4)
-  notes       String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer    Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  allocations ReceiptAllocation[]
-  reversal    ReceiptReversal?
+  id              String              @id @default(cuid())
+  companyId       String
+  customerId      String
+  receiptDate     DateTime            @db.Date
+  amount          Decimal             @db.Decimal(14, 4)
+  notes           String?
+  createdByUserId String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  company         Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer        Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  allocations     ReceiptAllocation[]
+  reversal        ReceiptReversal?
+  createdBy       User?               @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@index([companyId, receiptDate])
   @@index([customerId, receiptDate])
@@ -219,13 +265,16 @@ model Receipt {
 }
 
 model ReceiptReversal {
-  id           String   @id @default(cuid())
-  receiptId    String   @unique
-  reversalDate DateTime @db.Date
-  reason       String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  receipt      Receipt  @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  id              String   @id @default(cuid())
+  receiptId       String   @unique
+  reversalDate    DateTime @db.Date
+  reason          String
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  receipt         Receipt  @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  createdBy       User?    @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
   @@index([reversalDate])
 }
 
@@ -347,12 +396,14 @@ model AccountPayable {
   competenceDate             DateTime                @db.Date
   dueDate                    DateTime                @db.Date
   originalAmount             Decimal                 @db.Decimal(14, 4)
+  createdByUserId            String?
   createdAt                  DateTime                @default(now())
   updatedAt                  DateTime                @updatedAt
   company                    Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
   contractorSettlement       ContractorSettlement?   @relation(fields: [contractorSettlementId], references: [id], onDelete: Restrict)
   classification             FinancialClassification @relation(fields: [classificationId], references: [id], onDelete: Restrict)
   payments                   Payment[]
+  createdBy                  User?                   @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@index([companyId, dueDate])
   @@index([companyId, competenceDate, financialNatureSnapshot, dreGroupSnapshot])
@@ -363,28 +414,33 @@ model AccountPayable {
 }
 
 model Payment {
-  id               String         @id @default(cuid())
+  id               String           @id @default(cuid())
   accountPayableId String
-  paymentDate      DateTime       @db.Date
-  amount           Decimal        @db.Decimal(14, 4)
+  paymentDate      DateTime         @db.Date
+  amount           Decimal          @db.Decimal(14, 4)
   notes            String?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  accountPayable   AccountPayable @relation(fields: [accountPayableId], references: [id], onDelete: Restrict)
+  createdByUserId  String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  accountPayable   AccountPayable   @relation(fields: [accountPayableId], references: [id], onDelete: Restrict)
   reversal         PaymentReversal?
+  createdBy        User?            @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@index([accountPayableId, paymentDate])
   @@index([paymentDate])
 }
 
 model PaymentReversal {
-  id           String   @id @default(cuid())
-  paymentId    String   @unique
-  reversalDate DateTime @db.Date
-  reason       String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  payment      Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  id              String   @id @default(cuid())
+  paymentId       String   @unique
+  reversalDate    DateTime @db.Date
+  reason          String
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  payment         Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  createdBy       User?    @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+
   @@index([reversalDate])
 }
 

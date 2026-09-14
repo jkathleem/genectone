@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from "@/generated/prisma";
 type DB = Pick<PrismaClient, "$transaction">;
 export type AllocationInput = { accountReceivableId: string; amount: Prisma.Decimal | string };
-export type ReceiptInput = { companyId: string; customerId: string; receiptDate: Date; amount: Prisma.Decimal | string; notes?: string | null; allocations: AllocationInput[] };
+export type ReceiptInput = { companyId: string; customerId: string; receiptDate: Date; amount: Prisma.Decimal | string; notes?: string | null; allocations: AllocationInput[]; createdByUserId?: string };
 export function allocationTotal(allocations: AllocationInput[]) { return allocations.reduce((sum, item) => sum.plus(item.amount), new Prisma.Decimal(0)); }
 export async function createReceipt(db: DB, input: ReceiptInput) {
   const amount = new Prisma.Decimal(input.amount);
@@ -27,6 +27,6 @@ export async function createReceipt(db: DB, input: ReceiptInput) {
       const remaining = account.originalAmount.minus(alreadyReceived);
       if (new Prisma.Decimal(allocation.amount).gt(remaining)) throw new Error("Uma alocação não pode ultrapassar o saldo atual da Conta a Receber.");
     }
-    return tx.receipt.create({ data: { companyId: input.companyId, customerId: input.customerId, receiptDate: input.receiptDate, amount, notes: input.notes?.trim() || null, allocations: { create: input.allocations.map(item => ({ accountReceivableId: item.accountReceivableId, amount: new Prisma.Decimal(item.amount) })) } }, include: { allocations: true } });
+    return tx.receipt.create({ data: { companyId: input.companyId, customerId: input.customerId, receiptDate: input.receiptDate, amount, notes: input.notes?.trim() || null, createdByUserId: input.createdByUserId, allocations: { create: input.allocations.map(item => ({ accountReceivableId: item.accountReceivableId, amount: new Prisma.Decimal(item.amount) })) } }, include: { allocations: true } });
   });
 }

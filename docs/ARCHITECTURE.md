@@ -264,11 +264,13 @@ Credenciais reais não devem ser versionadas.
 - `.env.example` documenta as variáveis necessárias sem segredos.
 - `DATABASE_URL` será usada pelo Prisma para conexão com PostgreSQL.
 
-## Autenticação futura
+## Autenticação e autorização
 
-Autenticação completa não será implementada nesta etapa.
+`User` representa a identidade interna e `Session` armazena somente o hash SHA-256 de um token aleatório. A senha usa `scrypt` com salt individual. O navegador recebe o token em cookie inacessível a JavaScript; a aplicação invalida sessões expiradas ou pertencentes a usuário inativo.
 
-Quando o tema for retomado, deve respeitar os perfis e permissões definidos nos documentos de negócio. Enquanto essa decisão estiver pendente, agentes não devem inventar papéis de usuário.
+O `proxy.ts` protege páginas e filtra acesso por área. Toda Server Action também deve chamar `requireUser` com a permissão de mutação correspondente, pois ocultar links não constitui autorização. Os perfis são ADMIN, FINANCE, OPERATIONS e VIEWER.
+
+Campos opcionais de autoria preservam compatibilidade com fatos anteriores à autenticação. Nos novos fluxos, o usuário autenticado é registrado em aprovação/fechamento de orçamento, Conta a Pagar manual, pagamento, recebimento e estornos.
 
 ## Auditoria futura
 

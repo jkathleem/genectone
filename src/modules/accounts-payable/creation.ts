@@ -14,6 +14,7 @@ export type ManualAccountPayableInput = {
   competenceMonth: number;
   dueDate: Date;
   originalAmount: Prisma.Decimal | string;
+  createdByUserId?: string;
 };
 
 function requiredText(value: string, message: string) {
@@ -93,6 +94,7 @@ export async function createManualAccountPayable(db: DB, input: ManualAccountPay
       competenceDate: competenceDate(input.competenceYear, input.competenceMonth),
       dueDate: input.dueDate,
       originalAmount,
+      createdByUserId: input.createdByUserId,
     } });
   });
 }

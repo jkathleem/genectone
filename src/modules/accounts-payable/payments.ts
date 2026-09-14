@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "@/generated/prisma";
 type DB = Pick<PrismaClient, "$transaction">;
-export type PaymentInput = { paymentDate: Date; amount: Prisma.Decimal | string; notes?: string | null };
+export type PaymentInput = { paymentDate: Date; amount: Prisma.Decimal | string; notes?: string | null; createdByUserId?: string };
 export async function createPayment(db: DB, accountPayableId: string, input: PaymentInput) {
   if (!accountPayableId) throw new Error("Conta a Pagar não informada.");
   if (Number.isNaN(input.paymentDate.getTime())) throw new Error("Informe uma data de pagamento válida.");
@@ -14,6 +14,6 @@ export async function createPayment(db: DB, accountPayableId: string, input: Pay
     const remaining = account.originalAmount.minus(paid);
     if (remaining.lte(0)) throw new Error("Esta Conta a Pagar já está paga.");
     if (amount.gt(remaining)) throw new Error("O valor do pagamento não pode ultrapassar o saldo atual.");
-    return tx.payment.create({ data: { accountPayableId, paymentDate: input.paymentDate, amount, notes: input.notes?.trim() || null } });
+    return tx.payment.create({ data: { accountPayableId, paymentDate: input.paymentDate, amount, notes: input.notes?.trim() || null, createdByUserId: input.createdByUserId } });
   });
 }

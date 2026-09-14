@@ -5,12 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { redirectWithMessage } from "@/lib/form";
 import { parseMoneyInput } from "@/modules/production-orders/validation";
 import { createManualAccountPayable } from "./creation";
+import { requireUser } from "@/modules/auth/session";
 
 const path = "/financeiro/contas-a-pagar/nova";
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe o vencimento.");
 
 export async function createManualPayableAction(formData: FormData) {
   try {
+    const user = await requireUser("FINANCE_MUTATE");
     const dueDate = dateSchema.parse(formData.get("dueDate"));
     const account = await createManualAccountPayable(prisma, {
       companyId: String(formData.get("companyId") ?? ""),
@@ -21,6 +23,7 @@ export async function createManualPayableAction(formData: FormData) {
       competenceYear: z.coerce.number().int().parse(formData.get("competenceYear")),
       dueDate: new Date(`${dueDate}T00:00:00.000Z`),
       originalAmount: parseMoneyInput(String(formData.get("originalAmount") ?? "")),
+      createdByUserId: user.id,
     });
     redirectWithMessage(`/financeiro/contas-a-pagar/${account.id}`, "success", "Conta a Pagar manual registrada.");
   } catch (error) {

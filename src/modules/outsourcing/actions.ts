@@ -5,9 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { outsourcedServiceSchema } from "./validation";
 import { canChangeAssignment } from "./domain";
 import { z } from "zod";
+import { requireUser } from "@/modules/auth/session";
 
 function values(data: FormData) { return { serviceId: String(data.get("serviceId") ?? ""), contractorId: String(data.get("contractorId") ?? ""), plannedQuantity: String(data.get("plannedQuantity") ?? ""), appliedUnitPrice: String(data.get("appliedUnitPrice") ?? ""), notes: String(data.get("notes") ?? "") }; }
 export async function saveOutsourcedService(data: FormData) {
+  await requireUser("OPERATION_MUTATE");
   const orderId = String(data.get("orderId")); const id = String(data.get("id") ?? ""); const path = `/ops/${orderId}`;
   try {
     const input = outsourcedServiceSchema.parse(values(data));

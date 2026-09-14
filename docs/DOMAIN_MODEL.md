@@ -1,5 +1,12 @@
 # Modelo de Domínio
 
+## Acesso interno
+
+- **User**: usuário interno com nome, e-mail único, hash de senha, perfil e situação ativa.
+- **Session**: sessão revogável e expirável vinculada a um User; apenas o hash do token é persistido.
+- Perfis: `ADMIN`, `FINANCE`, `OPERATIONS` e `VIEWER`.
+- A autoria é opcional no banco para não inventar responsáveis históricos, mas obrigatória nos novos fluxos autenticados cobertos nesta fase.
+
 ## Fechamentos de terceirizados implementados
 
 `ContractorSettlement` identifica terceirizado, competência, situação (`DRAFT` ou `APPROVED`), observações e instante de aprovação. `ContractorSettlementItem` vincula o fechamento ao `OutsourcedService`, registra a quantidade incluída e preserva `appliedUnitPriceSnapshot`.

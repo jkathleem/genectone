@@ -14,6 +14,15 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-054 - Autenticação, perfis e autoria básica
+
+- O acesso interno exige usuário ativo e sessão opaca persistida no PostgreSQL, enviada em cookie `HttpOnly`, `SameSite=Lax` e `Secure` em produção.
+- Senhas são armazenadas somente como hash `scrypt` individualmente salgado; credenciais reais não são versionadas.
+- Os perfis iniciais são `ADMIN`, `FINANCE`, `OPERATIONS` e `VIEWER`; toda mutação deve ser autorizada no servidor, independentemente da visibilidade do menu.
+- Usuário inativo perde acesso e suas sessões são removidas. Usuários não são excluídos fisicamente.
+- Orçamentos guardam autoria de aprovação e fechamento. Contas manuais, pagamentos, recebimentos e estornos novos guardam autoria; registros históricos permanecem nulos quando não há origem confiável.
+- O primeiro ADMIN pode ser criado pelo seed somente quando `SEED_ADMIN_NAME`, `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` forem fornecidas.
+
 ### DEC-053 - Estornos financeiros
 
 - **Correção financeira = Estorno + novo lançamento.** Fatos e allocations não são apagados ou editados.
