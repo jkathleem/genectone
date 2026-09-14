@@ -13,8 +13,8 @@ let outsourcedServiceId = "";
 
 async function cleanup() {
   if (!prisma) return;
-  await prisma.payment.deleteMany({ where: { accountPayable: { OR: [{ payeeName: "Energia QA" }, { description: marker }] } } });
-  await prisma.accountPayable.deleteMany({ where: { OR: [{ payeeName: "Energia QA" }, { description: marker }, { contractorSettlement: { notes: marker } }] } });
+  await prisma.payment.deleteMany({ where: { accountPayable: { OR: [{ payeeName: "Energia QA" }, { description: { startsWith: marker } }] } } });
+  await prisma.accountPayable.deleteMany({ where: { OR: [{ payeeName: "Energia QA" }, { description: { startsWith: marker } }, { contractorSettlement: { notes: marker } }] } });
   await prisma.contractorSettlementItem.deleteMany({ where: { settlement: { notes: marker } } });
   await prisma.contractorSettlement.deleteMany({ where: { notes: marker } });
   await prisma.outsourcedService.deleteMany({ where: { notes: marker } });
@@ -22,7 +22,7 @@ async function cleanup() {
   await prisma.service.deleteMany({ where: { name: marker } });
   await prisma.product.deleteMany({ where: { name: marker } });
   await prisma.customer.deleteMany({ where: { name: marker } });
-  await prisma.financialClassification.deleteMany({ where: { code: { in: ["TEMP_FIXED_QA", "TEMP_BAD_NON_DRE_QA", "TEMP_BAD_OPERATING_QA"] } } });
+  await prisma.financialClassification.deleteMany({ where: { OR: [{ code: { startsWith: "TEMP_CHECK_" } }, { code: { in: ["TEMP_FIXED_QA", "TEMP_BAD_NON_DRE_QA", "TEMP_BAD_OPERATING_QA"] } }] } });
   await prisma.contractor.deleteMany({ where: { name: marker } });
   await prisma.company.deleteMany({ where: { name: marker } });
 }
@@ -72,5 +72,39 @@ describe.runIf(run)("classificações e Contas a Pagar manuais no PostgreSQL", (
     await expect(prisma.financialClassification.create({ data: { code: "TEMP_BAD_OPERATING_QA", name: marker, financialNature: "OPERATING_EXPENSE", dreGroup: null } })).rejects.toBeTruthy();
     const official = await prisma.financialClassification.findUniqueOrThrow({ where: { code: "OUTSOURCED_PRODUCTION" } });
     await expect(prisma.accountPayable.create({ data: { companyId, source: "MANUAL", contractorSettlementId: null, classificationId: official.id, classificationCodeSnapshot: official.code, classificationNameSnapshot: official.name, financialNatureSnapshot: "NON_DRE", dreGroupSnapshot: "VARIABLE_COST_EXPENSE", payeeName: marker, description: marker, competenceDate: new Date("2026-09-01T00:00:00Z"), dueDate: new Date("2026-10-01T00:00:00Z"), originalAmount: "1" } })).rejects.toBeTruthy();
+  });
+
+  it("aplica a matriz completa de coerência na classificação", async () => {
+    const accepted = [
+      ["OPERATING_EXPENSE", "VARIABLE_COST_EXPENSE"], ["OPERATING_EXPENSE", "FIXED_COST_EXPENSE"],
+      ["DRE_POST_OPERATING", "FINANCIAL_REVENUE"], ["DRE_POST_OPERATING", "FINANCIAL_EXPENSE"],
+      ["DRE_POST_OPERATING", "INCOME_TAX_EXPENSE"], ["NON_DRE", null],
+    ] as const;
+    for (const [index, [financialNature, dreGroup]] of accepted.entries()) {
+      await expect(prisma.financialClassification.create({ data: { code: `TEMP_CHECK_OK_${index}`, name: marker, financialNature, dreGroup } })).resolves.toBeTruthy();
+    }
+    const rejected = [
+      ["OPERATING_EXPENSE", null], ["DRE_POST_OPERATING", null], ["NON_DRE", "FIXED_COST_EXPENSE"],
+      ["OPERATING_EXPENSE", "FINANCIAL_EXPENSE"], ["DRE_POST_OPERATING", "VARIABLE_COST_EXPENSE"],
+    ] as const;
+    for (const [index, [financialNature, dreGroup]] of rejected.entries()) {
+      await expect(prisma.financialClassification.create({ data: { code: `TEMP_CHECK_BAD_${index}`, name: marker, financialNature, dreGroup } })).rejects.toBeTruthy();
+    }
+  });
+
+  it("aplica a matriz de coerência aos snapshots da Conta a Pagar", async () => {
+    const official = await prisma.financialClassification.findUniqueOrThrow({ where: { code: "OUTSOURCED_PRODUCTION" } });
+    const create = (suffix: string, financialNatureSnapshot: "OPERATING_EXPENSE" | "DRE_POST_OPERATING" | "NON_DRE", dreGroupSnapshot: "VARIABLE_COST_EXPENSE" | "FIXED_COST_EXPENSE" | "FINANCIAL_REVENUE" | "FINANCIAL_EXPENSE" | "INCOME_TAX_EXPENSE" | null) => prisma.accountPayable.create({ data: { companyId, source: "MANUAL", classificationId: official.id, classificationCodeSnapshot: official.code, classificationNameSnapshot: official.name, financialNatureSnapshot, dreGroupSnapshot, payeeName: marker, description: `${marker} ${suffix}`, competenceDate: new Date("2026-09-01T00:00:00Z"), dueDate: new Date("2026-10-01T00:00:00Z"), originalAmount: "1" } });
+    await expect(create("OPERATING VARIABLE", "OPERATING_EXPENSE", "VARIABLE_COST_EXPENSE")).resolves.toBeTruthy();
+    await expect(create("OPERATING FIXED", "OPERATING_EXPENSE", "FIXED_COST_EXPENSE")).resolves.toBeTruthy();
+    await expect(create("POST EXPENSE", "DRE_POST_OPERATING", "FINANCIAL_EXPENSE")).resolves.toBeTruthy();
+    await expect(create("POST TAX", "DRE_POST_OPERATING", "INCOME_TAX_EXPENSE")).resolves.toBeTruthy();
+    await expect(create("NON DRE", "NON_DRE", null)).resolves.toBeTruthy();
+    await expect(create("OPERATING NULL", "OPERATING_EXPENSE", null)).rejects.toBeTruthy();
+    await expect(create("POST NULL", "DRE_POST_OPERATING", null)).rejects.toBeTruthy();
+    await expect(create("NON DRE GROUP", "NON_DRE", "FIXED_COST_EXPENSE")).rejects.toBeTruthy();
+    await expect(create("OPERATING POST", "OPERATING_EXPENSE", "FINANCIAL_EXPENSE")).rejects.toBeTruthy();
+    await expect(create("POST OPERATING", "DRE_POST_OPERATING", "VARIABLE_COST_EXPENSE")).rejects.toBeTruthy();
+    await expect(create("POST REVENUE", "DRE_POST_OPERATING", "FINANCIAL_REVENUE")).rejects.toBeTruthy();
   });
 });
