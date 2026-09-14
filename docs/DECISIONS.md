@@ -28,7 +28,7 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 - **Correção financeira = Estorno + novo lançamento.** Fatos e allocations não são apagados ou editados.
 - Estorno é total, único, exige motivo e data igual ou posterior ao fato original.
 - Estorno reabre saldo e aparece como movimento inverso no Fluxo de Caixa; DRE permanece baseada em Billing e AccountPayable.
-- Estorno parcial e autoria permanecem futuros.
+- Estorno parcial permanece futuro; a autoria dos estornos novos é preservada conforme a DEC-054.
 
 ### DEC-052 - Governança do orçamento
 
@@ -37,7 +37,7 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 - APPROVED congela o planejamento; CLOSED encerra a competência. Nenhuma transição cria fatos financeiros ou altera o realizado.
 - Locks pessimistas no Budget serializam aprovação, fechamento e mutações de linhas, evitando edição após congelamento.
 - Qualquer status pode ser origem de cópia, mas o destino sempre nasce DRAFT, sem status ou timestamps da origem.
-- Sem autenticação, não existem `approvedBy` ou `closedBy`; autoria e versionamento pós-aprovação ficam futuros.
+- Aprovação e fechamento preservam `approvedBy` e `closedBy`; reabertura e versionamento pós-aprovação ficam futuros.
 
 ### DEC-051 - Visão anual e cópia de orçamento
 
@@ -46,7 +46,7 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 - Ausência de Budget significa previsto zero e não cria registros automaticamente.
 - A cópia é monoempresa, atômica, não sobrescreve destino e não copia fatos realizados.
 - Snapshots do destino usam o cadastro atual. Classificação inativa, ausente, `NON_DRE` ou inelegível impede toda a cópia.
-- Aprovação, fechamento e versionamento continuam futuros.
+- Aprovação e fechamento estão implementados; reabertura e versionamento continuam futuros.
 
 ### DEC-050 - Orçamento mensal da DRE
 
@@ -54,7 +54,7 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 - **Orçamento ≠ DRE realizada ≠ Fluxo de Caixa previsto.** BudgetEntry não gera Billing, contas, pagamentos ou recebimentos.
 - Somente `OPERATING_EXPENSE` e `DRE_POST_OPERATING` participam; `NON_DRE` fica fora.
 - Variação é Realizado menos Previsto, percentual é indefinido quando Previsto é zero e avaliação favorável/desfavorável é derivada conforme a semântica da linha.
-- Edição é livre enquanto não houver fechamento formal. Visão anual, cópia, aprovação e versionamento permanecem futuros.
+- Edição é permitida somente em `DRAFT`. Visão anual, cópia, aprovação e fechamento foram implementados; reabertura e versionamento permanecem futuros.
 
 ### DEC-048 - Classificação financeira ampla e natureza financeira
 
@@ -600,7 +600,6 @@ Consequência:
 
 ## Decisões pendentes
 
-- DECISÃO PENDENTE: definir perfis de usuários e permissões.
 - DECISÃO PENDENTE: definir campos obrigatórios dos cadastros de empresa, cliente, produto e terceirizado.
 - DECISÃO PENDENTE: definir todos os campos de produção de uma OP.
 - DECISÃO PENDENTE: definir quais são as demais informações comerciais necessárias na OP.
@@ -611,8 +610,8 @@ Consequência:
 - DECISÃO PENDENTE: definir se o sistema deverá preencher inicialmente a quantidade aprovada para pagamento com o mesmo valor da quantidade retornada para o usuário apenas confirmar ou ajustar.
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir aprovação, cancelamento, estorno e reabertura de fechamentos.
-- DECISÃO PENDENTE: completar as categorias de receitas e despesas para DRE além dos grupos variáveis e fixos já confirmados.
+- DECISÃO PENDENTE: definir demais categorias futuras além dos grupos operacionais e pós-operacionais já confirmados.
 - DECISÃO PENDENTE: definir tratamento de impostos distintos dos tributos sobre o resultado, investimentos e reservas.
-- DECISÃO PENDENTE: definir estrutura do orçamento e níveis de comparação Previsto x Real.
+- DECISÃO PENDENTE: definir reabertura e versionamento de orçamentos após aprovação.
 - DECISÃO PENDENTE: definir relatórios e dashboards prioritários.
 - DECISÃO PENDENTE: definir necessidade de importação de dados históricos das planilhas atuais.

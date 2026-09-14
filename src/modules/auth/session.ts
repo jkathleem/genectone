@@ -17,8 +17,12 @@ export async function findUserByToken(token?: string | null): Promise<Authentica
     include: { user: { select: { id: true, name: true, email: true, role: true, active: true } } },
   });
   if (!session || session.expiresAt <= new Date() || !session.user.active) return null;
-  const { active: _active, ...user } = session.user;
-  return user;
+  return {
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
+    role: session.user.role,
+  };
 }
 
 export async function currentUser() {

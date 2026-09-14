@@ -4,7 +4,8 @@
 
 - [x] Estorno total de Payment e Receipt sem exclusão física.
 - [x] Reabertura de saldos e movimentos inversos no Fluxo de Caixa.
-- [ ] Estorno parcial e autoria (futuro).
+- [x] Autoria do estorno total preservada.
+- [ ] Estorno parcial (futuro).
 
 ## Orçamento / Previsto x Realizado v1
 
@@ -15,7 +16,8 @@
 - [x] Visão anual com totais e margens calculadas sobre os totais.
 - [x] Cópia transacional entre competências da mesma Company.
 - [x] Governança DRAFT → APPROVED → CLOSED com congelamento transacional.
-- [ ] Autoria, reabertura controlada e versionamento/revisão (futuro).
+- [x] Autoria de aprovação e fechamento preservada e exibida.
+- [ ] Reabertura controlada e versionamento/revisão (futuro).
 
 Este plano propõe fases incrementais. Cada fase deve entregar algo utilizável e testável, preservando o princípio de registrar a informação uma única vez no momento em que o fato ocorre.
 
@@ -70,7 +72,7 @@ Critério de aceite:
 
 ## Fase 2 - OPs
 
-Estado atual: implementadas entrada, listagem com filtros, detalhe e edição de OP. O valor total permanece derivado e não há exclusão física, cancelamento, autenticação ou bloqueio futuro de edição.
+Estado atual: implementadas entrada, listagem com filtros, detalhe e edição de OP. O valor total permanece derivado e não há exclusão física, cancelamento ou bloqueio futuro de edição. A autenticação e as permissões do MVP protegem as ações no servidor.
 
 Objetivo:
 
@@ -246,7 +248,7 @@ Critério de aceite:
 
 ## Fase 8 - Contas a pagar
 
-Estado atual: implementada a geração exclusiva a partir de fechamento aprovado, com vínculo monoempresa, snapshot financeiro, vencimento, consulta e detalhe. Implementados também pagamentos parciais ou totais, histórico, saldo e situação derivados, com bloqueio transacional contra pagamento excedente concorrente.
+Estado atual: implementada a geração a partir de fechamento aprovado e também o lançamento manual, sempre com vínculo monoempresa, snapshot financeiro, vencimento, consulta e detalhe. Pagamentos parciais ou totais, histórico, saldo e situação derivados, estorno total com autoria e bloqueio transacional contra pagamento excedente concorrente também estão implementados.
 
 Objetivo:
 
@@ -263,7 +265,7 @@ Entregáveis testáveis:
 - Manter vínculo entre conta a pagar e fechamento de origem.
 - Registrar vencimento, competência e pagamento como datas distintas.
 - Consultar contas a pagar por vencimento, pagamento, competência e origem.
-- Registrar e consultar múltiplos pagamentos sem edição, exclusão ou estorno nesta fase.
+- Registrar e consultar múltiplos pagamentos sem edição ou exclusão física, com estorno total auditável.
 
 Critério de aceite:
 
@@ -271,7 +273,7 @@ Critério de aceite:
 
 ## Fase 9 - Faturamento e contas a receber
 
-Estado atual: implementado o registro interno de faturamento externo por OP e a criação atômica da Conta a Receber, com snapshots de Company, Customer, valor e competência. A consulta financeira deriva recebido zero, saldo e situação enquanto Recebimentos ainda não existem.
+Estado atual: implementado o registro interno de faturamento externo por OP e a criação atômica da Conta a Receber, com snapshots de Company, Customer, valor e competência. Recebimentos permitem alocação integral em múltiplas contas compatíveis, mantêm histórico e podem ser estornados integralmente com autoria; saldo e situação permanecem derivados.
 
 Objetivo:
 
@@ -327,7 +329,7 @@ Critério de aceite:
 
 ## Fase 11 - DRE
 
-Estado atual: DRE Gerencial mensal implementada por Company e competência até o Resultado Líquido Gerencial. Inclui Receita Bruta, Variáveis, Margem de Contribuição, Fixas, Lucro Operacional, Receitas e Despesas Financeiras, Resultado Antes dos Tributos, Tributos sobre o Resultado, margens e composição auditável. O plano possui 13 classificações oficiais. Visão anual definitiva, demais impostos, investimentos, reservas e orçamento continuam pendentes.
+Estado atual: DRE Gerencial mensal e anual implementada por Company e competência até o Resultado Líquido Gerencial. Inclui Receita Bruta, Variáveis, Margem de Contribuição, Fixas, Lucro Operacional, Receitas e Despesas Financeiras, Resultado Antes dos Tributos, Tributos sobre o Resultado, margens e composição auditável. O plano possui 13 classificações oficiais. Demais impostos, investimentos e reservas continuam fora desta versão; Orçamento / Previsto x Real está implementado na Fase 12.
 
 Evolução estrutural concluída: `FinancialClassification` é um catálogo financeiro amplo, com `OPERATING_EXPENSE`, `DRE_POST_OPERATING` ou `NON_DRE`. A DRE preserva sua fórmula operacional, acrescenta despesas financeiras e tributos para derivar o Resultado Líquido Gerencial e ignora `NON_DRE`; essas contas continuam no Fluxo de Caixa. O plano oficial possui 13 classificações. Receitas Financeiras permanecem zero até existir uma fonte própria.
 
@@ -359,6 +361,8 @@ Decisão confirmada: Receita Bruta usa Billing por competência e Company; terce
 Decisão confirmada: a fórmula posterior ao Lucro Operacional deriva o Resultado Líquido Gerencial; Receitas Financeiras ficam zero até existir uma fonte própria.
 
 ## Fase 12 - Previsto x Real
+
+Estado atual: implementado orçamento mensal monoempresa com rascunho editável, aprovação, fechamento, autoria, cópia de competência, visão mensal e anual e comparação com os fatos da DRE. Orçamentos aprovados ou fechados são somente leitura nesta versão.
 
 Objetivo:
 

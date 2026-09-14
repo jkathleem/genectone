@@ -39,7 +39,7 @@ O sistema também deve dar visibilidade econômica da OP desde sua entrada, regi
 - Responsáveis por contas a pagar e contas a receber.
 - Gestores que acompanham fluxo de caixa, DRE, orçamento e relatórios.
 
-DECISÃO PENDENTE: definir perfis de acesso, permissões e responsabilidades exatas por usuário.
+Decisão confirmada no MVP: os perfis são Administrador, Operação, Financeiro e Consulta, com permissões aplicadas na navegação e obrigatoriamente validadas no servidor.
 
 ## Módulos
 
@@ -77,7 +77,7 @@ DECISÃO PENDENTE: definir perfis de acesso, permissões e responsabilidades exa
 10. Painel de cobrança de serviços ainda fora da Genect.
 11. Conferência da quantidade aprovada para pagamento.
 12. Fechamento mensal de terceirizados.
-13. Futura geração de conta a pagar.
+13. Geração de conta a pagar e registro de pagamentos a partir do fechamento aprovado.
 14. Faturamento, recebimento e alimentação das visões financeiras.
 
 ## Escopo inicial
@@ -101,7 +101,7 @@ O escopo inicial deve priorizar o fluxo simples de terceirização:
 - Consulta de serviços com quantidade pendente maior que zero.
 - Painel de cobrança de terceirizados.
 
-Nesta etapa de documentação, não serão implementados frontend, backend, banco de dados, integrações ou dependências.
+O fluxo descrito acima está implementado no MVP; os itens da seção seguinte permanecem fora de escopo ou reservados para evoluções posteriores.
 
 ## Fora do MVP
 
@@ -114,17 +114,8 @@ Nesta etapa de documentação, não serão implementados frontend, backend, banc
 
 ## Funcionalidades futuras
 
-- Fechamento mensal automático de terceirizados com filtros por terceirizado, mês, serviço e OP.
-- Geração de recibo de fechamento.
-- Geração de conta a pagar a partir de fechamento aprovado.
-- Faturamento de OPs.
-- Geração de contas a receber a partir do faturamento.
-- Controle de recebimentos financeiros.
-- Fluxo de caixa com saldo inicial, contas a pagar, contas a receber e saldo final.
-- DRE mensal e anual por competência.
-- Orçamento e comparação Previsto x Real.
 - Relatórios e dashboards operacionais, financeiros e gerenciais.
-- Regras de aprovação, auditoria e permissões.
+- Reabertura/versionamento de orçamentos fechados e estornos parciais.
 - Importação ou conciliação com dados históricos das planilhas atuais.
 
 ## Critérios de sucesso

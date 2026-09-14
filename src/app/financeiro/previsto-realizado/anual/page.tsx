@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, fortalezaMonthYear } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { annualBudgetComparison, annualLineKeys } from "@/modules/budget/annual";
 
@@ -13,7 +13,7 @@ function value(row:{budgeted:unknown;actual:unknown;variance:unknown},view:keyof
 function pct(value:{toFixed(n:number):string}|null){return value?`${value.toFixed(1).replace(".",",")}%`:"—"}
 
 export default async function Page({searchParams}:{searchParams:Promise<Params>}){
- const p=await searchParams,year=Number(p.year)>=1900?Number(p.year):new Date().getFullYear(),view=p.view&&p.view in views?p.view as keyof typeof views:"planned";
+ const p=await searchParams,year=Number(p.year)>=1900?Number(p.year):fortalezaMonthYear().year,view=p.view&&p.view in views?p.view as keyof typeof views:"planned";
  const companies=await prisma.company.findMany({orderBy:{name:"asc"}}),active=companies.filter(x=>x.active),companyId=p.companyId||(active.length===1?active[0].id:"");const selected=companies.find(x=>x.id===companyId),data=selected?await annualBudgetComparison(companyId,year):null;
  const query=(next:keyof typeof views)=>`?companyId=${encodeURIComponent(companyId)}&year=${year}&view=${next}`;
  return <><PageHeader title="Previsto x Realizado Anual" description="Doze competências e total anual, sem consolidar empresas." action={{label:"Visão mensal",href:`/financeiro/previsto-realizado?companyId=${companyId}&year=${year}`}}/>

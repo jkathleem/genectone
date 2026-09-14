@@ -286,7 +286,7 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-215: Margem de Contribuição é Receita Bruta menos Custos e Despesas Variáveis; Lucro Operacional é Margem de Contribuição menos Custos e Despesas Fixas.
 - BR-216: Percentuais de Margem de Contribuição e Margem Operacional usam Receita Bruta como denominador e ficam indefinidos quando ela é zero.
 - BR-217: Payment, Receipt, vencimento, saldo e situação financeira não alteram a DRE por competência.
-- BR-218: A DRE v1 encerra em Lucro Operacional e não deve exibir Resultado Líquido enquanto os grupos pós-operacionais não forem definidos.
+- BR-218: A DRE operacional preserva o subtotal de Lucro Operacional antes da camada pós-operacional e do Resultado Líquido Gerencial.
 - BR-219: Totais da DRE são derivados em Decimal, não persistidos, e devem aceitar resultados negativos e competências sem movimento.
 - BR-220: O plano operacional inicial possui 11 classificações; com as duas classificações pós-operacionais, o plano oficial totaliza 13 e não representa plano contábil fiscal.
 - BR-221: `OUTSOURCED_PRODUCTION`, `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES` pertencem a Custos e Despesas Variáveis.
@@ -334,7 +334,6 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 
 ## Decisões Pendentes
 
-- DECISÃO PENDENTE: definir perfis de acesso, permissões e responsabilidades exatas por usuário.
 - DECISÃO PENDENTE: definir campos obrigatórios dos cadastros de empresa, cliente, produto e terceirizado.
 - DECISÃO PENDENTE: definir quais campos compõem as informações de produção de uma OP.
 - DECISÃO PENDENTE: definir quais são as demais informações comerciais necessárias na OP.
