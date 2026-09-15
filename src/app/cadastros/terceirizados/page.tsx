@@ -1,4 +1,2 @@
-import { RegistrationPage } from "@/components/registration-page";
-import { prisma } from "@/lib/prisma";
-import { createContractor, toggleContractor, updateContractor } from "@/modules/registrations/actions";
-export default async function Page({ searchParams }: { searchParams: Promise<{ success?: string; error?: string }> }) { const [records, params] = await Promise.all([prisma.contractor.findMany({ orderBy: { name: "asc" } }), searchParams]); const fields = [{ name: "name", label: "Nome", required: true }, { name: "document", label: "Documento" }, { name: "phone", label: "Telefone" }, { name: "address", label: "Endereço" }, { name: "notes", label: "Observações" }]; return <RegistrationPage title="Terceirizados" singular="terceirizado" description="Prestadores disponíveis para etapas futuras de terceirização." fields={fields} records={records.map((r) => ({ id: r.id, active: r.active, values: { name: r.name, document: r.document, phone: r.phone, address: r.address, notes: r.notes } }))} createAction={createContractor} updateAction={updateContractor} toggleAction={toggleContractor} {...params} />; }
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/cadastros?tab=contractors"); }

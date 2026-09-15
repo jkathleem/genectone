@@ -16,6 +16,7 @@ export function hasPermission(role: UserRole, permission: Permission) {
 export function canAccessPath(role: UserRole, pathname: string) {
   if (role === "CONTRACTOR") return pathname === "/";
   if (pathname.startsWith("/cadastros/usuarios")) return role === "ADMIN";
+  if (pathname.startsWith("/cadastros")) return true;
   if (role === "VIEWER") return pathname === "/" || pathname.startsWith("/financeiro/dre") || pathname.startsWith("/financeiro/fluxo-de-caixa") || pathname.startsWith("/financeiro/previsto-realizado");
   if (pathname.startsWith("/financeiro") || pathname.startsWith("/cadastros/classificacoes-financeiras")) return hasPermission(role, "REPORT_VIEW");
   return true;

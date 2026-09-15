@@ -2,6 +2,14 @@
 
 ## Base operacional pós-MVP
 
+- BR-257: Os cadastros mestres internos são apresentados em `/cadastros` por abas; rotas antigas permanecem como redirecionamentos de compatibilidade.
+- BR-258: Campos adicionais de Company e Customer são opcionais para preservar registros históricos. Customer novo informa PF ou PJ, sem tornar CPF/CNPJ obrigatório.
+- BR-259: A consulta externa de CNPJ é opcional e nunca pode impedir preenchimento manual; nenhum provedor foi integrado nesta etapa.
+- BR-260: Alteração em massa afeta somente `Product.currentUnitPrice`; percentual exige preço atual e todos os cálculos persistidos usam Decimal. `ProductionOrder.unitPrice` permanece snapshot.
+- BR-261: Um `ProductSupply` pode permanecer sem regra de consumo, mas quantidade por base e quantidade base devem ser informadas em conjunto e ser positivas.
+- BR-262: Setor interno pode habilitar Serviços, sem receber preço de terceirização. A dupla Setor + Serviço é única.
+- BR-263: A interface denomina `FinancialClassification` como Categoria Financeira e deriva a natureza técnica do grupo amigável escolhido, preservando as regras de coerência e os snapshots existentes.
+- BR-264: ADMIN edita todas as abas; OPERATIONS edita cadastros operacionais; FINANCE edita Categorias e consulta os demais mestres; VIEWER somente consulta; CONTRACTOR não acessa o ambiente geral.
 - BR-239: `InternalSector` é um cadastro configurável; nome, ordem, observações e situação podem mudar, mas setor relacionado a um Serviço não pode ser apagado fisicamente.
 - BR-240: `Service` representa o trabalho independentemente de quem o executa. Um mesmo Serviço pode habilitar vários setores internos e vários terceirizados, sem duplicar o catálogo.
 - BR-241: Os vínculos de executor são capacidades cadastrais; `OutsourcedService` continua sendo o fato de uma execução externa real e preserva todas as regras auditadas de preço e movimentação.

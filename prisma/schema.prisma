@@ -12,6 +12,17 @@ model Company {
   name               String
   tradeName          String?
   document           String?
+  stateRegistration  String?
+  phone              String?
+  whatsapp           String?
+  email              String?
+  postalCode         String?
+  address            String?
+  addressNumber      String?
+  addressComplement  String?
+  neighborhood       String?
+  city               String?
+  state              String?
   active             Boolean                @default(true)
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
@@ -22,6 +33,11 @@ model Company {
   accountsReceivable AccountReceivable[]
   receipts           Receipt[]
   budgets            Budget[]
+}
+
+enum CustomerType {
+  PF
+  PJ
 }
 
 enum UserRole {
@@ -163,7 +179,20 @@ model BudgetEntry {
 model Customer {
   id                 String              @id @default(cuid())
   name               String
+  personType         CustomerType?
+  tradeName          String?
   document           String?
+  stateRegistration  String?
+  phone              String?
+  whatsapp           String?
+  email              String?
+  postalCode         String?
+  address            String?
+  addressNumber      String?
+  addressComplement  String?
+  neighborhood       String?
+  city               String?
+  state              String?
   active             Boolean             @default(true)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt

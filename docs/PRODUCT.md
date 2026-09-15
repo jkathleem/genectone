@@ -4,6 +4,8 @@
 
 O sistema de gestão da Genect Confecções será uma plataforma integrada para controlar a operação de confecção de roupas, partindo da entrada da Ordem de Produção (OP) como entidade operacional central.
 
+Os dados mestres internos são organizados em um único ambiente de Cadastros com abas, busca e filtros consistentes, reduzindo itens de menu sem criar cópias das entidades existentes.
+
 A OP nasce primeiro no sistema. Depois da OP cadastrada, o usuário adiciona manualmente os Serviços Terceirizados necessários para aquela OP, escolhe o Serviço, o Terceirizado e a quantidade. O sistema aplica o preço atual da combinação exata `Terceirizado + Serviço` e preserva esse valor historicamente.
 
 O MVP não terá roteiro produtivo, motor de workflow, dependências configuráveis entre etapas, execução interna detalhada nem geração automática de serviços baseada no produto. O princípio é construir primeiro o fluxo que a Genect realmente utiliza hoje.

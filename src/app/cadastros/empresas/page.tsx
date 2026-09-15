@@ -1,4 +1,2 @@
-import { RegistrationPage } from "@/components/registration-page";
-import { prisma } from "@/lib/prisma";
-import { createCompany, toggleCompany, updateCompany } from "@/modules/registrations/actions";
-export default async function Page({ searchParams }: { searchParams: Promise<{ success?: string; error?: string }> }) { const [records, params] = await Promise.all([prisma.company.findMany({ orderBy: { name: "asc" } }), searchParams]); return <RegistrationPage title="Empresas" singular="empresa" description="Empresas responsáveis pelas ordens de produção." fields={[{ name: "name", label: "Razão social", required: true }, { name: "tradeName", label: "Nome fantasia" }, { name: "document", label: "Documento" }]} records={records.map((r) => ({ id: r.id, active: r.active, values: { name: r.name, tradeName: r.tradeName, document: r.document } }))} createAction={createCompany} updateAction={updateCompany} toggleAction={toggleCompany} {...params} />; }
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/cadastros?tab=companies"); }

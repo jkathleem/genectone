@@ -13,6 +13,13 @@ describe("permissões do perfil CONTRACTOR", () => {
     expect(canAccessPath("CONTRACTOR", "/")).toBe(true);
     expect(canAccessPath("CONTRACTOR", "/ops")).toBe(false);
     expect(canAccessPath("CONTRACTOR", "/cadastros/terceirizados")).toBe(false);
+    expect(canAccessPath("CONTRACTOR", "/cadastros")).toBe(false);
     expect(canAccessPath("CONTRACTOR", "/financeiro/dre")).toBe(false);
+  });
+
+  it("permite abrir o ambiente de cadastros para perfis internos", () => {
+    expect(canAccessPath("OPERATIONS", "/cadastros")).toBe(true);
+    expect(canAccessPath("FINANCE", "/cadastros")).toBe(true);
+    expect(canAccessPath("VIEWER", "/cadastros")).toBe(true);
   });
 });

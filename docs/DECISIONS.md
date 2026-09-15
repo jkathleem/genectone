@@ -14,6 +14,17 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-057 - Cadastros unificados
+
+- `/cadastros` é o ambiente único com abas de Empresas, Clientes, Terceirizados, Produtos, Setores Internos, Categorias Financeiras e Usuários.
+- As rotas cadastrais anteriores redirecionam para a aba correspondente, preservando bookmarks sem manter interfaces concorrentes.
+- Company e Customer recebem somente campos mestres opcionais; `Customer.personType` é PF/PJ nullable para não classificar artificialmente registros anteriores.
+- Serviços continuam como catálogo independente e são geridos de forma compacta dentro da experiência de Terceirizados. Preço atual permanece exclusivamente em `ServiceContractor`.
+- Insumos são geridos dentro de Produtos e continuam sem estoque. Atualização em massa modifica apenas o preço atual cadastral e mostra prévia antes da confirmação.
+- `FinancialClassification` recebe o nome visual Categoria Financeira. Natureza e códigos técnicos ficam ocultos no uso comum e são derivados pelo servidor.
+- A flag “permite lançamento manual” não foi criada: ela exigiria nova regra estrutural e alteração do fluxo financeiro, não confirmadas nesta etapa.
+- Consulta de CNPJ não foi integrada porque nenhum provedor, credencial ou contrato de disponibilidade foi escolhido; o cadastro manual permanece completo.
+
 ### DEC-056 - Preço atual por Terceirizado e Serviço
 
 - `ServiceContractor` é simultaneamente a capacidade do executor externo e a única fonte do preço atual daquela combinação.

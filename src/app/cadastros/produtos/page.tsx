@@ -1,4 +1,2 @@
-import { RegistrationPage } from "@/components/registration-page";
-import { prisma } from "@/lib/prisma";
-import { createProduct, toggleProduct, updateProduct } from "@/modules/registrations/actions";
-export default async function Page({ searchParams }: { searchParams: Promise<{ success?: string; error?: string }> }) { const [records, params] = await Promise.all([prisma.product.findMany({ orderBy: { name: "asc" } }), searchParams]); return <RegistrationPage title="Produtos" singular="produto" description="Produtos e referências principais utilizados nas OPs." fields={[{ name: "name", label: "Nome", required: true }, { name: "reference", label: "Referência" }]} records={records.map((r) => ({ id: r.id, active: r.active, values: { name: r.name, reference: r.reference } }))} createAction={createProduct} updateAction={updateProduct} toggleAction={toggleProduct} {...params} />; }
+import { redirect } from "next/navigation";
+export default function Page() { redirect("/cadastros?tab=products"); }

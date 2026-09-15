@@ -2,6 +2,8 @@
 
 ## Base operacional pós-MVP
 
+- **Cadastros unificados**: projeção de interface sobre entidades existentes; não constitui nova entidade de domínio.
+- **CustomerType**: classificação opcional `PF` ou `PJ`; permanece nula nos registros históricos até edição explícita.
 - **InternalSector**: setor interno configurável, ordenável e desativável. Não representa execução nem etapa de workflow.
 - **ServiceInternalSector**: capacidade que habilita um setor interno a executar um Serviço.
 - **ServiceContractor**: capacidade que habilita um Terceirizado a executar um Serviço e mantém o preço unitário atual dessa combinação.
@@ -12,6 +14,8 @@
 `Product` reutiliza `name` como descrição e `reference` como código e passa a aceitar Customer padrão, cor, preço unitário atual e URL de imagem. `ProductionOrder.unitPrice` continua sendo o snapshot; não existe snapshot de insumos nesta etapa porque consumo previsto ainda não é fato histórico nem movimentação de estoque.
 
 `ProductionOrder` recebe `isUrgent`, `expectedCompletionDate` e `completedAt`, sem coluna de status. O ciclo é derivado dos fatos: conclusão explícita, Billing e alocações de Receipt. A disponibilidade para Montagem é derivada dos `OutsourcedService`, itens de Romaneio e Retornos: qualquer serviço integralmente retornado libera disponibilidade parcial; todos integralmente retornados indicam disponibilidade completa.
+
+Company e Customer armazenam contatos e endereço como dados mestres opcionais. Product mantém cliente padrão, cor, preço atual e URL opcional; a OP continua preservando seu próprio preço histórico. Supply e ProductSupply representam composição cadastral, nunca estoque.
 
 `UserRole.CONTRACTOR` exige vínculo a um único `Contractor` por usuário. Isso não limita um Contractor a apenas um usuário. O perfil está preparado no domínio, porém permanece restrito à Home até existir um portal próprio.
 

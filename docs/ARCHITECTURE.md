@@ -4,13 +4,19 @@
 
 A migration `20260914120000_add_post_mvp_operational_domain` amplia o schema sem alterar migrations anteriores. Novas colunas de registros existentes são nullable ou possuem default compatível; `ProductionOrder.unitPrice`, `OutsourcedService.appliedUnitPrice` e todos os fatos financeiros permanecem inalterados.
 
+A migration `20260915090000_expand_master_data` adiciona campos opcionais de contato/endereço a Company e Customer e o enum nullable `CustomerType`. A nulabilidade é intencional: nenhum registro histórico recebe documento, endereço ou tipo inventado.
+
+`/cadastros` concentra sete abas e consulta somente os dados da aba ativa. As rotas antigas usam redirect do Next.js. Permissões de leitura/escrita são centralizadas em `src/modules/master-data/permissions.ts`, e todas as mutações continuam validadas no servidor. A interface usa tabelas com overflow horizontal e painéis `details`, sem biblioteca adicional de modal.
+
+Produtos e insumos reutilizam `Product`, `Supply` e `ProductSupply`; a prévia em massa é visual, mas o servidor recalcula com `Prisma.Decimal` e atualiza apenas `Product.currentUnitPrice`. Categorias Financeiras reutilizam `FinancialClassification`: o grupo amigável determina `FinancialNature`, mantendo a coerência histórica. Consulta CNPJ e flag de lançamento manual permanecem fora por dependerem de decisões estruturais externas.
+
 `ServiceInternalSector` e `ServiceContractor` são associações N:N separadas. Essa escolha mantém FKs simples e restritivas, permite vários executores para o mesmo Serviço e evita uma tabela polimórfica com duas FKs opcionais. Elas representam habilitação cadastral, não execução histórica; `OutsourcedService` mantém esse papel para trabalho externo realizado.
 
 Após a correção `20260915000000_add_contractor_service_prices`, `ServiceContractor` também contém `unitPrice` Decimal nullable, `active` e timestamps. Essa é a única fonte de preço atual de terceirização. `ServiceInternalSector` não possui preço. A migration validou cardinalidade, copiou os cinco preços globais inequívocos e removeu `ServicePrice` para eliminar concorrência entre fontes.
 
 `ProductSupply` usa chave composta Produto–Insumo. Um CHECK aceita consumo totalmente não configurado ou exige `quantityPerBase` Decimal positivo e `baseQuantity` inteira positiva. O cálculo proporcional fica em `src/modules/products/domain.ts`; não há estoque, movimentação ou snapshot de consumo na OP.
 
-O CHECK `User_role_contractor_check` trata NULL explicitamente: `CONTRACTOR` exige `contractorId`, enquanto qualquer outro perfil exige valor nulo. O papel não aparece no cadastro atual de usuários e `canAccessPath` limita-o à Home; também não integra nenhuma lista de permissões internas.
+O CHECK `User_role_contractor_check` trata NULL explicitamente: `CONTRACTOR` exige `contractorId`, enquanto qualquer outro perfil exige valor nulo. O perfil pode ser administrado na aba Usuários, exige um Terceirizado ativo e permanece limitado à Home até existir seu portal próprio.
 
 `OperationalIssue` usa FKs restritivas para OP, Terceirizado, Serviço Terceirizado opcional, criador e resolvedor. O CHECK de resolução exige `resolvedAt` e `resolvedByUserId` apenas em `RESOLVED`. A camada `src/modules/operational-issues/service.ts` valida também que o Serviço Terceirizado pertence à OP e ao Terceirizado indicados, regra transversal que um CHECK simples não pode consultar.
 

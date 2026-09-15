@@ -12,7 +12,8 @@
 - [x] Perfil `CONTRACTOR`, vínculo obrigatório e acesso mínimo.
 - [x] Pendências operacionais com autoria, resolução e integridade relacional.
 - [x] Correção estrutural do preço atual para `Contractor + Service`, sem alterar snapshots históricos.
-- [ ] Telas de cadastros ampliados, nova experiência de OP, Kanban e portal do Terceirizado (etapas futuras).
+- [x] Cadastros ampliados e unificados em `/cadastros`, com permissões por aba e compatibilidade das rotas antigas.
+- [ ] Nova experiência de OP, Kanban e portal do Terceirizado (etapas futuras).
 
 ## Estornos financeiros
 
