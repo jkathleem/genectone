@@ -21,14 +21,12 @@ async function hashPassword(password) {
   return `scrypt:${salt}:${key.toString("hex")}`;
 }
 
-const SYSTEM_REFERENCE_DATE = new Date("2026-09-02T00:00:00.000Z");
-
 const serviceCatalog = [
-  { name: "Preparação Frente", unitPrice: "1.1000" },
-  { name: "Pala e Gancho", unitPrice: "0.2700" },
-  { name: "Frente Completa", unitPrice: "1.5000" },
-  { name: "Final Frente", unitPrice: "0.6000" },
-  { name: "Preparação e Bolso Traseiro", unitPrice: "0.7000" },
+  { name: "Preparação Frente" },
+  { name: "Pala e Gancho" },
+  { name: "Frente Completa" },
+  { name: "Final Frente" },
+  { name: "Preparação e Bolso Traseiro" },
   { name: "Frente" },
   { name: "Costas" },
 ];
@@ -56,11 +54,11 @@ const initialInternalSectors = [
 ];
 
 const knownContractorCapabilities = [
-  { contractorNames: ["Priscila", "Pricila"], serviceName: "Frente Completa" },
-  { contractorNames: ["Rafael"], serviceName: "Pala e Gancho" },
-  { contractorNames: ["Paulo"], serviceName: "Final Frente" },
-  { contractorNames: ["Neudênio", "Neudenio"], serviceName: "Preparação Frente" },
-  { contractorNames: ["Paulo Romes"], serviceName: "Preparação e Bolso Traseiro" },
+  { contractorNames: ["Priscila", "Pricila"], serviceName: "Frente Completa", unitPrice: "1.5000" },
+  { contractorNames: ["Rafael"], serviceName: "Pala e Gancho", unitPrice: "0.2700" },
+  { contractorNames: ["Paulo"], serviceName: "Final Frente", unitPrice: "0.6000" },
+  { contractorNames: ["Neudênio", "Neudenio"], serviceName: "Preparação Frente", unitPrice: "1.1000" },
+  { contractorNames: ["Paulo Romes"], serviceName: "Preparação e Bolso Traseiro", unitPrice: "0.7000" },
 ];
 
 async function ensureService(tx, name) {
@@ -78,29 +76,6 @@ async function ensureService(tx, name) {
 
   return tx.service.create({
     data: { name },
-  });
-}
-
-async function ensureReferencePrice(tx, serviceId, unitPrice) {
-  const existing = await tx.servicePrice.findFirst({
-    where: {
-      serviceId,
-      unitPrice,
-      validFrom: SYSTEM_REFERENCE_DATE,
-      validUntil: null,
-    },
-  });
-
-  if (existing) {
-    return existing;
-  }
-
-  return tx.servicePrice.create({
-    data: {
-      serviceId,
-      unitPrice,
-      validFrom: SYSTEM_REFERENCE_DATE,
-    },
   });
 }
 
@@ -138,7 +113,7 @@ async function ensureInitialOperationalStructure(tx) {
     await tx.serviceContractor.upsert({
       where: { serviceId_contractorId: { serviceId: service.id, contractorId: candidates[0].id } },
       update: {},
-      create: { serviceId: service.id, contractorId: candidates[0].id },
+      create: { serviceId: service.id, contractorId: candidates[0].id, unitPrice: capability.unitPrice },
     });
   }
 }
@@ -154,11 +129,7 @@ async function main() {
     }
 
     for (const item of serviceCatalog) {
-      const service = await ensureService(tx, item.name);
-
-      if (item.unitPrice) {
-        await ensureReferencePrice(tx, service.id, item.unitPrice);
-      }
+      await ensureService(tx, item.name);
     }
 
     await ensureInitialOperationalStructure(tx);

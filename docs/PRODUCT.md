@@ -4,7 +4,7 @@
 
 O sistema de gestão da Genect Confecções será uma plataforma integrada para controlar a operação de confecção de roupas, partindo da entrada da Ordem de Produção (OP) como entidade operacional central.
 
-A OP nasce primeiro no sistema. Depois da OP cadastrada, o usuário adiciona manualmente os Serviços Terceirizados necessários para aquela OP, escolhe o serviço cadastrado, escolhe o terceirizado, informa a quantidade e utiliza o preço sugerido ou ajusta o preço aplicado quando necessário.
+A OP nasce primeiro no sistema. Depois da OP cadastrada, o usuário adiciona manualmente os Serviços Terceirizados necessários para aquela OP, escolhe o Serviço, o Terceirizado e a quantidade. O sistema aplica o preço atual da combinação exata `Terceirizado + Serviço` e preserva esse valor historicamente.
 
 O MVP não terá roteiro produtivo, motor de workflow, dependências configuráveis entre etapas, execução interna detalhada nem geração automática de serviços baseada no produto. O princípio é construir primeiro o fluxo que a Genect realmente utiliza hoje.
 
@@ -49,7 +49,7 @@ Decisão confirmada no MVP: os perfis são Administrador, Operação, Financeiro
 4. Ordens de Produção (OP)
 5. Terceirizados
 6. Serviços
-7. Preços de Serviço
+7. Preços por Terceirizado e Serviço
 8. Serviços Terceirizados
 9. Romaneios
 10. Retornos
@@ -91,7 +91,7 @@ O escopo inicial deve priorizar o fluxo simples de terceirização:
 - Registro de número da OP, data de entrada, empresa, cliente, produto, quantidade, preço unitário, valor total calculado e demais informações comerciais necessárias.
 - Cadastro de terceirizados.
 - Cadastro reutilizável de Serviços, incluindo Frente, Costas, Preparação Frente, Pala e Gancho, Frente Completa, Final Frente e Preparação e Bolso Traseiro.
-- Cadastro configurável de Preços de Serviço.
+- Cadastro configurável do preço atual por combinação de Terceirizado e Serviço.
 - Cadastro manual de Serviços Terceirizados vinculados a uma OP existente.
 - Geração de romaneios para um único terceirizado por romaneio.
 - Inclusão de vários itens em um romaneio, inclusive de OPs, clientes, referências e serviços diferentes, desde que todos saiam para o mesmo terceirizado.

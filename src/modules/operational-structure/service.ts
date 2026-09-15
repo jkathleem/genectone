@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@/generated/prisma";
+import { Prisma, type PrismaClient } from "@/generated/prisma";
 
 type DB = Pick<PrismaClient, "internalSector" | "serviceInternalSector" | "serviceContractor">;
 
@@ -26,6 +26,14 @@ export function enableInternalSectorForService(db: DB, serviceId: string, intern
   return db.serviceInternalSector.upsert({ where: { serviceId_internalSectorId: { serviceId, internalSectorId } }, update: {}, create: { serviceId, internalSectorId } });
 }
 
-export function enableContractorForService(db: DB, serviceId: string, contractorId: string) {
-  return db.serviceContractor.upsert({ where: { serviceId_contractorId: { serviceId, contractorId } }, update: {}, create: { serviceId, contractorId } });
+export function enableContractorForService(db: DB, serviceId: string, contractorId: string, unitPrice?: Prisma.Decimal | string | null) {
+  const price = unitPrice == null ? null : new Prisma.Decimal(unitPrice);
+  if (price && !price.gt(0)) throw new Error("O preço configurado deve ser maior que zero.");
+  return db.serviceContractor.upsert({ where: { serviceId_contractorId: { serviceId, contractorId } }, update: {}, create: { serviceId, contractorId, unitPrice: price } });
+}
+
+export function setContractorServicePrice(db: DB, serviceId: string, contractorId: string, unitPrice: Prisma.Decimal | string | null) {
+  const price = unitPrice == null ? null : new Prisma.Decimal(unitPrice);
+  if (price && !price.gt(0)) throw new Error("O preço configurado deve ser maior que zero.");
+  return db.serviceContractor.update({ where: { serviceId_contractorId: { serviceId, contractorId } }, data: { unitPrice: price } });
 }

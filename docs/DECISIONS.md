@@ -14,11 +14,21 @@ Este documento registra decisões arquiteturais e de produto conhecidas nesta et
 
 ## Decisões confirmadas
 
+### DEC-056 - Preço atual por Terceirizado e Serviço
+
+- `ServiceContractor` é simultaneamente a capacidade do executor externo e a única fonte do preço atual daquela combinação.
+- `unitPrice` é `Decimal(14,4)`, nullable para vínculo ainda sem preço e estritamente positivo quando configurado. A chave composta existente garante uma combinação única.
+- Nova atribuição de Serviço Terceirizado exige vínculo ativo, Serviço ativo, Terceirizado ativo e preço configurado; o servidor copia esse valor para `OutsourcedService.appliedUnitPrice`.
+- Alterar `ServiceContractor.unitPrice` afeta apenas atribuições futuras. Edições que mantêm a mesma combinação preservam o snapshot já aplicado.
+- `ServicePrice` global foi removido após migração defensiva dos cinco valores inequívocos. Manter ambas as estruturas criaria fontes concorrentes.
+- `ContractorSettlementItem.appliedUnitPriceSnapshot`, Conta a Pagar e DRE histórica continuam derivados dos snapshots do Serviço Terceirizado, nunca do preço atual.
+- `ServiceInternalSector` não possui preço de terceirização; custo interno continua fora desta modelagem.
+
 ### DEC-055 - Base operacional pós-MVP
 
 - Setores internos são cadastros configuráveis e não status fixos nem etapas de workflow. Os valores iniciais são Frente Interna, Carleano e Montagem.
 - Serviço é independente do executor. Duas tabelas de capacidade com FKs reais representam setores internos e terceirizados habilitados, evitando associação polimórfica nullable e serviços duplicados.
-- A tabela de preços auditada permanece global por Serviço. Embora a referência inicial mencionasse Contractor + Service + Price, o schema vigente não possui preço por Contractor; essa semântica não foi alterada sem decisão específica.
+- A decisão provisória de manter preço global foi substituída pela DEC-056 após confirmação explícita da regra `Contractor + Service`.
 - OP não recebe enum persistido de status. Urgência é flag, previsão e conclusão são fatos opcionais, e estados financeiro-operacionais permanecem derivados.
 - `Product.name` e `reference` são reutilizados como descrição e código. Preço atual do Produto é cadastral e `ProductionOrder.unitPrice` continua protegendo o histórico.
 - Insumos são somente uma composição proporcional do Produto, sem estoque e sem snapshot na OP nesta etapa. A dupla de consumo pode ficar vazia, mas nunca parcialmente preenchida ou não positiva.
@@ -251,7 +261,7 @@ Decisão confirmada:
 
 Consequência:
 
-- Alterar o preço padrão futuramente não pode alterar Serviços Terceirizados antigos.
+- Alterar o preço atual da combinação `Terceirizado + Serviço` futuramente não pode alterar Serviços Terceirizados antigos.
 - O fechamento nunca deve recalcular serviço antigo usando preço atual do cadastro.
 
 ### DEC-017 - Tabela de preços configurável
@@ -471,13 +481,13 @@ Consequência:
 Decisão confirmada:
 
 - O seed inicial cria Preparação Frente, Pala e Gancho, Frente Completa, Final Frente, Preparação e Bolso Traseiro, Frente e Costas.
-- Somente os cinco serviços com preços confirmados recebem `ServicePrice`.
+- Nesta decisão histórica, os cinco valores foram inicialmente registrados em `ServicePrice`; a DEC-056 migrou-os para os respectivos vínculos `ServiceContractor`.
 - Frente e Costas permanecem sem preço; valor zero não representa preço desconhecido.
 - `2026-09-02` é a data técnica inicial das referências inseridas pelo seed, sem significado histórico ou contratual anterior ao sistema.
 
 Consequência:
 
-- O seed localiza serviços pelo nome e preços equivalentes por serviço, valor, início e fim de vigência, podendo ser executado novamente sem duplicação.
+- O seed atual localiza Serviços e Terceirizados existentes por nomes inequívocos e cria somente vínculos ausentes com seus valores oficiais, sem sobrescrever alterações cadastrais posteriores.
 - Não são criados dados fictícios de empresas, clientes, produtos, OPs ou terceirizados.
 
 ### DEC-037 - Primeira interface operacional com Server Actions
@@ -498,10 +508,10 @@ Consequência:
 
 Decisão confirmada para a primeira interface de Serviços Terceirizados:
 
-- O preço padrão vigente é o `ServicePrice` com início de vigência mais recente que abrange a data atual.
-- Registrar um novo preço cria um novo item no histórico e não sobrescreve preços anteriores.
+- A seleção global por `ServicePrice` descrita originalmente foi substituída pela DEC-056.
+- O preço atual é o `unitPrice` da combinação `ServiceContractor` ativa.
 - O preço aplicado é copiado para `OutsourcedService.appliedUnitPrice` e não muda quando o catálogo é atualizado.
-- Serviço sem preço padrão exige preço aplicado informado manualmente.
+- Combinação sem preço configurado é rejeitada; o preço não é digitado manualmente na atribuição.
 - O valor previsto da associação nesta etapa é `plannedQuantity × appliedUnitPrice`.
 - Quantidades enviada, retornada e pendente, além da situação operacional, são derivadas das movimentações existentes.
 - `approvedQuantity` permanece zero; retorno físico não implica aprovação para pagamento.

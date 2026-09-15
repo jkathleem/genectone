@@ -6,6 +6,8 @@ A migration `20260914120000_add_post_mvp_operational_domain` amplia o schema sem
 
 `ServiceInternalSector` e `ServiceContractor` são associações N:N separadas. Essa escolha mantém FKs simples e restritivas, permite vários executores para o mesmo Serviço e evita uma tabela polimórfica com duas FKs opcionais. Elas representam habilitação cadastral, não execução histórica; `OutsourcedService` mantém esse papel para trabalho externo realizado.
 
+Após a correção `20260915000000_add_contractor_service_prices`, `ServiceContractor` também contém `unitPrice` Decimal nullable, `active` e timestamps. Essa é a única fonte de preço atual de terceirização. `ServiceInternalSector` não possui preço. A migration validou cardinalidade, copiou os cinco preços globais inequívocos e removeu `ServicePrice` para eliminar concorrência entre fontes.
+
 `ProductSupply` usa chave composta Produto–Insumo. Um CHECK aceita consumo totalmente não configurado ou exige `quantityPerBase` Decimal positivo e `baseQuantity` inteira positiva. O cálculo proporcional fica em `src/modules/products/domain.ts`; não há estoque, movimentação ou snapshot de consumo na OP.
 
 O CHECK `User_role_contractor_check` trata NULL explicitamente: `CONTRACTOR` exige `contractorId`, enquanto qualquer outro perfil exige valor nulo. O papel não aparece no cadastro atual de usuários e `canAccessPath` limita-o à Home; também não integra nenhuma lista de permissões internas.
@@ -108,7 +110,7 @@ O primeiro schema físico cobre somente o núcleo operacional inicial:
 - `ProductionOrder`
 - `Contractor`
 - `Service`
-- `ServicePrice`
+- `ServiceContractor` com preço atual por executor externo
 - `OutsourcedService`
 - `DeliveryNote`
 - `DeliveryNoteItem`
@@ -138,11 +140,9 @@ O arquivo `.env` contém apenas a configuração local e permanece ignorado pelo
 
 ## Dados iniciais de referência
 
-O seed em `prisma/seed.mjs` é a fonte dos dados iniciais do catálogo de serviços nesta fase. Ele é idempotente e cria somente os sete Serviços confirmados e os cinco preços conhecidos.
+O seed em `prisma/seed.mjs` é a fonte dos dados iniciais do catálogo de serviços nesta fase. Ele é idempotente e cria somente os sete Serviços confirmados e os cinco preços conhecidos nos vínculos inequívocos de Terceirizado + Serviço. Em vínculos existentes, não sobrescreve alterações cadastrais posteriores.
 
-Os preços usam `2026-09-02` como data técnica de início da referência dentro do sistema. Essa data não afirma quando o preço começou a vigorar historicamente ou contratualmente.
-
-`Frente` e `Costas` são cadastrados sem `ServicePrice`, pois ainda não existe preço confirmado. Não utilizar preço zero como substituto de informação desconhecida.
+`Frente` e `Costas` permanecem sem preço confirmado. Não utilizar preço zero nem preço de outro Terceirizado como substituto de informação desconhecida.
 
 ## Dinheiro e precisão decimal
 
@@ -186,13 +186,13 @@ Datas puramente comerciais do núcleo operacional usam colunas PostgreSQL `date`
 
 ## Serviços Terceirizados nas OPs
 
-O catálogo de Serviços mantém um histórico imutável de preços: cada alteração de preço cria um novo `ServicePrice`. Para uma nova associação à OP, o preço padrão sugerido é o registro vigente na data atual com o `validFrom` mais recente. Serviços sem preço padrão exigem que o usuário informe o preço aplicado.
+O catálogo de Serviços é independente do executor. Para uma nova associação à OP, a aplicação bloqueia e consulta a combinação ativa `ServiceContractor`; seu preço atual precisa estar configurado e é copiado para o lançamento. Não existe fallback global nem digitação manual do preço aplicado.
 
-`OutsourcedService.appliedUnitPrice` é um snapshot histórico. Alterações posteriores no catálogo não recalculam associações existentes. O valor previsto exibido nesta etapa é derivado por `plannedQuantity × appliedUnitPrice`, usando `Decimal` no servidor.
+`OutsourcedService.appliedUnitPrice` é um snapshot histórico. Alterações posteriores em `ServiceContractor.unitPrice` não recalculam associações existentes. O valor previsto exibido nesta etapa é derivado por `plannedQuantity × appliedUnitPrice`, usando `Decimal` no servidor.
 
 As quantidades operacionais não são duplicadas em `OutsourcedService`: enviada é a soma dos futuros `DeliveryNoteItem`, retornada é a soma de `OutsourcingReturn` e pendente é enviada menos retornada. A situação operacional também é derivada dessas quantidades. `approvedQuantity` permanece zero até que a futura regra de conferência para pagamento seja definida.
 
-Após existir o primeiro `DeliveryNoteItem`, Serviço e Terceirizado ficam bloqueados para edição, preservando a coerência das movimentações. Quantidade prevista, preço aplicado e observações continuam editáveis nesta fase.
+Após existir o primeiro `DeliveryNoteItem`, Serviço e Terceirizado ficam bloqueados para edição, preservando a coerência das movimentações. Quantidade prevista e observações continuam editáveis; o preço aplicado permanece sempre como snapshot do lançamento.
 
 ## Romaneios e numeração
 

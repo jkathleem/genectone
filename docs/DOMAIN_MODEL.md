@@ -4,7 +4,7 @@
 
 - **InternalSector**: setor interno configurável, ordenável e desativável. Não representa execução nem etapa de workflow.
 - **ServiceInternalSector**: capacidade que habilita um setor interno a executar um Serviço.
-- **ServiceContractor**: capacidade que habilita um Terceirizado a executar um Serviço.
+- **ServiceContractor**: capacidade que habilita um Terceirizado a executar um Serviço e mantém o preço unitário atual dessa combinação.
 - **Supply**: insumo reutilizável com unidade e situação cadastral, sem estoque.
 - **ProductSupply**: associação Produto–Insumo. A dupla opcional `quantityPerBase`/`baseQuantity`, quando preenchida, permite derivar consumo previsto proporcional à quantidade da OP.
 - **OperationalIssue**: pendência histórica vinculada à OP, ao Terceirizado e opcionalmente ao `OutsourcedService`, com autoria e resolução preservadas.
@@ -45,7 +45,7 @@ O núcleo de terceirização deve seguir o fluxo simples:
 - Retorno
 - Fechamento / Pagamento
 
-O usuário cadastra a OP, abre a OP, adiciona manualmente os Serviços Terceirizados necessários, escolhe o Serviço cadastrado, escolhe o Terceirizado, informa a quantidade e utiliza o preço sugerido ou altera o preço aplicado quando necessário.
+O usuário cadastra a OP, abre a OP, adiciona manualmente os Serviços Terceirizados necessários, escolhe o Serviço cadastrado, escolhe o Terceirizado e informa a quantidade. A aplicação obtém o preço da combinação exata `Terceirizado + Serviço` e o preserva como snapshot; o preço não é digitado no lançamento.
 
 ## Modelo conceitual esperado
 
@@ -60,7 +60,7 @@ Cadastros de terceirização:
 
 - Terceirizado
 - Serviço
-- Preço de Serviço
+- Capacidade e preço por Terceirizado + Serviço
 
 Fluxo de terceirização:
 
@@ -231,43 +231,45 @@ Frente e Costas são apenas Serviços cadastrados. Não existe entidade especial
 Relacionamentos:
 
 - Um Serviço pode ser usado em vários Serviços Terceirizados.
-- Um Serviço pode possuir preço padrão configurável.
+- Um Serviço pode ser habilitado para vários Terceirizados por meio de `ServiceContractor`.
+- Cada combinação `Terceirizado + Serviço` pode possuir um preço unitário atual configurável.
 
 Fonte de verdade:
 
 - Cadastro do Serviço.
 
-### Preço de Serviço
+### Preço de Terceirizado por Serviço
 
-Representa os valores unitários padrão dos Serviços terceirizados.
+Representa o valor unitário atual negociado para uma combinação específica de Terceirizado e Serviço. O preço pertence a `ServiceContractor`; não existe preço global do Serviço nem preço para Setor Interno nesta estrutura.
 
 Valores iniciais conhecidos:
 
-- Preparação Frente: R$ 1,10 por peça.
-- Pala e Gancho: R$ 0,27 por peça.
-- Frente Completa: R$ 1,50 por peça.
-- Final Frente: R$ 0,60 por peça.
-- Preparação e Bolso Traseiro: R$ 0,70 por peça.
+- Neudenio → Preparação Frente: R$ 1,10 por peça.
+- Rafael → Pala e Gancho: R$ 0,27 por peça.
+- Pricila → Frente Completa: R$ 1,50 por peça.
+- Paulo → Final Frente: R$ 0,60 por peça.
+- Paulo Romes → Preparação e Bolso Traseiro: R$ 0,70 por peça.
 
 Relacionamentos:
 
-- Um preço pertence a um Serviço.
-- O preço atual serve como sugestão para novos Serviços Terceirizados.
-- O Serviço Terceirizado guarda uma cópia do preço unitário efetivamente aplicado.
+- Um preço atual pertence a uma única combinação `Terceirizado + Serviço`.
+- A combinação pode permanecer cadastrada sem preço, mas não pode originar uma nova atribuição enquanto o preço estiver ausente.
+- O Serviço Terceirizado guarda uma cópia do preço unitário vigente no momento da atribuição.
 
 Fonte de verdade:
 
-- Preço padrão vigente para sugestão de novos lançamentos.
+- `ServiceContractor.unitPrice` para novas atribuições.
+- `OutsourcedService.appliedUnitPrice` para a atribuição histórica já criada.
 
 Dados derivados:
 
-- Sugestão de valor unitário ao criar um Serviço Terceirizado.
+- Valor exibido no formulário ao selecionar a combinação exata de Serviço e Terceirizado.
 
 Observação:
 
-- A tabela deve ser configurável.
 - Preços não devem ser constantes fixas no código.
-- Alterações futuras no preço padrão não podem alterar Serviços Terceirizados antigos.
+- Alterações futuras no preço atual da combinação não podem alterar Serviços Terceirizados antigos, itens de fechamento nem títulos financeiros já gerados.
+- Não existe fallback para preço de outro Terceirizado.
 
 ### Serviço Terceirizado
 
@@ -835,7 +837,7 @@ O primeiro schema Prisma materializa somente as seguintes entidades conceituais:
 | OP | `ProductionOrder` |
 | Terceirizado | `Contractor` |
 | Serviço | `Service` |
-| Preço de Serviço | `ServicePrice` |
+| Capacidade e preço atual por Terceirizado + Serviço | `ServiceContractor` |
 | Serviço Terceirizado | `OutsourcedService` |
 | Romaneio | `DeliveryNote` |
 | Item de Romaneio | `DeliveryNoteItem` |
@@ -876,7 +878,7 @@ Invariantes deixadas para a futura camada de domínio/aplicação:
 - Total retornado não deve ultrapassar o total enviado, salvo futura regra explícita.
 - Quantidade aprovada não pode ser negativa nem ultrapassar os limites válidos do negócio.
 - Todo `DeliveryNoteItem` deve apontar para um `OutsourcedService` do mesmo `Contractor` registrado no cabeçalho do `DeliveryNote`.
-- Períodos de `ServicePrice` não devem se sobrepor quando essa validação for implementada.
+- `ServiceContractor.unitPrice`, quando informado, deve ser maior que zero.
 - Datas recebidas pela interface devem ser tratadas como dias comerciais, sem deslocamento provocado por timezone.
 
 ## Fontes de verdade e dados derivados

@@ -346,7 +346,6 @@ model Service {
   active                     Boolean                 @default(true)
   createdAt                  DateTime                @default(now())
   updatedAt                  DateTime                @updatedAt
-  prices                     ServicePrice[]
   outsourcedServices         OutsourcedService[]
   internalSectorCapabilities ServiceInternalSector[]
   contractorCapabilities     ServiceContractor[]
@@ -379,7 +378,10 @@ model ServiceInternalSector {
 model ServiceContractor {
   serviceId    String
   contractorId String
+  unitPrice    Decimal?   @db.Decimal(14, 4)
+  active       Boolean    @default(true)
   createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
   service      Service    @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   contractor   Contractor @relation(fields: [contractorId], references: [id], onDelete: Restrict)
 
@@ -412,19 +414,6 @@ model ProductSupply {
 
   @@id([productId, supplyId])
   @@index([supplyId])
-}
-
-model ServicePrice {
-  id         String    @id @default(cuid())
-  serviceId  String
-  unitPrice  Decimal   @db.Decimal(14, 4)
-  validFrom  DateTime  @db.Date
-  validUntil DateTime? @db.Date
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  service    Service   @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-
-  @@index([serviceId, validFrom])
 }
 
 model OutsourcedService {

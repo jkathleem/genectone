@@ -1,16 +1,38 @@
 "use client";
+
 import { useMemo, useState } from "react";
 import { SubmitButton } from "./submit-button";
-type ServiceOption = { id: string; name: string; price: string | null };
+
+type ServiceOption = { id: string; name: string };
 type ContractorOption = { id: string; name: string };
+type ContractorServiceOption = { serviceId: string; contractorId: string; price: string };
 type Values = { id?: string; serviceId?: string; contractorId?: string; plannedQuantity: number; appliedUnitPrice?: string; notes?: string | null; locked?: boolean };
-export function OutsourcedServiceForm({ action, orderId, services, contractors, values }: { action: (data: FormData) => Promise<void>; orderId: string; services: ServiceOption[]; contractors: ContractorOption[]; values: Values }) {
-  const [serviceId, setServiceId] = useState(values.serviceId ?? ""); const [price, setPrice] = useState(values.appliedUnitPrice ?? ""); const selected = useMemo(() => services.find(s => s.id === serviceId), [services, serviceId]);
-  return <form action={action} className="panel form-grid"><input name="orderId" type="hidden" value={orderId}/>{values.id ? <input name="id" type="hidden" value={values.id}/> : null}
-    <label className="field">Serviço<select disabled={values.locked} name="serviceId" onChange={event => { const next = event.target.value; setServiceId(next); setPrice(services.find(s => s.id === next)?.price ?? ""); }} required value={serviceId}><option disabled value="">Selecione</option>{services.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select>{values.locked ? <input name="serviceId" type="hidden" value={serviceId}/> : null}</label>
-    <label className="field">Terceirizado<select defaultValue={values.contractorId ?? ""} disabled={values.locked} name="contractorId" required><option disabled value="">Selecione</option>{contractors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>{values.locked ? <input name="contractorId" type="hidden" value={values.contractorId}/> : null}</label>
+
+export function OutsourcedServiceForm({ action, orderId, services, contractors, contractorServices, values }: {
+  action: (data: FormData) => Promise<void>;
+  orderId: string;
+  services: ServiceOption[];
+  contractors: ContractorOption[];
+  contractorServices: ContractorServiceOption[];
+  values: Values;
+}) {
+  const [serviceId, setServiceId] = useState(values.serviceId ?? "");
+  const [contractorId, setContractorId] = useState(values.contractorId ?? "");
+  const selectedAssignment = useMemo(
+    () => contractorServices.find((item) => item.serviceId === serviceId && item.contractorId === contractorId),
+    [contractorId, contractorServices, serviceId],
+  );
+  const unchangedAssignment = Boolean(values.id && serviceId === values.serviceId && contractorId === values.contractorId);
+  const price = unchangedAssignment ? values.appliedUnitPrice ?? "" : selectedAssignment?.price ?? "";
+
+  return <form action={action} className="panel form-grid">
+    <input name="orderId" type="hidden" value={orderId}/>
+    {values.id ? <input name="id" type="hidden" value={values.id}/> : null}
+    <label className="field">Serviço<select disabled={values.locked} name="serviceId" onChange={(event) => setServiceId(event.target.value)} required value={serviceId}><option disabled value="">Selecione</option>{services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}</select>{values.locked ? <input name="serviceId" type="hidden" value={serviceId}/> : null}</label>
+    <label className="field">Terceirizado<select disabled={values.locked} name="contractorId" onChange={(event) => setContractorId(event.target.value)} required value={contractorId}><option disabled value="">Selecione</option>{contractors.map((contractor) => <option key={contractor.id} value={contractor.id}>{contractor.name}</option>)}</select>{values.locked ? <input name="contractorId" type="hidden" value={contractorId}/> : null}</label>
     <label className="field">Quantidade prevista<input defaultValue={values.plannedQuantity} min="1" name="plannedQuantity" required step="1" type="number"/></label>
-    <label className="field">Preço unitário aplicado<input inputMode="decimal" name="appliedUnitPrice" onChange={e => setPrice(e.target.value)} placeholder="Informe o preço" required value={price}/>{selected ? <span className="font-normal text-slate-500">{selected.price ? "Preço padrão sugerido; pode ser alterado." : "Este serviço não possui preço padrão. Informe o preço aplicado."}</span> : null}</label>
-    <label className="field sm:col-span-2">Observações<textarea defaultValue={values.notes ?? ""} name="notes" rows={3}/></label><div><SubmitButton>{values.id ? "Salvar alterações" : "Adicionar serviço"}</SubmitButton></div>
+    <label className="field">Preço unitário aplicado<input inputMode="decimal" name="appliedUnitPrice" readOnly required value={price}/><span className="font-normal text-slate-500">{price ? unchangedAssignment ? "Snapshot preservado desta atribuição." : "Preço atual configurado para este terceirizado e serviço." : "Esta combinação não possui preço configurado."}</span></label>
+    <label className="field sm:col-span-2">Observações<textarea defaultValue={values.notes ?? ""} name="notes" rows={3}/></label>
+    <div><SubmitButton>{values.id ? "Salvar alterações" : "Adicionar serviço"}</SubmitButton></div>
   </form>;
 }

@@ -17,7 +17,9 @@
 - BR-251: `OperationalIssue` pertence a uma OP e a um Terceirizado, pode apontar para um Serviço Terceirizado coerente e preserva criador, tipo, descrição e histórico de resolução.
 - BR-252: Tipos iniciais de pendência são `MISSING_THREAD`, `MISSING_TRIM`, `MISSING_COMPONENT`, `QUANTITY_ISSUE`, `EXECUTION_QUESTION` e `OTHER`.
 - BR-253: Pendências seguem `OPEN`, `IN_PROGRESS` ou `RESOLVED`; somente resolvidas possuem `resolvedAt` e `resolvedByUserId`, e não são apagadas ou reabertas nesta etapa.
-- BR-254: O catálogo de preço existente permanece global por Serviço. Esta etapa não introduz preço específico por Terceirizado e não altera `ServicePrice` nem snapshots existentes.
+- BR-254: O preço atual de terceirização pertence à combinação `Contractor + Service`, armazenada em `ServiceContractor`; preço de setor interno não é tratado nessa estrutura.
+- BR-255: Cada combinação `Contractor + Service` possui no máximo um vínculo, que pode ficar inativo ou sem preço. Nova atribuição externa exige vínculo ativo e preço Decimal positivo configurado.
+- BR-256: `ServiceContractor.unitPrice` é a única fonte atual; `OutsourcedService.appliedUnitPrice` é a fonte histórica da atribuição e nunca é recalculada pelo cadastro.
 
 ## Autenticação e permissões
 
@@ -124,19 +126,19 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 
 ## Preços de serviços terceirizados
 
-- BR-019: Cada Serviço pode possuir um valor unitário padrão.
+- BR-019: Cada combinação entre Terceirizado e Serviço pode possuir um valor unitário atual.
 - BR-020: O valor elegível para pagamento do Serviço Terceirizado deve ser calculado como quantidade aprovada para pagamento multiplicada pelo preço unitário aplicado.
 - BR-021: O preço aplicado ao Serviço Terceirizado deve ficar historicamente registrado.
 - BR-022: Mudanças futuras na tabela de preços não devem alterar Serviços Terceirizados antigos.
-- BR-023: Os valores iniciais conhecidos da tabela de preços são:
-  - Preparação Frente: R$ 1,10 por peça.
-  - Pala e Gancho: R$ 0,27 por peça.
-  - Frente Completa: R$ 1,50 por peça.
-  - Final Frente: R$ 0,60 por peça.
-  - Preparação e Bolso Traseiro: R$ 0,70 por peça.
+- BR-023: Os valores iniciais conhecidos são:
+  - Neudenio → Preparação Frente: R$ 1,10 por peça.
+  - Rafael → Pala e Gancho: R$ 0,27 por peça.
+  - Pricila → Frente Completa: R$ 1,50 por peça.
+  - Paulo → Final Frente: R$ 0,60 por peça.
+  - Paulo Romes → Preparação e Bolso Traseiro: R$ 0,70 por peça.
 - BR-068: A tabela inicial de preços deve ser tratada como configurável.
 - BR-069: Os valores de serviços terceirizados não devem ser tratados como constantes fixas no código.
-- BR-102: O preço atual serve como sugestão para novos Serviços Terceirizados.
+- BR-102: O preço atual da combinação Terceirizado + Serviço é copiado para novos Serviços Terceirizados; preço de outro Terceirizado nunca pode ser usado como fallback.
 - BR-103: O Serviço Terceirizado deve guardar uma cópia do preço efetivamente aplicado naquele momento.
 - BR-104: O fechamento nunca deve recalcular um serviço antigo usando o preço atual do cadastro.
 

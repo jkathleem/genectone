@@ -11,6 +11,7 @@
 - [x] Cadastro de Terceirizado ampliado com campos opcionais compatíveis.
 - [x] Perfil `CONTRACTOR`, vínculo obrigatório e acesso mínimo.
 - [x] Pendências operacionais com autoria, resolução e integridade relacional.
+- [x] Correção estrutural do preço atual para `Contractor + Service`, sem alterar snapshots históricos.
 - [ ] Telas de cadastros ampliados, nova experiência de OP, Kanban e portal do Terceirizado (etapas futuras).
 
 ## Estornos financeiros
@@ -54,7 +55,7 @@ Critério de aceite:
 
 ## Fase 1 - Base do sistema e cadastros
 
-Estado atual: implementada a interface de cadastro, consulta, edição e ativação/desativação de empresas, clientes, produtos, terceirizados e serviços. O catálogo de serviços permite registrar novos preços sem sobrescrever o histórico e consultar o preço vigente.
+Estado atual: implementada a interface de cadastro, consulta, edição e ativação/desativação de empresas, clientes, produtos, terceirizados e serviços. O catálogo de serviços consulta as capacidades externas e o preço atual de cada combinação `Terceirizado + Serviço`; o histórico permanece nos lançamentos operacionais.
 
 Objetivo:
 
@@ -112,7 +113,7 @@ DECISÃO PENDENTE: definir quais campos de produção e informações comerciais
 
 ## Fase 3 - Serviços Terceirizados da OP
 
-Estado atual: implementada a inclusão, listagem e edição de Serviços Terceirizados dentro da OP. A interface sugere o preço padrão vigente, permite informar manualmente serviços sem preço, preserva o preço aplicado e exibe quantidades e situação operacional derivadas. Nesta fase, a quantidade aprovada permanece zero e não há criação de romaneio ou retorno.
+Estado atual: implementada a inclusão, listagem e edição de Serviços Terceirizados dentro da OP. O servidor exige vínculo ativo `Contractor + Service`, copia seu preço atual para o snapshot e rejeita combinações sem preço, sem fallback global ou preço manual. Quantidades e situação operacional permanecem derivadas.
 
 Objetivo:
 
@@ -134,8 +135,8 @@ Entregáveis testáveis:
 - Escolher Terceirizado.
 - Informar quantidade prevista quando aplicável.
 - Exibir a quantidade enviada derivada dos futuros itens de romaneio, sem digitá-la no Serviço Terceirizado.
-- Sugerir preço unitário a partir do Preço de Serviço.
-- Permitir ajuste do preço unitário aplicado.
+- Exibir o preço unitário atual da combinação exata `Terceirizado + Serviço`.
+- Impedir preço manual ou fallback de outro Terceirizado no lançamento.
 - Preservar historicamente o preço unitário aplicado.
 - Tratar Frente e Costas como Serviços Terceirizados normais e independentes.
 
@@ -143,7 +144,7 @@ Critério de aceite:
 
 - Nenhum Serviço Terceirizado é criado sem OP.
 - Cliente, produto e demais dados já disponíveis via OP não são redigitados no Serviço Terceirizado.
-- Alterar um preço padrão futuro não muda Serviços Terceirizados antigos.
+- Alterar o preço atual de uma combinação não muda Serviços Terceirizados antigos.
 
 ## Fase 4 - Romaneios e múltiplas saídas
 

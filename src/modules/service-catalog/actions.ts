@@ -1,8 +1,33 @@
 "use server";
-import{revalidatePath}from"next/cache";import{z}from"zod";import{prisma}from"@/lib/prisma";import{optionalText,redirectWithMessage}from"@/lib/form";import{parseMoneyInput}from"@/modules/production-orders/validation";import{requireUser}from"@/modules/auth/session";
-const path="/cadastros/servicos";
-async function run(message:string,fn:()=>Promise<unknown>){try{await requireUser("OPERATION_MUTATE");await fn();revalidatePath(path)}catch(error){if(error instanceof z.ZodError)redirectWithMessage(path,"error",error.issues[0]?.message??"Dados inválidos.");redirectWithMessage(path,"error",error instanceof Error?error.message:"Não foi possível salvar.")}redirectWithMessage(path,"success",message)}
-export async function createService(data:FormData){await run("Serviço cadastrado.",()=>prisma.service.create({data:{name:z.string().trim().min(1).parse(data.get("name")),description:optionalText(data.get("description"))}}))}
-export async function updateService(data:FormData){await run("Serviço atualizado.",()=>prisma.service.update({where:{id:z.string().cuid().parse(data.get("id"))},data:{name:z.string().trim().min(1).parse(data.get("name")),description:optionalText(data.get("description"))}}))}
-export async function toggleService(data:FormData){await run("Situação atualizada.",()=>prisma.service.update({where:{id:z.string().cuid().parse(data.get("id"))},data:{active:data.get("active")==="true"}}))}
-export async function addServicePrice(data:FormData){await run("Novo preço registrado.",async()=>{const unitPrice=parseMoneyInput(String(data.get("unitPrice")));if(unitPrice.lt(0))throw new Error("O preço não pode ser negativo.");return prisma.servicePrice.create({data:{serviceId:z.string().cuid().parse(data.get("id")),unitPrice,validFrom:new Date(`${z.string().regex(/^\d{4}-\d{2}-\d{2}$/,"Informe a data de vigência.").parse(data.get("validFrom"))}T00:00:00.000Z`)}})})}
+
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { optionalText, redirectWithMessage } from "@/lib/form";
+import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/modules/auth/session";
+
+const path = "/cadastros/servicos";
+
+async function run(message: string, operation: () => Promise<unknown>) {
+  try {
+    await requireUser("OPERATION_MUTATE");
+    await operation();
+    revalidatePath(path);
+  } catch (error) {
+    if (error instanceof z.ZodError) redirectWithMessage(path, "error", error.issues[0]?.message ?? "Dados inválidos.");
+    redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível salvar.");
+  }
+  redirectWithMessage(path, "success", message);
+}
+
+export async function createService(data: FormData) {
+  await run("Serviço cadastrado.", () => prisma.service.create({ data: { name: z.string().trim().min(1).parse(data.get("name")), description: optionalText(data.get("description")) } }));
+}
+
+export async function updateService(data: FormData) {
+  await run("Serviço atualizado.", () => prisma.service.update({ where: { id: z.string().cuid().parse(data.get("id")) }, data: { name: z.string().trim().min(1).parse(data.get("name")), description: optionalText(data.get("description")) } }));
+}
+
+export async function toggleService(data: FormData) {
+  await run("Situação atualizada.", () => prisma.service.update({ where: { id: z.string().cuid().parse(data.get("id")) }, data: { active: data.get("active") === "true" } }));
+}
