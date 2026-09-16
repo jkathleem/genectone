@@ -435,3 +435,15 @@ Critério de aceite:
 - Workflow produtivo complexo.
 - Motor de sequência de produção.
 - Execução interna detalhada.
+
+## Etapa 3 pós-MVP - Workspace operacional da OP
+
+- [x] Lista compacta com busca ampla e filtros cadastrais/derivados.
+- [x] Criação por Produto com Cliente sugerido e snapshots de preço e insumos.
+- [x] Detalhe em Resumo, Serviços, Insumos, Financeiro e Histórico.
+- [x] Executores filtrados pelas capacidades, internos sem preço e externos com snapshot.
+- [x] Envio, retorno, aprovação e pendências dentro da OP reutilizando fatos oficiais.
+- [x] Montagem, progresso e atraso derivados.
+- [x] Conclusão sem faturamento automático e visão financeira consolidada.
+- [x] Timeline derivada sem tabela duplicada.
+- [ ] Kanban/Home operacional (Etapa 4).

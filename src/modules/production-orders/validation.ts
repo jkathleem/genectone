@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export function parseMoneyInput(value: string) {
   const normalized = value.trim().replace(/\s/g, "").replace(/^R\$/, "").replace(/\.(?=\d{3}(?:\D|$))/g, "").replace(",", ".");
-  if (!/^\d+(\.\d{1,4})?$/.test(normalized)) throw new Error("Informe um preço válido com até quatro casas decimais.");
+  if (!/^\d+(\.\d{1,4})?$/.test(normalized)) throw new Error("Informe um valor válido com até quatro casas decimais.");
   return new Prisma.Decimal(normalized);
 }
 
@@ -18,7 +18,14 @@ export const productionOrderSchema = z.object({
   customerId: z.string().cuid("Selecione um cliente."),
   productId: z.string().cuid("Selecione um produto."),
   quantity: z.coerce.number().int("A quantidade deve ser inteira.").positive("A quantidade deve ser maior que zero."),
-  unitPrice: z.string().transform((value, context) => { try { return parseMoneyInput(value); } catch (error) { context.addIssue({ code: "custom", message: error instanceof Error ? error.message : "Preço inválido." }); return z.NEVER; } }).refine((value) => value.gte(0), "O preço não pode ser negativo."),
+  isUrgent: z.union([z.literal("on"), z.literal("")]).transform((value) => value === "on"),
+  expectedCompletionDate: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).transform((value) => value || null),
+  notes: z.string().trim().max(2000, "Observações muito longas.").optional().transform((value) => value || null),
+});
+
+export const productionOrderOperationalUpdateSchema = z.object({
+  isUrgent: z.union([z.literal("on"), z.literal("")]).transform((value) => value === "on"),
+  expectedCompletionDate: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe uma previsão válida.")]).transform((value) => value || null),
   notes: z.string().trim().max(2000, "Observações muito longas.").optional().transform((value) => value || null),
 });
 

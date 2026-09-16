@@ -69,6 +69,11 @@ model User {
   contractor       Contractor?        @relation(fields: [contractorId], references: [id], onDelete: Restrict)
   createdIssues    OperationalIssue[] @relation("OperationalIssueCreatedBy")
   resolvedIssues   OperationalIssue[] @relation("OperationalIssueResolvedBy")
+  createdProductionOrders ProductionOrder[] @relation("ProductionOrderCreatedBy")
+  completedProductionOrders ProductionOrder[] @relation("ProductionOrderCompletedBy")
+  createdOutsourcedServices OutsourcedService[] @relation("OutsourcedServiceCreatedBy")
+  createdInternalServices   InternalProductionService[] @relation("InternalProductionServiceCreatedBy")
+  completedInternalServices InternalProductionService[] @relation("InternalProductionServiceCompletedBy")
 
   @@index([active, role])
   @@index([contractorId])
@@ -233,6 +238,8 @@ model ProductionOrder {
   isUrgent               Boolean             @default(false)
   expectedCompletionDate DateTime?           @db.Date
   completedAt            DateTime?
+  createdByUserId        String?
+  completedByUserId      String?
   notes                  String?
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
@@ -242,12 +249,18 @@ model ProductionOrder {
   outsourcedServices     OutsourcedService[]
   billing                Billing?
   operationalIssues      OperationalIssue[]
+  supplies               ProductionOrderSupply[]
+  internalServices       InternalProductionService[]
+  createdBy              User?                 @relation("ProductionOrderCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  completedBy            User?                 @relation("ProductionOrderCompletedBy", fields: [completedByUserId], references: [id], onDelete: Restrict)
 
   @@unique([companyId, number])
   @@index([number])
   @@index([customerId])
   @@index([productId])
   @@index([entryDate])
+  @@index([createdByUserId])
+  @@index([completedByUserId])
 }
 
 model Billing {
@@ -378,6 +391,7 @@ model Service {
   outsourcedServices         OutsourcedService[]
   internalSectorCapabilities ServiceInternalSector[]
   contractorCapabilities     ServiceContractor[]
+  internalProductionServices InternalProductionService[]
 }
 
 model InternalSector {
@@ -389,6 +403,7 @@ model InternalSector {
   createdAt           DateTime                @default(now())
   updatedAt           DateTime                @updatedAt
   serviceCapabilities ServiceInternalSector[]
+  productionServices  InternalProductionService[]
 
   @@index([active, displayOrder])
 }
@@ -426,6 +441,7 @@ model Supply {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   products  ProductSupply[]
+  productionOrders ProductionOrderSupply[]
 
   @@index([active, name])
 }
@@ -445,6 +461,50 @@ model ProductSupply {
   @@index([supplyId])
 }
 
+model ProductionOrderSupply {
+  id                      String          @id @default(cuid())
+  productionOrderId       String
+  supplyId                String
+  supplyNameSnapshot      String
+  unitSnapshot            String
+  quantityPerBaseSnapshot Decimal?        @db.Decimal(14, 4)
+  baseQuantitySnapshot    Int?
+  plannedQuantity         Decimal?        @db.Decimal(14, 4)
+  notes                   String?
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+  productionOrder         ProductionOrder @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  supply                  Supply          @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+
+  @@unique([productionOrderId, supplyId])
+  @@index([supplyId])
+}
+
+model InternalProductionService {
+  id                 String          @id @default(cuid())
+  productionOrderId  String
+  serviceId          String
+  internalSectorId   String
+  plannedQuantity    Int?
+  notes              String?
+  createdByUserId    String?
+  completedAt        DateTime?
+  completedByUserId  String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  productionOrder    ProductionOrder @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  service            Service         @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  internalSector     InternalSector  @relation(fields: [internalSectorId], references: [id], onDelete: Restrict)
+  createdBy          User?           @relation("InternalProductionServiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  completedBy        User?           @relation("InternalProductionServiceCompletedBy", fields: [completedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([productionOrderId])
+  @@index([serviceId])
+  @@index([internalSectorId])
+  @@index([createdByUserId])
+  @@index([completedByUserId])
+}
+
 model OutsourcedService {
   id                String                     @id @default(cuid())
   productionOrderId String
@@ -454,6 +514,8 @@ model OutsourcedService {
   approvedQuantity  Int                        @default(0)
   appliedUnitPrice  Decimal                    @db.Decimal(14, 4)
   notes             String?
+  expectedReturnDate DateTime?                  @db.Date
+  createdByUserId   String?
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
   productionOrder   ProductionOrder            @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
@@ -463,10 +525,13 @@ model OutsourcedService {
   returns           OutsourcingReturn[]
   settlementItems   ContractorSettlementItem[]
   operationalIssues OperationalIssue[]
+  createdBy         User?                      @relation("OutsourcedServiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@index([productionOrderId])
   @@index([serviceId])
   @@index([contractorId])
+  @@index([expectedReturnDate])
+  @@index([createdByUserId])
 }
 
 enum OperationalIssueType {

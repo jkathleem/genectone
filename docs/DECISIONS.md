@@ -648,3 +648,14 @@ Consequência:
 - DECISÃO PENDENTE: definir reabertura e versionamento de orçamentos após aprovação.
 - DECISÃO PENDENTE: definir relatórios e dashboards prioritários.
 - DECISÃO PENDENTE: definir necessidade de importação de dados históricos das planilhas atuais.
+
+### DEC-058 - OP como workspace operacional
+
+- `/ops` passa a ser apresentado como Cadastro de OPs e o detalhe concentra Resumo, Serviços, Insumos, Financeiro e Histórico.
+- `OutsourcedService`, `DeliveryNote`, `OutsourcingReturn`, aprovação, Billing, AccountReceivable e Receipt permanecem fontes oficiais; ações dentro da OP somente as orquestram.
+- Execução interna usa `InternalProductionService`, sem preço, custo contábil ou motor de dependências.
+- `expectedReturnDate` pertence ao serviço externo; atraso e situação continuam derivados.
+- `ProductionOrderSupply` congela os insumos previstos. Ajuste da OP não altera `ProductSupply`.
+- A timeline é montada a partir dos fatos existentes; não foi criada tabela `AuditEvent`.
+- Conclusão, faturamento e recebimento permanecem separados e possuem permissões próprias.
+- Reabertura, cancelamento, Kanban e portal do Terceirizado permanecem fora desta etapa.

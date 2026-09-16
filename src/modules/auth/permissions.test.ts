@@ -22,4 +22,9 @@ describe("permissões do perfil CONTRACTOR", () => {
     expect(canAccessPath("FINANCE", "/cadastros")).toBe(true);
     expect(canAccessPath("VIEWER", "/cadastros")).toBe(true);
   });
+
+  it("permite ao VIEWER consultar OPs sem conceder mutação", () => {
+    expect(canAccessPath("VIEWER", "/ops/qualquer-id")).toBe(true);
+    expect(hasPermission("VIEWER", "OPERATION_MUTATE")).toBe(false);
+  });
 });

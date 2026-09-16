@@ -1,33 +1,84 @@
 "use server";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { redirectWithMessage } from "@/lib/form";
-import { productionOrderSchema } from "./validation";
 import { requireUser } from "@/modules/auth/session";
+import { completeProductionOrderRecord, createProductionOrderWorkspace, updateOrderSupplyPlan } from "./service";
+import { parseMoneyInput, productionOrderOperationalUpdateSchema, productionOrderSchema } from "./validation";
 
-function formValues(data: FormData) { return Object.fromEntries(["number", "entryDate", "companyId", "customerId", "productId", "quantity", "unitPrice", "notes"].map((key) => [key, String(data.get(key) ?? "")])); }
-function isUniqueError(error: unknown): error is { code: string } { return typeof error === "object" && error !== null && "code" in error && error.code === "P2002"; }
-async function validateRelations(ids: { companyId: string; customerId: string; productId: string }, current?: typeof ids) {
-  const [company, customer, product] = await Promise.all([
-    prisma.company.findFirst({ where: { id: ids.companyId, OR: [{ active: true }, ...(current?.companyId === ids.companyId ? [{ id: current.companyId }] : [])] } }),
-    prisma.customer.findFirst({ where: { id: ids.customerId, OR: [{ active: true }, ...(current?.customerId === ids.customerId ? [{ id: current.customerId }] : [])] } }),
-    prisma.product.findFirst({ where: { id: ids.productId, OR: [{ active: true }, ...(current?.productId === ids.productId ? [{ id: current.productId }] : [])] } }),
-  ]);
-  if (!company || !customer || !product) throw new Error("Selecione somente empresa, cliente e produto disponíveis.");
+function isUniqueError(error: unknown): error is { code: string } {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
 }
-function dataForPrisma(input: z.infer<typeof productionOrderSchema>) { return { ...input, entryDate: new Date(`${input.entryDate}T00:00:00.000Z`) }; }
 
 export async function createProductionOrder(data: FormData) {
-  await requireUser("OPERATION_MUTATE");
+  const user = await requireUser("OPERATION_MUTATE");
   const path = "/ops/nova";
-  try { const input = productionOrderSchema.parse(formValues(data)); await validateRelations(input); const order = await prisma.productionOrder.create({ data: dataForPrisma(input) }); revalidatePath("/"); revalidatePath("/ops"); redirect(`/ops/${order.id}?success=${encodeURIComponent("OP cadastrada com sucesso.")}`); }
-  catch (error) { if (isUniqueError(error)) redirectWithMessage(path, "error", "Já existe uma OP com esse número para a empresa selecionada."); if (error instanceof z.ZodError) redirectWithMessage(path, "error", error.issues[0]?.message ?? "Dados inválidos."); if (error && typeof error === "object" && "digest" in error) throw error; redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível cadastrar a OP."); }
+  try {
+    const input = productionOrderSchema.parse(Object.fromEntries(["number", "entryDate", "companyId", "customerId", "productId", "quantity", "isUrgent", "expectedCompletionDate", "notes"].map((key) => [key, String(data.get(key) ?? "")])));
+    const order = await createProductionOrderWorkspace(prisma, {
+      ...input,
+      entryDate: new Date(`${input.entryDate}T00:00:00.000Z`),
+      expectedCompletionDate: input.expectedCompletionDate ? new Date(`${input.expectedCompletionDate}T00:00:00.000Z`) : null,
+      createdByUserId: user.id,
+    });
+    revalidatePath("/");
+    revalidatePath("/ops");
+    redirect(`/ops/${order.id}?success=${encodeURIComponent("OP cadastrada com preço e insumos preservados em snapshot.")}`);
+  } catch (error) {
+    if (isUniqueError(error)) redirectWithMessage(path, "error", "Já existe uma OP com esse número para a empresa selecionada.");
+    if (error instanceof z.ZodError) redirectWithMessage(path, "error", error.issues[0]?.message ?? "Dados inválidos.");
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível cadastrar a OP.");
+  }
 }
+
 export async function updateProductionOrder(data: FormData) {
   await requireUser("OPERATION_MUTATE");
-  const id = z.string().cuid().parse(data.get("id")); const path = `/ops/${id}`;
-  try { const existing = await prisma.productionOrder.findUniqueOrThrow({ where: { id } }); const input = productionOrderSchema.parse(formValues(data)); await validateRelations(input, existing); await prisma.productionOrder.update({ where: { id }, data: dataForPrisma(input) }); revalidatePath("/"); revalidatePath("/ops"); revalidatePath(path); redirectWithMessage(path, "success", "OP atualizada com sucesso."); }
-  catch (error) { if (isUniqueError(error)) redirectWithMessage(path, "error", "Já existe uma OP com esse número para a empresa selecionada."); if (error instanceof z.ZodError) redirectWithMessage(path, "error", error.issues[0]?.message ?? "Dados inválidos."); if (error && typeof error === "object" && "digest" in error) throw error; redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível atualizar a OP."); }
+  const id = z.string().cuid().parse(data.get("id"));
+  const path = `/ops/${id}`;
+  try {
+    const input = productionOrderOperationalUpdateSchema.parse({ isUrgent: String(data.get("isUrgent") ?? ""), expectedCompletionDate: String(data.get("expectedCompletionDate") ?? ""), notes: String(data.get("notes") ?? "") });
+    await prisma.productionOrder.update({ where: { id }, data: { isUrgent: input.isUrgent, expectedCompletionDate: input.expectedCompletionDate ? new Date(`${input.expectedCompletionDate}T00:00:00.000Z`) : null, notes: input.notes } });
+    revalidatePath("/ops");
+    revalidatePath(path);
+    redirectWithMessage(path, "success", "Dados operacionais da OP atualizados.");
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    if (error instanceof z.ZodError) redirectWithMessage(path, "error", error.issues[0]?.message ?? "Dados inválidos.");
+    redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível atualizar a OP.");
+  }
+}
+
+export async function completeProductionOrder(data: FormData) {
+  const user = await requireUser("OPERATION_MUTATE");
+  const id = z.string().cuid().parse(data.get("id"));
+  const path = `/ops/${id}?tab=summary`;
+  try {
+    const completionDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).parse(data.get("completionDate"));
+    await completeProductionOrderRecord(prisma, id, new Date(`${completionDate}T12:00:00.000Z`), user.id);
+    revalidatePath("/ops");
+    revalidatePath(`/ops/${id}`);
+    redirectWithMessage(path, "success", "Produção concluída. O faturamento continua sendo um fato separado.");
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível concluir a produção.");
+  }
+}
+
+export async function updateProductionOrderSupply(data: FormData) {
+  await requireUser("OPERATION_MUTATE");
+  const orderId = z.string().cuid().parse(data.get("orderId"));
+  const itemId = z.string().cuid().parse(data.get("itemId"));
+  const path = `/ops/${orderId}?tab=supplies`;
+  try {
+    await updateOrderSupplyPlan(prisma, orderId, itemId, parseMoneyInput(String(data.get("plannedQuantity") ?? "")));
+    revalidatePath(`/ops/${orderId}`);
+    redirectWithMessage(path, "success", "Previsão do insumo ajustada somente nesta OP.");
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível ajustar o insumo.");
+  }
 }

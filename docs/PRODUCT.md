@@ -133,3 +133,9 @@ O fluxo descrito acima está implementado no MVP; os itens da seção seguinte p
 - O fechamento mensal deve usar quantidade aprovada para pagamento multiplicada pelo preço unitário aplicado.
 - O fechamento não deve pagar novamente uma quantidade já incluída em fechamento anterior.
 - O valor econômico da OP deve estar visível desde a entrada, sem ser confundido automaticamente com receita realizada.
+
+## Cadastro de OPs como centro operacional
+
+A experiência pós-MVP concentra o acompanhamento da entrada ao recebimento em uma tela com abas. O operador adiciona executores habilitados, emite a saída oficial, registra retornos e aprovação, trata pendências, consulta insumos congelados para a ordem e conclui a produção. O Financeiro usa os fluxos existentes de faturamento e recebimento.
+
+A simplificação é de navegação: Romaneios, Retornos, Billing, Contas a Receber e Receipts continuam fatos independentes e auditáveis. O Kanban reutilizará os mesmos helpers em uma etapa futura.

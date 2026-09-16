@@ -49,9 +49,14 @@ button { cursor: pointer; }
 table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 th { background: var(--surface-muted); color: #475569; font-size: 0.75rem; letter-spacing: 0.03em; text-align: left; text-transform: uppercase; }
 th, td { border-bottom: 1px solid var(--border); padding: 0.75rem; vertical-align: top; }
-.status-active, .status-inactive { border-radius: 999px; padding: 0.2rem 0.5rem; font-size: 0.75rem; font-weight: 650; }
+.status-active, .status-inactive, .status-info, .status-danger { border-radius: 999px; padding: 0.2rem 0.5rem; font-size: 0.75rem; font-weight: 650; }
 .status-active { background: #dcfce7; color: #166534; }
 .status-inactive { background: #f1f5f9; color: #64748b; }
+.status-info { background: #dbeafe; color: #1d4ed8; }
+.status-danger { background: #fee2e2; color: #b91c1c; }
+.summary-card { display: grid; gap: 0.35rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--surface); padding: 1rem; }
+.summary-card span { color: #64748b; font-size: 0.75rem; font-weight: 650; text-transform: uppercase; }
+.summary-card strong { font-size: 1rem; }
 .detail-grid { display: grid; gap: 1.25rem; }
 .detail-grid dt { color: #64748b; font-size: 0.75rem; font-weight: 650; text-transform: uppercase; }
 .detail-grid dd { margin-top: 0.25rem; font-weight: 550; }

@@ -1,22 +1,28 @@
 "use client";
+
 import { useMemo, useState } from "react";
 import { SubmitButton } from "./submit-button";
 
 type Option = { id: string; label: string };
-type Values = { id?: string; number?: string; entryDate?: string; companyId?: string; customerId?: string; productId?: string; quantity?: number; unitPrice?: string; notes?: string | null };
+type ProductOption = Option & { reference: string | null; description: string; customerId: string | null; customerName: string | null; color: string | null; currentUnitPrice: string | null; imageUrl: string | null; supplies: { name: string; unit: string; quantityPerBase: string | null; baseQuantity: number | null }[] };
+const money = (value: string | null) => value === null ? "Preço não configurado" : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value));
 
-function previewTotal(quantity: string, price: string) { const q = Number(quantity); const p = Number(price.replace(/\.(?=\d{3}(?:\D|$))/g, "").replace(",", ".")); if (!Number.isFinite(q) || !Number.isFinite(p)) return "R$ 0,00"; return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(q * p); }
-
-export function ProductionOrderForm({ action, companies, customers, products, values = {} }: { action: (data: FormData) => Promise<void>; companies: Option[]; customers: Option[]; products: Option[]; values?: Values }) {
-  const [quantity, setQuantity] = useState(String(values.quantity ?? "")); const [unitPrice, setUnitPrice] = useState(values.unitPrice ?? ""); const total = useMemo(() => previewTotal(quantity, unitPrice), [quantity, unitPrice]);
-  return <form action={action} className="panel form-grid">{values.id ? <input name="id" type="hidden" value={values.id} /> : null}
-    <label className="field">Número da OP<input defaultValue={values.number} name="number" required /></label><label className="field">Data de entrada<input defaultValue={values.entryDate} name="entryDate" required type="date" /></label>
-    <label className="field">Empresa<select defaultValue={values.companyId ?? ""} name="companyId" required><option disabled value="">Selecione</option>{companies.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select></label>
-    <label className="field">Cliente<select defaultValue={values.customerId ?? ""} name="customerId" required><option disabled value="">Selecione</option>{customers.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select></label>
-    <label className="field">Produto / referência<select defaultValue={values.productId ?? ""} name="productId" required><option disabled value="">Selecione</option>{products.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select></label>
-    <label className="field">Quantidade<input inputMode="numeric" min="1" name="quantity" onChange={(e) => setQuantity(e.target.value)} required step="1" type="number" value={quantity} /></label>
-    <label className="field">Preço unitário<input inputMode="decimal" name="unitPrice" onChange={(e) => setUnitPrice(e.target.value)} placeholder="0,00" required value={unitPrice} /></label>
-    <div className="rounded-md bg-[var(--surface-muted)] px-4 py-3"><span className="text-xs uppercase tracking-wide text-slate-500">Valor total estimado</span><strong className="mt-1 block text-xl">{total}</strong></div>
-    <label className="field sm:col-span-2 lg:col-span-3">Observações<textarea defaultValue={values.notes ?? ""} name="notes" rows={4} /></label><div><SubmitButton>{values.id ? "Salvar alterações" : "Cadastrar OP"}</SubmitButton></div>
+export function ProductionOrderForm({ action, companies, customers, products }: { action: (data: FormData) => Promise<void>; companies: Option[]; customers: Option[]; products: ProductOption[] }) {
+  const [productId, setProductId] = useState("");
+  const product = useMemo(() => products.find((item) => item.id === productId), [productId, products]);
+  const [customerId, setCustomerId] = useState("");
+  const selectProduct = (selectedId: string) => { setProductId(selectedId); setCustomerId(products.find((item) => item.id === selectedId)?.customerId ?? ""); };
+  return <form action={action} className="panel form-grid">
+    <label className="field">Número da OP<input name="number" required/></label>
+    <label className="field">Código / Produto<select name="productId" onChange={(event) => selectProduct(event.target.value)} required value={productId}><option disabled value="">Selecione</option>{products.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
+    <label className="field">Quantidade<input min="1" name="quantity" required step="1" type="number"/></label>
+    <label className="field">Data de entrada<input name="entryDate" required type="date"/></label>
+    <label className="field">Empresa<select name="companyId" required defaultValue=""><option disabled value="">Selecione</option>{companies.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
+    <label className="field">Cliente efetivo<select name="customerId" onChange={(event) => setCustomerId(event.target.value)} required value={customerId}><option disabled value="">Selecione</option>{customers.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select><span className="font-normal text-slate-500">Preenchido pelo Cliente padrão; pode ser alterado para esta OP.</span></label>
+    <label className="field">Previsão de conclusão<input name="expectedCompletionDate" type="date"/></label>
+    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700"><input name="isUrgent" type="checkbox"/> OP urgente</label>
+    {product ? <section className="rounded-lg border border-slate-200 bg-slate-50 p-4 sm:col-span-2 lg:col-span-3"><div className="flex flex-wrap gap-6">{product.imageUrl ? <div aria-label={`Imagem de ${product.description}`} className="h-20 w-20 rounded border border-slate-200 bg-cover bg-center" style={{ backgroundImage: `url(${product.imageUrl})` }}/> : null}<div><span className="text-xs uppercase text-slate-500">Descrição</span><strong className="block">{product.description}</strong></div><div><span className="text-xs uppercase text-slate-500">Cor</span><strong className="block">{product.color || "—"}</strong></div><div><span className="text-xs uppercase text-slate-500">Preço snapshot</span><strong className="block">{money(product.currentUnitPrice)}</strong></div><div><span className="text-xs uppercase text-slate-500">Cliente padrão</span><strong className="block">{product.customerName || "Não definido"}</strong></div></div><p className="mt-3 text-xs text-slate-500">Insumos padrão: {product.supplies.length ? product.supplies.map((item) => item.name).join(", ") : "nenhum"}. O preço e os insumos serão preservados na OP.</p></section> : null}
+    <label className="field sm:col-span-2 lg:col-span-3">Observações<textarea maxLength={2000} name="notes" rows={3}/></label>
+    <div><SubmitButton>Cadastrar OP</SubmitButton></div>
   </form>;
 }

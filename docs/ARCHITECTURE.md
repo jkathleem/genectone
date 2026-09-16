@@ -308,3 +308,13 @@ Operações financeiras críticas poderão exigir histórico ou auditoria detalh
 - Não misturar DRE com Fluxo de Caixa.
 - Não assumir que OP cadastrada significa receita realizada.
 - Não assumir que quantidade retornada significa quantidade paga.
+
+## Workspace da Ordem de Produção
+
+`/ops` é uma fachada operacional, não uma nova fonte de verdade. A página agrega `ProductionOrder`, serviços internos, `OutsourcedService`, romaneios, retornos, pendências, Billing, AccountReceivable, Receipt e estornos.
+
+A migration `20260915120000_expand_production_order_workspace` adiciona prazo e autoria opcionais, `InternalProductionService` e `ProductionOrderSupply`. Registros anteriores continuam válidos.
+
+A criação da OP é transacional: valida Empresa, Produto e Cliente, copia o preço atual e cria snapshots de insumo. A geração de Romaneio é centralizada em `delivery-notes/service.ts`; retorno e aprovação reutilizam `outsourcing/return-service.ts`.
+
+Ciclo, progresso, Montagem, atraso, valores e saldos são derivados. A timeline projeta fatos existentes, sem tabela duplicada.

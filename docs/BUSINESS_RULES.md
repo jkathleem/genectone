@@ -374,3 +374,18 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - DECISÃO PENDENTE: definir regras para edição, cancelamento ou estorno de OPs, Serviços Terceirizados, romaneios, retornos, fechamentos, contas e faturamentos.
 - DECISÃO PENDENTE: definir formato e informações do recibo de fechamento.
 - DECISÃO PENDENTE: definir necessidade de importação de dados históricos das planilhas atuais.
+
+## Workspace operacional da OP pós-MVP
+
+- BR-265: A OP é apresentada como workspace central em lista, criação e detalhe com abas, sem substituir os fatos oficiais de terceirização e financeiro.
+- BR-266: A criação copia `Product.currentUnitPrice` para `ProductionOrder.unitPrice`; alterações futuras do Produto não recalculam a OP.
+- BR-267: O Cliente padrão do Produto é sugerido, mas o Cliente efetivo permanece salvo na OP e pode ser alterado durante a criação sem CHECK Produto ↔ Cliente.
+- BR-268: Insumos do Produto são copiados para `ProductionOrderSupply`; nome, unidade, regra-base e quantidade planejada ficam preservados e podem ser ajustados somente na OP.
+- BR-269: Serviço interno é uma atribuição operacional a um Setor habilitado e não possui preço ou custo contábil nesta etapa.
+- BR-270: Nova atribuição externa exige capacidade ativa `Contractor + Service`, usa seu preço atual e preserva `OutsourcedService.appliedUnitPrice`.
+- BR-271: Envio iniciado na OP cria `DeliveryNote` e `DeliveryNoteItem`; retorno cria `OutsourcingReturn`. Quantidades continuam derivadas.
+- BR-272: Receber e aprovar pode ocorrer na mesma interação, mas retorno e aprovação permanecem fatos conceitualmente distintos na mesma transação.
+- BR-273: Atraso é derivado quando o prazo externo passou e existe saldo pendente; `isLate` não é persistido.
+- BR-274: Montagem fica indisponível sem retorno integral, aguardando complemento quando parte das atribuições externas está completa e completa quando todas estão retornadas.
+- BR-275: Concluir produção preenche `completedAt` e não cria Billing ou AccountReceivable. Reabertura não é permitida nesta etapa.
+- BR-276: A timeline é derivada dos fatos existentes e de autoria mínima; não existe tabela paralela de eventos.

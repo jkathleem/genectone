@@ -931,3 +931,15 @@ Dados derivados principais:
 - DRE mensal e anual.
 - Comparação Previsto x Real.
 - Relatórios e dashboards.
+
+## Extensões do workspace da OP
+
+### ProductionOrderSupply
+
+Snapshot do vínculo de insumo na criação da OP. Preserva Insumo, nome, unidade, regra-base e quantidade planejada Decimal. Não representa estoque, baixa ou compra.
+
+### InternalProductionService
+
+Atribuição operacional de um Serviço a um InternalSector habilitado. Pode possuir quantidade prevista e conclusão, mas não possui preço nem efeito contábil.
+
+`OutsourcedService.expectedReturnDate` é o prazo específico externo. `ProductionOrder.unitPrice` continua snapshot comercial. Conclusão, Billing, AccountReceivable e Receipt continuam fatos separados.
