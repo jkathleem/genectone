@@ -389,3 +389,14 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-274: Montagem fica indisponível sem retorno integral, aguardando complemento quando parte das atribuições externas está completa e completa quando todas estão retornadas.
 - BR-275: Concluir produção preenche `completedAt` e não cria Billing ou AccountReceivable. Reabertura não é permitida nesta etapa.
 - BR-276: A timeline é derivada dos fatos existentes e de autoria mínima; não existe tabela paralela de eventos.
+
+## Home operacional e Kanban de OPs
+
+- BR-277: A Home interna é um painel operacional derivado das OPs, serviços internos, `OutsourcedService`, Romaneios, Retornos e Pendências; ela não cria fonte de movimentação própria.
+- BR-278: Uma mesma OP pode aparecer simultaneamente em várias colunas porque cada card representa `OP + Serviço + Executor`, não uma localização única da OP.
+- BR-279: O Kanban não altera responsável, não registra envio, retorno, aprovação, conclusão, faturamento ou recebimento; essas ações continuam na OP ou nos módulos oficiais.
+- BR-280: Serviços concluídos ficam ocultos por padrão no Kanban e podem ser exibidos por filtro, com aparência discreta.
+- BR-281: A coluna Montagem é derivada da regra já aprovada: sem serviço externo completo não aparece; com parte completa e parte pendente fica `Aguardando complemento`; com todos completos fica `Completa para montagem`.
+- BR-282: O bloco `Precisam de atenção` prioriza pendências abertas/em tratamento, serviços atrasados, aguardando complemento, urgência e previsão geral vencida, evitando duplicar a mesma OP sem necessidade.
+- BR-283: Quando um serviço está atrasado e possui pendência operacional aberta/em tratamento relacionada, o painel destaca `Bloqueado por pendência` em vez de tratar somente como atraso do terceirizado.
+- BR-284: O atraso continua derivado de `expectedReturnDate`, saldo pendente e data operacional em `America/Fortaleza`; `isLate` não é persistido.

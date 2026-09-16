@@ -446,4 +446,16 @@ Critério de aceite:
 - [x] Montagem, progresso e atraso derivados.
 - [x] Conclusão sem faturamento automático e visão financeira consolidada.
 - [x] Timeline derivada sem tabela duplicada.
-- [ ] Kanban/Home operacional (Etapa 4).
+- [x] Kanban/Home operacional (Etapa 4).
+
+## Etapa 4 pós-MVP - Home operacional e Kanban de OPs
+
+- [x] Home substituída por Painel de Produção com busca, filtros e botão de Nova OP para perfis operacionais.
+- [x] Indicadores compactos de OPs em produção, urgentes, atrasadas, aguardando complemento e pendências abertas.
+- [x] Bloco `Precisam de atenção` priorizando pendências, bloqueios, atrasos, urgência e previsão vencida.
+- [x] Kanban derivado com colunas de Setores Internos, Terceirizados e Montagem, sem drag-and-drop.
+- [x] Mesma OP pode aparecer em múltiplas colunas porque o card representa `OP + Serviço + Executor`.
+- [x] Montagem usa os helpers derivados da OP e exibe quem concluiu e quem falta.
+- [x] Filtros por situação, Cliente, Produto, Terceirizado, Serviço, busca ampla e opção de mostrar concluídos.
+- [x] Testes de domínio cobrem múltiplas colunas, retorno parcial, atraso, pendência, bloqueio e prioridade.
+- [ ] Portal do Terceirizado (Etapa 5).

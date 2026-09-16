@@ -318,3 +318,13 @@ A migration `20260915120000_expand_production_order_workspace` adiciona prazo e 
 A criação da OP é transacional: valida Empresa, Produto e Cliente, copia o preço atual e cria snapshots de insumo. A geração de Romaneio é centralizada em `delivery-notes/service.ts`; retorno e aprovação reutilizam `outsourcing/return-service.ts`.
 
 Ciclo, progresso, Montagem, atraso, valores e saldos são derivados. A timeline projeta fatos existentes, sem tabela duplicada.
+
+## Home operacional e Kanban
+
+A rota `/` consulta OPs e relacionamentos operacionais em lote por meio de `src/modules/production-orders/dashboard-queries.ts` e monta a projeção em `src/modules/production-orders/dashboard.ts`. A página não grava dados e não possui Server Actions de movimentação.
+
+O Kanban mantém colunas separadas para Setores Internos, Terceirizados e Montagem. Cada card representa `OP + Serviço + Executor`; a mesma OP pode aparecer em vários responsáveis. Serviços concluídos são omitidos por padrão e reaparecem apenas com filtro explícito.
+
+O bloco `Precisam de atenção` usa a mesma projeção para priorizar pendências abertas/em tratamento, bloqueios por pendência, atrasos, urgência, aguardando complemento e previsão geral vencida. Atraso usa `expectedReturnDate` e data operacional de Fortaleza, sem persistir status.
+
+Nenhuma migration foi criada nesta etapa. O painel reutiliza `InternalProductionService`, `OutsourcedService`, `OperationalIssue`, `DeliveryNoteItem` e `OutsourcingReturn`.

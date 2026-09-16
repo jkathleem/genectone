@@ -139,3 +139,11 @@ O fluxo descrito acima está implementado no MVP; os itens da seção seguinte p
 A experiência pós-MVP concentra o acompanhamento da entrada ao recebimento em uma tela com abas. O operador adiciona executores habilitados, emite a saída oficial, registra retornos e aprovação, trata pendências, consulta insumos congelados para a ordem e conclui a produção. O Financeiro usa os fluxos existentes de faturamento e recebimento.
 
 A simplificação é de navegação: Romaneios, Retornos, Billing, Contas a Receber e Receipts continuam fatos independentes e auditáveis. O Kanban reutilizará os mesmos helpers em uma etapa futura.
+
+## Home operacional
+
+A Home pós-MVP é o Painel de Produção. Ela mostra indicadores compactos, exceções que precisam de atenção e um Kanban derivado dos fatos já registrados.
+
+O Kanban não é drag-and-drop e não movimenta OPs. Cada card representa uma combinação de OP, Serviço e Executor. Assim, uma OP pode aparecer ao mesmo tempo em Pricila, Rafael e Montagem quando houver partes diferentes da produção em andamento.
+
+Montagem destaca OPs com pelo menos um serviço externo completo, separando `Aguardando complemento` de `Completa para montagem`. Pendências operacionais abertas aparecem como bloqueio para evitar cobrança indevida de terceirizado quando a Genect ainda precisa resolver material ou informação.

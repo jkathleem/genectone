@@ -659,3 +659,14 @@ Consequência:
 - A timeline é montada a partir dos fatos existentes; não foi criada tabela `AuditEvent`.
 - Conclusão, faturamento e recebimento permanecem separados e possuem permissões próprias.
 - Reabertura, cancelamento, Kanban e portal do Terceirizado permanecem fora desta etapa.
+
+### DEC-059 - Home operacional e Kanban derivado
+
+- A Home passa a ser o Painel de Produção, com indicadores, bloco `Precisam de atenção` e Kanban de alta densidade.
+- O Kanban é uma visão derivada e não uma fonte de workflow: não existe drag-and-drop, mudança de responsável ou registro operacional feito diretamente por ele.
+- Cada card representa `OP + Serviço + Executor`; por isso a mesma OP pode aparecer em mais de uma coluna.
+- Setores internos usam `InternalSector` ativo e ordenado; terceirizados usam `Contractor` ativo com serviços relevantes; nomes não são hardcoded.
+- Montagem reutiliza a regra derivada da OP: parcial vira `Aguardando complemento` e total vira `Completa para montagem`.
+- Pendência operacional aberta ou em tratamento prevalece visualmente sobre atraso genérico, evitando interpretar como cobrança ao terceirizado quando há bloqueio interno.
+- Serviços concluídos não aparecem nas colunas principais por padrão; o filtro `Mostrar concluídos` permite auditoria operacional sem poluir a rotina.
+- Portal do Terceirizado, drag-and-drop, notificações e movimentações pelo Kanban permanecem fora desta etapa.
