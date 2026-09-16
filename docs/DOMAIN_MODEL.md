@@ -943,3 +943,23 @@ Snapshot do vínculo de insumo na criação da OP. Preserva Insumo, nome, unidad
 Atribuição operacional de um Serviço a um InternalSector habilitado. Pode possuir quantidade prevista e conclusão, mas não possui preço nem efeito contábil.
 
 `OutsourcedService.expectedReturnDate` é o prazo específico externo. `ProductionOrder.unitPrice` continua snapshot comercial. Conclusão, Billing, AccountReceivable e Receipt continuam fatos separados.
+
+## Portal do Terceirizado
+
+O Portal do Terceirizado é uma projeção de leitura e uma pequena porta de entrada para `OperationalIssue`. Não cria entidade própria.
+
+O acesso parte de `UserRole.CONTRACTOR` e do `User.contractorId`. Todas as visões são recortes de:
+
+- `OutsourcedService` do Terceirizado autenticado.
+- `DeliveryNoteItem` e `DeliveryNote` para quantidades enviadas e datas de envio.
+- `OutsourcingReturn` para entregas fisicamente confirmadas pela Genect.
+- `OperationalIssue` para pendências abertas, em tratamento ou resolvidas.
+- `ContractorSettlement`, `ContractorSettlementItem`, `AccountPayable`, `Payment` e `PaymentReversal` para valores por fase.
+
+O portal não substitui retorno, aprovação, fechamento ou pagamento. O terceirizado informa pendência operacional; a Genect mantém a responsabilidade por receber, aprovar, fechar, pagar e resolver pendências.
+
+Os valores financeiros expostos ao terceirizado são derivados exclusivamente de fatos do próprio Terceirizado:
+
+- Produzido aguardando fechamento: quantidade aprovada ainda não incluída em fechamento aprovado × preço histórico do serviço.
+- Fechado aguardando pagamento: saldo de Conta a Pagar originada de fechamento aprovado.
+- Pago no período e histórico: pagamentos efetivos, desconsiderando pagamentos estornados.

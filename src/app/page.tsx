@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Feedback } from "@/components/feedback";
 import { PageHeader } from "@/components/page-header";
 import { formatDate } from "@/lib/format";
@@ -76,7 +77,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Ope
   if (!user) return null;
   const accessError = params.error === "acesso-negado" ? "Você não possui permissão para acessar essa área." : undefined;
   if (user.role === "CONTRACTOR") {
-    return <><PageHeader title="Genect" description="Acesso do terceirizado será tratado no portal próprio da próxima etapa."/><Feedback error={accessError}/><section className="panel"><p className="text-sm text-slate-600">O painel operacional geral é restrito à equipe interna da Genect.</p></section></>;
+    redirect(params.error === "acesso-negado" ? "/portal?error=acesso-negado" : "/portal");
   }
   const { dashboard, filters, options } = await getOperationalDashboard(params);
   const mayCreate = user.role === "ADMIN" || user.role === "OPERATIONS";

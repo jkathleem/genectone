@@ -328,3 +328,13 @@ O Kanban mantém colunas separadas para Setores Internos, Terceirizados e Montag
 O bloco `Precisam de atenção` usa a mesma projeção para priorizar pendências abertas/em tratamento, bloqueios por pendência, atrasos, urgência, aguardando complemento e previsão geral vencida. Atraso usa `expectedReturnDate` e data operacional de Fortaleza, sem persistir status.
 
 Nenhuma migration foi criada nesta etapa. O painel reutiliza `InternalProductionService`, `OutsourcedService`, `OperationalIssue`, `DeliveryNoteItem` e `OutsourcingReturn`.
+
+## Portal do Terceirizado
+
+O portal fica em `/portal`, com redirects auxiliares em `/portal/ops` e `/portal/financeiro`. Usuários `CONTRACTOR` que acessam `/` são redirecionados para `/portal`; o shell mostra menu reduzido com Início, Minhas OPs, Financeiro e Sair.
+
+As consultas estão centralizadas em `src/modules/contractor-portal/queries.ts` e sempre recebem o usuário autenticado. `requireContractorPortalUser` exige role `CONTRACTOR` e `contractorId`; `getContractorPortal` e `getContractorServiceDetail` filtram por esse `contractorId` no servidor, inclusive em acesso direto por URL.
+
+As regras puras ficam em `src/modules/contractor-portal/domain.ts`: situação visual, filtros, totais financeiros, saldo de Conta a Pagar, pagamentos efetivos e exclusão de pagamentos estornados. A ação `createContractorIssue` valida role, obtém o `contractorId` da sessão, recarrega o `OutsourcedService` pelo par `id + contractorId` e então reutiliza `createOperationalIssue`.
+
+Nenhuma migration foi criada. A implementação reutiliza `User.contractorId`, `OutsourcedService`, `OperationalIssue`, `ContractorSettlement`, `AccountPayable`, `Payment` e `PaymentReversal`. O portal não introduz ledger, status persistido, evento paralelo, API pública ou nova fonte financeira.

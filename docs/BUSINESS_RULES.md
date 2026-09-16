@@ -400,3 +400,19 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-282: O bloco `Precisam de atenção` prioriza pendências abertas/em tratamento, serviços atrasados, aguardando complemento, urgência e previsão geral vencida, evitando duplicar a mesma OP sem necessidade.
 - BR-283: Quando um serviço está atrasado e possui pendência operacional aberta/em tratamento relacionada, o painel destaca `Bloqueado por pendência` em vez de tratar somente como atraso do terceirizado.
 - BR-284: O atraso continua derivado de `expectedReturnDate`, saldo pendente e data operacional em `America/Fortaleza`; `isLate` não é persistido.
+
+## Portal do Terceirizado
+
+- BR-285: Usuário `CONTRACTOR` acessa uma Home própria em `/portal`; `/` deve direcionar naturalmente para esse portal e não exibir o Kanban interno da Genect.
+- BR-286: Todas as consultas e mutações do portal são filtradas no servidor por `session.user.contractorId`; o cliente nunca envia nem escolhe livremente o Terceirizado.
+- BR-287: A unidade operacional exibida no portal é `OP + Serviço Terceirizado`; o terceirizado visualiza somente serviços vinculados ao seu `contractorId`.
+- BR-288: Situações do portal são derivadas de romaneios, retornos, prazo e pendências: aguardando envio, em andamento, parcialmente entregue, concluído, atrasado e bloqueado por pendência. Nenhum status novo é persistido.
+- BR-289: O `CONTRACTOR` pode criar `OperationalIssue` apenas para serviço próprio, com tipo existente e descrição obrigatória. A autoria usa `createdByUserId` do usuário autenticado.
+- BR-290: O `CONTRACTOR` não resolve pendências; somente usuários internos autorizados podem colocá-las em tratamento ou resolvê-las.
+- BR-291: Pendência criada no portal reutiliza `OperationalIssue` e deve aparecer na Home interna, no detalhe da OP e na timeline derivada, sem evento paralelo.
+- BR-292: Se um serviço atrasado possui pendência `OPEN` ou `IN_PROGRESS`, as visões operacionais internas devem tratá-lo como bloqueado por pendência, não apenas como atraso do terceirizado.
+- BR-293: O financeiro do portal mostra somente valores do próprio Terceirizado e separa produzido aguardando fechamento, fechado aguardando pagamento e pago efetivo.
+- BR-294: Valor produzido aguardando fechamento é derivado da quantidade aprovada ainda não consumida em fechamento aprovado, usando `OutsourcedService.appliedUnitPrice` como snapshot histórico.
+- BR-295: Fechado aguardando pagamento é derivado de `ContractorSettlement` aprovado com `AccountPayable` vinculada e saldo positivo. A previsão exibida é apenas o `dueDate` real da Conta a Pagar.
+- BR-296: Pagamentos efetivos do portal derivam de `Payment` vinculado às Contas a Pagar do Terceirizado; pagamentos estornados não compõem o total pago efetivo.
+- BR-297: O portal não implementa confirmação de entrega pelo Contractor, chat, WhatsApp, push, upload, assinatura digital, alteração de OP, nova regra financeira, DRE ou fluxo de caixa geral.

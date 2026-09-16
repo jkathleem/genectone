@@ -13,7 +13,7 @@
 - [x] Pendências operacionais com autoria, resolução e integridade relacional.
 - [x] Correção estrutural do preço atual para `Contractor + Service`, sem alterar snapshots históricos.
 - [x] Cadastros ampliados e unificados em `/cadastros`, com permissões por aba e compatibilidade das rotas antigas.
-- [ ] Nova experiência de OP, Kanban e portal do Terceirizado (etapas futuras).
+- [x] Nova experiência de OP, Kanban e portal do Terceirizado (etapas pós-MVP concluídas até a Etapa 5).
 
 ## Estornos financeiros
 
@@ -458,4 +458,17 @@ Critério de aceite:
 - [x] Montagem usa os helpers derivados da OP e exibe quem concluiu e quem falta.
 - [x] Filtros por situação, Cliente, Produto, Terceirizado, Serviço, busca ampla e opção de mostrar concluídos.
 - [x] Testes de domínio cobrem múltiplas colunas, retorno parcial, atraso, pendência, bloqueio e prioridade.
-- [ ] Portal do Terceirizado (Etapa 5).
+- [x] Portal do Terceirizado (Etapa 5).
+
+## Etapa 5 pós-MVP - Portal do Terceirizado
+
+- [x] `/` de usuário `CONTRACTOR` redireciona para `/portal`, sem exibir Kanban interno.
+- [x] Menu reduzido com Início, Minhas OPs, Financeiro e Sair.
+- [x] Home do portal com identidade do Terceirizado, indicadores operacionais e financeiros.
+- [x] Lista `OP + Serviço` filtrada por `session.user.contractorId`, com busca por OP, referência, produto e serviço.
+- [x] Detalhe restrito do serviço, com quantidades, prazo, entregas confirmadas e pendências.
+- [x] Criação segura de pendência operacional pelo Contractor, usando tipos existentes e `createdByUserId`.
+- [x] Contractor não resolve pendências; Home interna continua refletindo `OPEN` e `IN_PROGRESS`.
+- [x] Financeiro restrito com produzido aguardando fechamento, fechado aguardando pagamento, pagamentos efetivos e estornos.
+- [x] Nenhuma migration criada.
+- [ ] Notificações, WhatsApp, confirmação de entrega pelo Contractor, upload e assinatura digital permanecem futuros.

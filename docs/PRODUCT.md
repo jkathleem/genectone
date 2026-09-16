@@ -147,3 +147,11 @@ A Home pós-MVP é o Painel de Produção. Ela mostra indicadores compactos, exc
 O Kanban não é drag-and-drop e não movimenta OPs. Cada card representa uma combinação de OP, Serviço e Executor. Assim, uma OP pode aparecer ao mesmo tempo em Pricila, Rafael e Montagem quando houver partes diferentes da produção em andamento.
 
 Montagem destaca OPs com pelo menos um serviço externo completo, separando `Aguardando complemento` de `Completa para montagem`. Pendências operacionais abertas aparecem como bloqueio para evitar cobrança indevida de terceirizado quando a Genect ainda precisa resolver material ou informação.
+
+## Portal do Terceirizado pós-MVP
+
+Usuários com perfil `CONTRACTOR` acessam uma experiência própria em `/portal`. O portal responde o que está com aquele terceirizado, qual serviço deve ser executado, quantidades enviadas/confirmadas, saldo, prazo, pendências informadas e valores do próprio terceirizado por fase financeira.
+
+A visão é deliberadamente restrita: não mostra Kanban interno, cadastros, dados de outros fornecedores, preço de venda, faturamento do cliente, DRE, fluxo de caixa geral ou custo total da OP. O terceirizado pode informar pendências operacionais do próprio serviço, mas não confirma retorno físico, não aprova produção, não registra pagamentos e não altera OPs.
+
+O financeiro do portal é separado em três fases: produzido aguardando fechamento, fechado aguardando pagamento e pagamentos efetivos. Esses valores reutilizam `OutsourcedService`, `ContractorSettlement`, `AccountPayable`, `Payment` e estornos; não existe ledger novo para o portal.

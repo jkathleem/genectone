@@ -670,3 +670,13 @@ Consequência:
 - Pendência operacional aberta ou em tratamento prevalece visualmente sobre atraso genérico, evitando interpretar como cobrança ao terceirizado quando há bloqueio interno.
 - Serviços concluídos não aparecem nas colunas principais por padrão; o filtro `Mostrar concluídos` permite auditoria operacional sem poluir a rotina.
 - Portal do Terceirizado, drag-and-drop, notificações e movimentações pelo Kanban permanecem fora desta etapa.
+
+### DEC-060 - Portal do Terceirizado
+
+- Usuários `CONTRACTOR` possuem Home própria em `/portal`; `/` redireciona para essa experiência e não exibe o painel interno.
+- O isolamento por Terceirizado é server-side e usa exclusivamente `session.user.contractorId`. URLs diretas para serviços de outro Terceirizado não retornam dados.
+- O portal não movimenta OP, não altera responsável, não registra retorno físico, não aprova serviço, não fecha competência, não registra Payment e não acessa financeiro interno.
+- `OperationalIssue` é a fonte oficial das pendências. O Contractor pode criar pendência própria com autoria preservada, mas não pode resolver; a Genect trata e resolve internamente.
+- O financeiro exibido ao Contractor é uma projeção restrita: produzido aguardando fechamento, fechado aguardando pagamento e pagamentos efetivos do próprio Terceirizado.
+- Pagamentos estornados aparecem como histórico quando pertinente, mas não compõem total pago efetivo.
+- Nenhuma migration foi necessária; o portal reutiliza estruturas existentes e não cria nova tabela, ledger ou status persistido.

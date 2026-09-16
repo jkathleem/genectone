@@ -11,6 +11,8 @@ describe("permissões do perfil CONTRACTOR", () => {
 
   it("fica restrito à página inicial enquanto o portal não existe", () => {
     expect(canAccessPath("CONTRACTOR", "/")).toBe(true);
+    expect(canAccessPath("CONTRACTOR", "/portal")).toBe(true);
+    expect(canAccessPath("CONTRACTOR", "/portal/ops/abc")).toBe(true);
     expect(canAccessPath("CONTRACTOR", "/ops")).toBe(false);
     expect(canAccessPath("CONTRACTOR", "/cadastros/terceirizados")).toBe(false);
     expect(canAccessPath("CONTRACTOR", "/cadastros")).toBe(false);
