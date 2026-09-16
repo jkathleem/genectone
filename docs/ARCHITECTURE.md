@@ -338,3 +338,18 @@ As consultas estão centralizadas em `src/modules/contractor-portal/queries.ts` 
 As regras puras ficam em `src/modules/contractor-portal/domain.ts`: situação visual, filtros, totais financeiros, saldo de Conta a Pagar, pagamentos efetivos e exclusão de pagamentos estornados. A ação `createContractorIssue` valida role, obtém o `contractorId` da sessão, recarrega o `OutsourcedService` pelo par `id + contractorId` e então reutiliza `createOperationalIssue`.
 
 Nenhuma migration foi criada. A implementação reutiliza `User.contractorId`, `OutsourcedService`, `OperationalIssue`, `ContractorSettlement`, `AccountPayable`, `Payment` e `PaymentReversal`. O portal não introduz ledger, status persistido, evento paralelo, API pública ou nova fonte financeira.
+
+## Financeiro simplificado
+
+`/financeiro` consulta `src/modules/finance/overview.ts` para compor uma visão agregada sem persistir totais. Helpers puros ficam em `src/modules/finance/overview-domain.ts` e usam `Prisma.Decimal`.
+
+A visão geral reutiliza:
+
+- `AccountPayable` e Payments não estornados para saldos a pagar;
+- `AccountReceivable` e ReceiptAllocations não estornadas para saldos a receber;
+- `ProductionOrder` para carteira e concluído a faturar;
+- `cash-flow/queries.ts` para caixa realizado.
+
+`src/modules/finance/labels.ts` centraliza rótulos amigáveis de `DreGroup` e `FinancialNature` para reduzir exposição de enums técnicos na UI. A DRE continua em `src/modules/dre` e a página `/financeiro/dre` apenas apresenta a mesma consulta em formato hierárquico com drill-down por categoria.
+
+Nenhuma migration foi criada. A etapa altera navegação e apresentação, preservando as fórmulas e fontes oficiais.

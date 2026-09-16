@@ -680,3 +680,13 @@ Consequência:
 - O financeiro exibido ao Contractor é uma projeção restrita: produzido aguardando fechamento, fechado aguardando pagamento e pagamentos efetivos do próprio Terceirizado.
 - Pagamentos estornados aparecem como histórico quando pertinente, mas não compõem total pago efetivo.
 - Nenhuma migration foi necessária; o portal reutiliza estruturas existentes e não cria nova tabela, ledger ou status persistido.
+
+### DEC-061 - Financeiro simplificado e DRE única
+
+- `/financeiro` passa a ser a Visão Geral Financeira, sem criar nova entidade ou ledger.
+- O menu financeiro interno fica organizado em Visão Geral, Contas a Pagar, Contas a Receber, Fluxo de Caixa, DRE e Orçamento / Previsto x Realizado.
+- Carteira de produção e concluído a faturar são indicadores operacionais/econômicos previstos; não são receita realizada e não alimentam DRE.
+- Faturado a receber vem de `AccountReceivable`; recebido vem de `Receipt`; caixa realizado vem de `Receipt`, `Payment` e estornos.
+- A DRE permanece única, hierárquica e por competência, usando Billing e AccountPayable com snapshots históricos. Pagamentos, recebimentos e estornos não alteram DRE.
+- Categorias e grupos são apresentados com rótulos amigáveis. Enums técnicos continuam existindo no domínio e banco, mas não são a linguagem principal da UI.
+- Nenhuma migration foi criada nesta etapa.

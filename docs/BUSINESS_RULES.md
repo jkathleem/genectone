@@ -416,3 +416,14 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-295: Fechado aguardando pagamento é derivado de `ContractorSettlement` aprovado com `AccountPayable` vinculada e saldo positivo. A previsão exibida é apenas o `dueDate` real da Conta a Pagar.
 - BR-296: Pagamentos efetivos do portal derivam de `Payment` vinculado às Contas a Pagar do Terceirizado; pagamentos estornados não compõem o total pago efetivo.
 - BR-297: O portal não implementa confirmação de entrega pelo Contractor, chat, WhatsApp, push, upload, assinatura digital, alteração de OP, nova regra financeira, DRE ou fluxo de caixa geral.
+
+## Financeiro e DRE simplificados pós-MVP
+
+- BR-298: O menu financeiro interno deve priorizar Visão Geral, Contas a Pagar, Contas a Receber, Fluxo de Caixa, DRE e Orçamento / Previsto x Realizado; rotas auxiliares continuam acessíveis pelos fluxos onde fazem sentido.
+- BR-299: A Visão Geral Financeira é uma projeção derivada e não cria fato financeiro novo.
+- BR-300: Carteira de produção é o valor previsto de OPs abertas calculado por quantidade vezes `ProductionOrder.unitPrice`; não é receita realizada e não entra na DRE.
+- BR-301: Concluído a faturar representa OPs com `completedAt` e sem Billing; concluir produção não cria Conta a Receber.
+- BR-302: Faturado a receber representa saldo de `AccountReceivable` com recebimentos e estornos considerados.
+- BR-303: Caixa realizado é derivado exclusivamente de Receipt, Payment e respectivos estornos no período financeiro.
+- BR-304: A DRE deve ser apresentada como uma tela única hierárquica por competência, com categorias amigáveis e drill-down por categoria, reutilizando a mesma consulta oficial.
+- BR-305: Interfaces financeiras não devem expor enums técnicos como experiência principal; devem usar rótulos de Categoria Financeira, Grupo da DRE e tipo amigável.

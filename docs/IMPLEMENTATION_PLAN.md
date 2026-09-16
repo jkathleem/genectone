@@ -472,3 +472,14 @@ Critério de aceite:
 - [x] Financeiro restrito com produzido aguardando fechamento, fechado aguardando pagamento, pagamentos efetivos e estornos.
 - [x] Nenhuma migration criada.
 - [ ] Notificações, WhatsApp, confirmação de entrega pelo Contractor, upload e assinatura digital permanecem futuros.
+
+## Etapa 6 pós-MVP - Simplificação visual do Financeiro e da DRE
+
+- [x] Menu Financeiro reorganizado com Visão Geral, Contas a Pagar, Contas a Receber, Fluxo de Caixa, DRE e Orçamento / Previsto x Realizado.
+- [x] Nova rota `/financeiro` com indicadores de A/P, A/R, vencidos, caixa realizado, carteira, concluído a faturar e faturado a receber.
+- [x] Carteira de produção identificada como previsão, sem impacto na DRE.
+- [x] Concluído a faturar derivado de OP concluída sem Billing.
+- [x] Faturado a receber derivado de Contas a Receber e recebimentos/estornos.
+- [x] DRE mantida como cálculo único por competência, com apresentação hierárquica e drill-down por categoria.
+- [x] Rótulos amigáveis para grupos e tipos financeiros nas telas principais.
+- [x] Nenhuma migration criada.

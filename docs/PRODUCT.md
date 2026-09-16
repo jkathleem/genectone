@@ -155,3 +155,16 @@ Usuários com perfil `CONTRACTOR` acessam uma experiência própria em `/portal`
 A visão é deliberadamente restrita: não mostra Kanban interno, cadastros, dados de outros fornecedores, preço de venda, faturamento do cliente, DRE, fluxo de caixa geral ou custo total da OP. O terceirizado pode informar pendências operacionais do próprio serviço, mas não confirma retorno físico, não aprova produção, não registra pagamentos e não altera OPs.
 
 O financeiro do portal é separado em três fases: produzido aguardando fechamento, fechado aguardando pagamento e pagamentos efetivos. Esses valores reutilizam `OutsourcedService`, `ContractorSettlement`, `AccountPayable`, `Payment` e estornos; não existe ledger novo para o portal.
+
+## Financeiro simplificado pós-MVP
+
+A área financeira passa a ter uma entrada executiva em `/financeiro`, com menu reduzido para Visão Geral, Contas a Pagar, Contas a Receber, Fluxo de Caixa, DRE e Orçamento / Previsto x Realizado.
+
+A Visão Geral separa claramente:
+
+- carteira de produção, como valor previsto das OPs abertas;
+- concluído a faturar, como OP concluída sem Billing;
+- faturado a receber, como saldo de Contas a Receber;
+- caixa realizado, como Receipts, Payments e estornos no período.
+
+Carteira e produção concluída não são receita realizada. A DRE continua sendo a tela gerencial por competência e não se mistura com Fluxo de Caixa, recebimentos, pagamentos ou estornos.

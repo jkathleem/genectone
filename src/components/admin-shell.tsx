@@ -13,12 +13,12 @@ const navigation: NavigationItem[] = [
   { label: "Cobranças", href: "/terceirizacao/cobrancas" },
   { label: "Fechamentos", href: "/terceirizacao/fechamentos" },
   { label: "Romaneios", href: "/romaneios" },
+  { label: "Visão Geral", href: "/financeiro", group: "Financeiro" },
   { label: "Contas a Pagar", href: "/financeiro/contas-a-pagar", group: "Financeiro" },
   { label: "Contas a Receber", href: "/financeiro/contas-a-receber", group: "Financeiro" },
-  { label: "Recebimentos", href: "/financeiro/recebimentos", group: "Financeiro" },
   { label: "Fluxo de Caixa", href: "/financeiro/fluxo-de-caixa", group: "Financeiro" },
   { label: "DRE", href: "/financeiro/dre", group: "Financeiro" },
-  { label: "Previsto x Realizado", href: "/financeiro/previsto-realizado", group: "Financeiro" },
+  { label: "Orçamento / Previsto x Realizado", href: "/financeiro/previsto-realizado", group: "Financeiro" },
   { label: "Cadastros", href: "/cadastros", group: "Cadastros" },
 ];
 
