@@ -964,6 +964,427 @@ tbody tr:hover {
   margin-top: 0.1rem;
 }
 
+.op-entity-header {
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+  padding: 0.95rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 25;
+}
+
+.op-entity-main {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  justify-content: space-between;
+}
+
+.op-title-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.op-title-row h2 {
+  color: var(--text-primary);
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.op-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.op-primary-actions,
+.op-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.op-meta-grid {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.op-meta-grid dt,
+.op-fact-list dt,
+.op-issue-card dt {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.op-meta-grid dd,
+.op-fact-list dd,
+.op-issue-card dd {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  font-weight: 650;
+  margin-top: 0.1rem;
+}
+
+.op-first-fold {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+
+.op-alert-list {
+  display: grid;
+  gap: 0.25rem;
+  list-style: disc;
+  padding-left: 1rem;
+}
+
+.op-workspace-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 1rem;
+}
+
+.op-span-2 {
+  grid-column: 1 / -1;
+}
+
+.op-fact-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.op-helper {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  margin-top: 0.8rem;
+}
+
+.op-action-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.op-inline-form {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.op-inline-form input {
+  max-width: 11rem;
+}
+
+.op-checkbox,
+.op-approval-checkbox {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  color: var(--text-primary);
+  display: flex;
+  gap: 0.6rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.op-approval-checkbox {
+  align-items: flex-start;
+  background: #fff8e6;
+  border-color: #f3d392;
+  margin: 0.4rem 0;
+}
+
+.op-approval-checkbox span {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.op-approval-checkbox small {
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+
+.op-tab-stack {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.op-section-heading {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.op-section-heading p {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  margin-top: 0.15rem;
+}
+
+.op-mounting-panel {
+  border-left: 4px solid var(--border-strong);
+}
+
+.op-mounting-partially-available {
+  background: #fff8e6;
+  border-left-color: var(--warning);
+}
+
+.op-mounting-fully-available {
+  background: #eefaf3;
+  border-left-color: var(--success);
+}
+
+.op-mounting-details {
+  color: var(--text-secondary);
+  display: grid;
+  font-size: 0.88rem;
+  gap: 0.35rem;
+}
+
+.op-details-summary {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.op-details-body {
+  margin-top: 1rem;
+}
+
+.op-service-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.op-service-list > .op-section-heading {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  margin: 0;
+  padding: 1rem;
+}
+
+.op-service-card,
+.op-internal-card,
+.op-issue-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+
+.op-service-card-header,
+.op-internal-card,
+.op-issue-card {
+  align-items: flex-start;
+}
+
+.op-service-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.op-service-title {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.op-service-title h3,
+.op-internal-card h3,
+.op-issue-card h3 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.op-service-card-header p,
+.op-internal-card p,
+.op-issue-card p {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  margin-top: 0.15rem;
+}
+
+.op-service-metrics {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.op-service-metrics div {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.op-service-metrics span {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.op-service-metrics strong {
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+.op-service-issues {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.op-service-actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.op-action-panel {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem;
+}
+
+.op-action-panel-warning {
+  background: #fff8e6;
+  border-color: #f3d392;
+}
+
+.op-action-panel h4 {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.op-action-panel p {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.op-internal-list,
+.op-issue-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.op-internal-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.op-internal-meta,
+.op-issue-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.op-internal-meta span {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.op-issue-card dl {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  margin-top: 0.75rem;
+}
+
+.op-issue-actions {
+  justify-content: flex-start;
+}
+
+.op-subsection-title {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 750;
+  margin: 1.25rem 0 0.6rem;
+}
+
+.op-timeline {
+  border-left: 1px solid var(--border-strong);
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 0 0.35rem;
+  padding-left: 1.1rem;
+}
+
+.op-timeline li {
+  display: grid;
+  gap: 0.12rem;
+  position: relative;
+}
+
+.op-timeline li::before {
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  content: "";
+  height: 0.65rem;
+  left: -1.45rem;
+  position: absolute;
+  top: 0.25rem;
+  width: 0.65rem;
+}
+
+.op-timeline time {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 650;
+}
+
+.op-timeline strong {
+  color: var(--text-primary);
+  font-weight: 750;
+}
+
+.op-timeline p {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
 @media (min-width: 640px) {
   .form-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -985,6 +1406,17 @@ tbody tr:hover {
     align-items: flex-end;
     flex-direction: row;
     justify-content: space-between;
+  }
+
+  .op-meta-grid,
+  .op-first-fold,
+  .op-service-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .op-fact-list,
+  .op-issue-card dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1022,6 +1454,23 @@ tbody tr:hover {
   .shell-main {
     padding: 1.25rem;
   }
+
+  .op-entity-header {
+    top: 0;
+  }
+
+  .op-meta-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .op-workspace-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .op-action-grid,
+  .op-service-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1024px) {
@@ -1039,6 +1488,18 @@ tbody tr:hover {
 
   .shell-main {
     padding: 1.5rem 2rem;
+  }
+
+  .op-first-fold {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .op-service-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .op-service-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
