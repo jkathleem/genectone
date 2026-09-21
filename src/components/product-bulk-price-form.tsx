@@ -29,7 +29,7 @@ export function ProductBulkPriceForm({ products }: { products: Product[] }) {
         const item = preview.find((candidate) => candidate.id === product.id);
         return <tr key={product.id}><td><input aria-label={`Selecionar ${product.name}`} checked={selected.includes(product.id)} name="productIds" onChange={(event) => setSelected((current) => event.target.checked ? [...current, product.id] : current.filter((id) => id !== product.id))} type="checkbox" value={product.id}/></td><td>{product.reference || "—"} · {product.name}</td><td>{product.price === null ? "Sem preço" : currency.format(Number(product.price))}</td><td>{item?.next === null || item?.next === undefined || !Number.isFinite(item.next) || item.next < 0 ? "—" : currency.format(item.next)}</td></tr>;
       })}</tbody></table></div>
-      <p className="text-sm text-slate-500">A prévia é visual. O servidor recalcula todos os valores com Decimal antes de atualizar somente o preço atual do Produto. OPs já criadas preservam o snapshot histórico do preço unitário.</p>
+      <p className="text-sm text-slate-500">A prévia é visual. O servidor recalcula todos os valores com Decimal antes de atualizar somente o preço atual do Produto. OPs já criadas preservam o preço histórico aplicado.</p>
       <div><SubmitButton disabled={!selected.length}>Confirmar atualização de {selected.length} produto(s)</SubmitButton></div>
     </form>
   </details>;

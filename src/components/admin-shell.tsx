@@ -6,6 +6,14 @@ import { ShellCurrentLocation, ShellNavigation, type ShellNavGroup } from "@/com
 
 type NavigationItem = { label: string; href: string };
 
+const roleLabels: Record<AuthenticatedUser["role"], string> = {
+  ADMIN: "Administrador",
+  FINANCE: "Financeiro",
+  OPERATIONS: "Operação",
+  VIEWER: "Visualização",
+  CONTRACTOR: "Terceirizado",
+};
+
 const navigationGroups: ShellNavGroup[] = [
   {
     label: "Operação",
@@ -78,7 +86,7 @@ export function AdminShell({ children, user }: { children: ReactNode; user: Auth
           </p>
           <form action={logoutAction} className="shell-user">
             <span>{user.name}</span>
-            <strong>{user.role}</strong>
+            <strong>{roleLabels[user.role]}</strong>
             <button className="button-ghost button-sm" type="submit">
               Sair
             </button>

@@ -1,2 +1,33 @@
 import { loginAction } from "@/modules/auth/actions";
-export default async function LoginPage({searchParams}:{searchParams:Promise<{error?:string}>}){const{error}=await searchParams;return <main className="grid min-h-screen place-items-center bg-slate-100 p-5"><section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm"><p className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--brand)]">Genect</p><h1 className="mt-2 text-2xl font-semibold">Entrar</h1><p className="mt-1 text-sm text-slate-500">Acesso ao sistema interno de gestão.</p>{error?<p className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>:null}<form action={loginAction} className="mt-6 space-y-4"><label className="block text-sm font-medium">E-mail<input autoComplete="email" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" name="email" required type="email"/></label><label className="block text-sm font-medium">Senha<input autoComplete="current-password" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" name="password" required type="password"/></label><button className="w-full rounded-md bg-[var(--brand)] px-4 py-2 font-semibold text-white" type="submit">Entrar</button></form></section></main>}
+
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error } = await searchParams;
+
+  return (
+    <main className="login-page">
+      <section className="login-card">
+        <div>
+          <p className="login-brand">Genect</p>
+          <h1>Entrar</h1>
+          <p>Acesso ao sistema interno de gestão.</p>
+        </div>
+
+        {error ? <p className="login-error" role="alert">{error}</p> : null}
+
+        <form action={loginAction} className="login-form">
+          <label className="field">
+            E-mail
+            <input autoComplete="email" name="email" required type="email" />
+          </label>
+          <label className="field">
+            Senha
+            <input autoComplete="current-password" name="password" required type="password" />
+          </label>
+          <button className="button-primary" type="submit">
+            Entrar
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}

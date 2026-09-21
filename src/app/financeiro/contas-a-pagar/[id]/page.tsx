@@ -49,9 +49,9 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <div><dt>Criado por</dt><dd>{account.createdBy?.name || "Registro histórico sem autoria"}</dd></div>
       <div><dt>Beneficiário</dt><dd>{account.payeeName}</dd></div>
       <div><dt>Classificação aplicada</dt><dd>{account.classificationNameSnapshot}</dd></div>
-      <div><dt>Código snapshot</dt><dd>{account.classificationCodeSnapshot}</dd></div>
+      <div><dt>Código histórico</dt><dd>{account.classificationCodeSnapshot}</dd></div>
       <div><dt>Impacta DRE</dt><dd>{account.financialNatureSnapshot === "OPERATING_EXPENSE" ? "Sim" : "Não"}</dd></div>
-      <div><dt>Grupo DRE snapshot</dt><dd>{account.dreGroupSnapshot ? groupLabel[account.dreGroupSnapshot] : "Não aplicável"}</dd></div>
+      <div><dt>Grupo DRE aplicado</dt><dd>{account.dreGroupSnapshot ? groupLabel[account.dreGroupSnapshot] : "Não aplicável"}</dd></div>
       <div><dt>Cadastro atual</dt><dd>{account.classification.name} ({account.classification.active ? "ativo" : "inativo"})</dd></div>
       <div><dt>Competência</dt><dd>{formatDate(account.competenceDate)}</dd></div>
       <div><dt>Vencimento</dt><dd>{formatDate(account.dueDate)}</dd></div>
