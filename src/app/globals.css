@@ -776,17 +776,19 @@ tbody tr:hover {
 
 .attention-list {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
 .attention-row {
+  align-items: center;
   background: var(--surface-subtle);
   border-left: 4px solid var(--border-strong);
   border-radius: var(--radius-control);
-  display: grid;
+  display: flex;
   font-size: 0.82rem;
-  gap: 0.1rem;
-  padding: 0.65rem 0.75rem;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 0.7rem 0.8rem;
 }
 
 .attention-row strong {
@@ -795,6 +797,14 @@ tbody tr:hover {
 
 .attention-row span {
   color: var(--text-secondary);
+}
+
+.attention-row em {
+  color: var(--primary);
+  flex: 0 0 auto;
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 750;
 }
 
 .attention-danger {
@@ -814,14 +824,49 @@ tbody tr:hover {
 
 .kanban-board {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
+}
+
+.kanban-board-header,
+.home-section-heading,
+.kanban-group-heading {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.kanban-board-header p,
+.home-section-heading p {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  margin-top: 0.15rem;
+}
+
+.kanban-group {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.kanban-group-heading h3 {
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 750;
+}
+
+.kanban-group-heading span {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 650;
 }
 
 .kanban-row {
   display: flex;
-  gap: 0.9rem;
+  gap: 0.75rem;
   overflow-x: auto;
-  padding-bottom: 0.35rem;
+  padding-bottom: 0.55rem;
+  scroll-snap-type: x proximity;
 }
 
 .kanban-column {
@@ -830,14 +875,15 @@ tbody tr:hover {
   border-radius: var(--radius-panel);
   display: flex;
   flex-direction: column;
-  max-height: 34rem;
-  min-width: 17rem;
-  width: 17rem;
+  max-height: 38rem;
+  min-width: 18rem;
+  scroll-snap-align: start;
+  width: 18rem;
 }
 
 .kanban-column-accent {
-  background: #f0f6ff;
-  border-color: #b9d0ff;
+  background: #f5fbf7;
+  border-color: #b9e4cc;
 }
 
 .kanban-column-header {
@@ -846,7 +892,8 @@ tbody tr:hover {
   display: flex;
   gap: 0.75rem;
   justify-content: space-between;
-  padding: 0.7rem 0.8rem;
+  min-height: 3.4rem;
+  padding: 0.65rem 0.75rem;
 }
 
 .kanban-column-header h3 {
@@ -857,7 +904,22 @@ tbody tr:hover {
   white-space: nowrap;
 }
 
-.kanban-column-header span {
+.kanban-column-header p {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.kanban-column-counters {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+
+.kanban-column-counters span {
   background: var(--surface);
   border-radius: 999px;
   color: var(--text-secondary);
@@ -866,12 +928,22 @@ tbody tr:hover {
   padding: 0.1rem 0.45rem;
 }
 
+.kanban-column-counters .danger {
+  background: #fdeceb;
+  color: var(--danger);
+}
+
+.kanban-column-counters .warning {
+  background: #fff5dd;
+  color: #925d0b;
+}
+
 .kanban-column-scroll {
   align-content: start;
   display: grid;
-  gap: 0.55rem;
+  gap: 0.5rem;
   overflow-y: auto;
-  padding: 0.65rem;
+  padding: 0.55rem;
 }
 
 .kanban-card {
@@ -879,13 +951,19 @@ tbody tr:hover {
   border: 1px solid #dbe3ea;
   border-radius: var(--radius-control);
   box-shadow: var(--shadow-soft);
-  display: block;
+  display: grid;
   font-size: 0.78rem;
-  padding: 0.75rem;
+  gap: 0.42rem;
+  padding: 0.65rem;
 }
 
 .kanban-card:hover {
   border-color: var(--primary);
+}
+
+.kanban-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .kanban-card strong {
@@ -893,16 +971,95 @@ tbody tr:hover {
 }
 
 .kanban-card p {
-  margin-top: 0.08rem;
+  margin: 0;
 }
 
-.kanban-card-danger {
+.kanban-card.is-late {
   border-color: #f6c7c3;
 }
 
-.kanban-card-blocked {
+.kanban-card.is-blocked {
   background: #fff8e6;
   border-color: #e6b23b;
+}
+
+.kanban-card.is-urgent {
+  border-color: #f3d392;
+}
+
+.kanban-card.is-ready {
+  border-color: #b9e4cc;
+}
+
+.kanban-card.is-waiting {
+  border-color: #f3d392;
+}
+
+.kanban-card-top,
+.kanban-card-status,
+.kanban-card-facts {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: space-between;
+}
+
+.kanban-card-product span {
+  color: var(--text-primary);
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanban-card-product p,
+.kanban-card-customer,
+.kanban-card-service,
+.kanban-card-facts,
+.kanban-card-progress,
+.kanban-card-note {
+  color: var(--text-secondary);
+}
+
+.kanban-card-service {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  display: grid;
+  gap: 0.05rem;
+  padding: 0.42rem 0.5rem;
+}
+
+.kanban-card-service span,
+.kanban-card-facts span,
+.kanban-card-progress,
+.kanban-card-note {
+  font-size: 0.74rem;
+}
+
+.kanban-card-service strong {
+  font-size: 0.8rem;
+}
+
+.kanban-card-progress {
+  font-weight: 700;
+}
+
+.kanban-card-note.warning {
+  color: #925d0b;
+}
+
+.kanban-card-note.success {
+  color: var(--success);
+}
+
+.kanban-card-cta {
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 750;
 }
 
 .empty-kanban {
@@ -912,6 +1069,11 @@ tbody tr:hover {
   font-size: 0.8rem;
   padding: 1rem;
   text-align: center;
+}
+
+.kanban-empty-wide {
+  min-width: 18rem;
+  width: 18rem;
 }
 
 .portal-card-grid {
@@ -962,6 +1124,78 @@ tbody tr:hover {
   font-size: 0.85rem;
   font-weight: 650;
   margin-top: 0.1rem;
+}
+
+.home-dashboard {
+  display: grid;
+  gap: 1rem;
+}
+
+.home-indicators {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.home-attention {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.home-filters {
+  align-items: end;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+}
+
+.home-filters .field {
+  min-width: 0;
+}
+
+.home-checkbox {
+  align-items: center;
+  color: var(--text-secondary);
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+}
+
+.home-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.home-quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.home-quick-filters a {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 750;
+  padding: 0.35rem 0.65rem;
+}
+
+.home-quick-filters a:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.home-quick-filters a.active {
+  background: #e8f1f3;
+  border-color: var(--primary);
+  color: var(--primary-hover);
 }
 
 .op-entity-header {
@@ -1408,6 +1642,10 @@ tbody tr:hover {
     justify-content: space-between;
   }
 
+  .home-indicators {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .op-meta-grid,
   .op-first-fold,
   .op-service-metrics {
@@ -1455,6 +1693,10 @@ tbody tr:hover {
     padding: 1.25rem;
   }
 
+  .home-filters {
+    grid-template-columns: minmax(12rem, 1.3fr) repeat(2, minmax(9rem, 1fr));
+  }
+
   .op-entity-header {
     top: 0;
   }
@@ -1490,6 +1732,19 @@ tbody tr:hover {
     padding: 1.5rem 2rem;
   }
 
+  .home-indicators {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .home-filters {
+    grid-template-columns: minmax(14rem, 1.4fr) repeat(4, minmax(9rem, 1fr)) auto auto;
+  }
+
+  .kanban-column {
+    min-width: 18.5rem;
+    width: 18.5rem;
+  }
+
   .op-first-fold {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1523,6 +1778,25 @@ tbody tr:hover {
   .button-ghost,
   .button-danger {
     min-height: 2.75rem;
+  }
+
+  .home-indicators {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attention-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .kanban-column,
+  .kanban-empty-wide {
+    min-width: 17.5rem;
+    width: 17.5rem;
   }
 }
 
