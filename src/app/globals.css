@@ -1392,6 +1392,215 @@ tbody tr:hover {
   font-size: 0.84rem;
 }
 
+.outsourcing-flow-nav {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding: 0.35rem;
+}
+
+.outsourcing-flow-nav a {
+  border-radius: var(--radius-control);
+  color: var(--text-secondary);
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0.55rem 0.75rem;
+}
+
+.outsourcing-flow-nav a.active {
+  background: var(--primary);
+  color: white;
+}
+
+.outsourcing-stat-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+
+.outsourcing-card-list,
+.collection-card-grid,
+.delivery-select-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.outsourcing-card,
+.collection-card,
+.delivery-select-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  padding: 0.95rem;
+}
+
+.outsourcing-card-head,
+.collection-card-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.outsourcing-card-head strong,
+.collection-card-head strong {
+  color: var(--text-primary);
+}
+
+.outsourcing-card-head p,
+.collection-card p,
+.outsourcing-card p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.outsourcing-card-title {
+  color: var(--primary-strong) !important;
+  font-weight: 850;
+  margin-top: 0.65rem;
+}
+
+.outsourcing-facts {
+  display: grid;
+  gap: 0.6rem 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0.85rem 0;
+}
+
+.outsourcing-facts dt {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.outsourcing-facts dd {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.outsourcing-table-desktop,
+.delivery-table-desktop {
+  display: none;
+}
+
+.collection-card-head span {
+  color: var(--text-secondary);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.collection-warning {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: var(--radius-control);
+  color: #9a3412 !important;
+  font-weight: 750;
+  margin: 0.75rem 0;
+  padding: 0.55rem 0.65rem;
+}
+
+.delivery-note-workflow .form-section,
+.delivery-summary-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  padding: 1rem;
+}
+
+.delivery-select-card {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.delivery-select-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px rgba(29, 92, 167, 0.14), var(--shadow-soft);
+}
+
+.delivery-select-card label:first-child {
+  align-items: center;
+  color: var(--text-primary);
+  display: flex;
+  font-weight: 850;
+  gap: 0.55rem;
+}
+
+.delivery-summary-panel {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.delivery-summary-panel p {
+  color: var(--text-secondary);
+}
+
+.settlement-card-actions {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.settlement-action-panel {
+  align-items: flex-start;
+  display: grid;
+  gap: 1rem;
+}
+
+.settlement-action-panel p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.print-document-header,
+.settlement-print-header {
+  border-bottom: 2px solid #111;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+}
+
+.print-document-header p,
+.settlement-print-header p {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.print-document-header h1,
+.settlement-print-header h1 {
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.settlement-print-header {
+  align-items: center;
+  display: grid;
+  gap: 0.15rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.settlement-print-header span {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .home-dashboard {
   display: grid;
   gap: 1rem;
@@ -2224,6 +2433,17 @@ tbody tr:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .outsourcing-stat-grid,
+  .collection-card-grid,
+  .delivery-select-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settlement-action-panel {
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
   .page-header {
     align-items: flex-end;
     flex-direction: row;
@@ -2344,6 +2564,24 @@ tbody tr:hover {
   .portal-finance-grid,
   .portal-detail-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .outsourcing-stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .outsourcing-card-list,
+  .delivery-select-list {
+    display: none;
+  }
+
+  .collection-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .outsourcing-table-desktop,
+  .delivery-table-desktop {
+    display: block;
   }
 
   .shell-main {
