@@ -670,6 +670,57 @@ tbody tr:hover {
   padding: 0.75rem;
 }
 
+.registration-toolbar {
+  align-items: end;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0.85rem;
+}
+
+.registration-toolbar .field {
+  margin: 0;
+}
+
+.registration-editor {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  padding: 0.9rem 1rem;
+}
+
+.registration-editor summary {
+  align-items: center;
+  color: var(--primary-hover);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.9rem;
+  font-weight: 750;
+  gap: 0.5rem;
+  list-style-position: inside;
+}
+
+.registration-editor[open] summary {
+  margin-bottom: 0.9rem;
+}
+
+.registration-actions {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.registration-actions .registration-editor {
+  min-width: min(34rem, 82vw);
+}
+
 .form-section {
   background: var(--surface);
   border: 1px solid var(--border);

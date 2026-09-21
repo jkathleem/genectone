@@ -2,6 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { DreGroup, Prisma } from "@/generated/prisma";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusChip } from "@/components/ui/status-chip";
+import { Tabs } from "@/components/ui/tabs";
 import { Feedback } from "@/components/feedback";
 import { PageHeader } from "@/components/page-header";
 import { ProductBulkPriceForm } from "@/components/product-bulk-price-form";
@@ -28,6 +31,7 @@ const groupLabels = {
   FINANCIAL_REVENUE: "Receitas Financeiras", FINANCIAL_EXPENSE: "Despesas Financeiras",
   INCOME_TAX_EXPENSE: "Tributos sobre Resultado", NON_DRE: "Fora da DRE",
 } as const;
+const roleLabels = { ADMIN: "Administrador", FINANCE: "Financeiro", OPERATIONS: "Operação", VIEWER: "Visualização", CONTRACTOR: "Terceirizado" } as const;
 type Params = { tab?: string; q?: string; status?: string; success?: string; error?: string };
 
 function activeValue(status?: string) { return status === "all" ? undefined : status === "inactive" ? false : true; }
@@ -35,13 +39,13 @@ function Input({ name, label, value, type = "text", required = false }: { name: 
   return <label className="field">{label}<input defaultValue={value ?? ""} name={name} required={required} type={type}/></label>;
 }
 function Toggle({ id, active, action }: { id: string; active: boolean; action: (data: FormData) => Promise<void> }) {
-  return <form action={action}><input name="id" type="hidden" value={id}/><input name="active" type="hidden" value={String(!active)}/><button className="link-button">{active ? "Desativar" : "Ativar"}</button></form>;
+  return <form action={action}><input name="id" type="hidden" value={id}/><input name="active" type="hidden" value={String(!active)}/><button className="button-secondary button-sm">{active ? "Inativar" : "Ativar"}</button></form>;
 }
-function Status({ active }: { active: boolean }) { return <span className={active ? "status-active" : "status-inactive"}>{active ? "Ativo" : "Inativo"}</span>; }
+function Status({ active }: { active: boolean }) { return <StatusChip variant={active ? "success" : "neutral"}>{active ? "Ativo" : "Inativo"}</StatusChip>; }
 function Filters({ tab, q, status }: { tab: RegistrationTab; q?: string; status?: string }) {
-  return <form className="panel mb-5 flex flex-wrap items-end gap-3"><input name="tab" type="hidden" value={tab}/><label className="field min-w-56 flex-1">Buscar<input defaultValue={q ?? ""} name="q" placeholder={`Buscar em ${labels[tab].toLowerCase()}`}/></label><label className="field min-w-36">Situação<select defaultValue={status ?? "active"} name="status"><option value="active">Ativos</option><option value="inactive">Inativos</option><option value="all">Todos</option></select></label><button className="button-secondary">Filtrar</button><Link className="button-secondary" href={`/cadastros?tab=${tab}`}>Limpar</Link></form>;
+  return <form className="registration-toolbar"><input name="tab" type="hidden" value={tab}/><label className="field min-w-56 flex-1">Buscar<input defaultValue={q ?? ""} name="q" placeholder={`Buscar em ${labels[tab].toLowerCase()}`}/></label><label className="field min-w-36">Situação<select defaultValue={status ?? "active"} name="status"><option value="active">Ativos</option><option value="inactive">Inativos</option><option value="all">Todos</option></select></label><button className="button-secondary">Filtrar</button><Link className="button-secondary" href={`/cadastros?tab=${tab}`}>Limpar</Link></form>;
 }
-function Editor({ title, children }: { title: string; children: ReactNode }) { return <details><summary className="link-button">{title}</summary><div className="mt-3">{children}</div></details>; }
+function Editor({ title, children }: { title: string; children: ReactNode }) { return <details className="registration-editor"><summary>{title}</summary><div>{children}</div></details>; }
 function ReadOnly() { return <p className="mb-5 rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">Seu perfil possui acesso somente para consulta nesta aba.</p>; }
 
 const addressFields = (item?: { stateRegistration?: string | null; phone?: string | null; whatsapp?: string | null; email?: string | null; postalCode?: string | null; address?: string | null; addressNumber?: string | null; addressComplement?: string | null; neighborhood?: string | null; city?: string | null; state?: string | null }) => <>
@@ -109,7 +113,7 @@ async function Users({ q, status }: Params) {
   const active = activeValue(status);
   const [records, contractors] = await Promise.all([prisma.user.findMany({ where: { ...(active === undefined ? {} : { active }), ...(q ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { email: { contains: q, mode: "insensitive" } }] } : {}) }, include: { contractor: true }, orderBy: { name: "asc" } }), prisma.contractor.findMany({ where: { active: true }, orderBy: { name: "asc" } })]);
   const options = contractors.map(({ id, name }) => ({ id, name }));
-  return <><Filters q={q} status={status} tab="users"/><Editor title="Novo usuário"><form action={createUserAction} className="form-grid"><Input label="Nome" name="name" required/><Input label="E-mail" name="email" required type="email"/><Input label="Senha inicial" name="password" required type="password"/><UserRoleFields contractors={options}/><div><SubmitButton>Criar usuário</SubmitButton></div></form></Editor><section className="panel mt-5"><div className="table-wrap"><table><thead><tr><th>Usuário</th><th>Perfil</th><th>Terceirizado</th><th>Status</th><th>Ações</th></tr></thead><tbody>{records.map((item) => <tr key={item.id}><td><strong>{item.name}</strong><span className="block text-slate-500">{item.email}</span></td><td>{item.role}</td><td>{item.contractor?.name || "—"}</td><td><Status active={item.active}/></td><td><div className="flex gap-3"><Editor title="Editar / resetar senha"><form action={updateUserAction} className="form-grid"><input name="id" type="hidden" value={item.id}/><Input label="Nome" name="name" required value={item.name}/><Input label="E-mail" name="email" required type="email" value={item.email}/><Input label="Nova senha (opcional)" name="password" type="password"/><UserRoleFields contractors={options} initialContractorId={item.contractorId ?? ""} initialRole={item.role}/><div><SubmitButton>Salvar usuário</SubmitButton></div></form></Editor><Toggle action={toggleUserAction} active={item.active} id={item.id}/></div></td></tr>)}</tbody></table></div></section></>;
+  return <><Filters q={q} status={status} tab="users"/><Editor title="Novo usuário"><form action={createUserAction} className="form-grid"><Input label="Nome" name="name" required/><Input label="E-mail" name="email" required type="email"/><Input label="Senha inicial" name="password" required type="password"/><UserRoleFields contractors={options}/><div><SubmitButton>Criar usuário</SubmitButton></div></form></Editor><section className="panel mt-5"><div className="mb-4 flex items-center justify-between"><h2 className="section-title">Usuários</h2><span className="text-sm text-slate-500">{records.length} registro(s)</span></div>{records.length ? <div className="table-wrap"><table><thead><tr><th>Usuário</th><th>Perfil</th><th>Terceirizado</th><th>Status</th><th>Ações</th></tr></thead><tbody>{records.map((item) => <tr key={item.id}><td><strong>{item.name}</strong><span className="block text-slate-500">{item.email}</span></td><td>{roleLabels[item.role]}</td><td>{item.contractor?.name || "—"}</td><td><Status active={item.active}/></td><td><div className="registration-actions"><Editor title="Editar / resetar senha"><form action={updateUserAction} className="form-grid"><input name="id" type="hidden" value={item.id}/><Input label="Nome" name="name" required value={item.name}/><Input label="E-mail" name="email" required type="email" value={item.email}/><Input label="Nova senha (opcional)" name="password" type="password"/><UserRoleFields contractors={options} initialContractorId={item.contractorId ?? ""} initialRole={item.role}/><div><SubmitButton>Salvar usuário</SubmitButton></div></form></Editor><Toggle action={toggleUserAction} active={item.active} id={item.id}/></div></td></tr>)}</tbody></table></div> : <EmptyState title="Nenhum usuário encontrado." description="Ajuste a busca ou cadastre um novo usuário."/>}</section></>;
 }
 
 export default async function RegistrationsPage({ searchParams }: { searchParams: Promise<Params> }) {
@@ -120,5 +124,5 @@ export default async function RegistrationsPage({ searchParams }: { searchParams
   if (!requested || !canReadRegistrationTab(user.role, requested)) notFound();
   const write = canWriteRegistrationTab(user.role, requested);
   const content = requested === "companies" ? <Companies {...params} write={write}/> : requested === "customers" ? <Customers {...params} write={write}/> : requested === "contractors" ? <Contractors {...params} write={write}/> : requested === "products" ? <Products {...params} write={write}/> : requested === "sectors" ? <Sectors {...params} write={write}/> : requested === "categories" ? <Categories {...params} write={write}/> : <Users {...params}/>;
-  return <><PageHeader title="Cadastros" description="Dados mestres organizados em um único ambiente."/><nav aria-label="Abas de cadastros" className="mb-5 flex gap-2 overflow-x-auto border-b border-[var(--border)]">{visible.map((tab) => <Link className={`whitespace-nowrap border-b-2 px-3 py-2 text-sm font-semibold ${tab === requested ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-slate-500"}`} href={`/cadastros?tab=${tab}`} key={tab}>{labels[tab]}</Link>)}</nav><Feedback error={params.error} success={params.success}/>{content}</>;
+  return <><PageHeader title="Cadastros" description="Gerencie os dados estruturais utilizados pela operação e pelo financeiro."/><Tabs label="Abas de cadastros" items={visible.map((tab) => ({ label: labels[tab], href: `/cadastros?tab=${tab}`, active: tab === requested }))}/><Feedback error={params.error} success={params.success}/>{content}</>;
 }
