@@ -1081,6 +1081,36 @@ tbody tr:hover {
   gap: 0.85rem;
 }
 
+.portal-hero-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.portal-summary-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  padding: 0.9rem;
+}
+
+.portal-summary-card span {
+  color: var(--text-secondary);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.portal-summary-card strong {
+  color: var(--text-primary);
+  display: block;
+  font-size: clamp(1.2rem, 5vw, 1.75rem);
+  margin-top: 0.35rem;
+}
+
 .portal-service-card {
   background: var(--surface);
   border: 1px solid #dbe3ea;
@@ -1088,6 +1118,14 @@ tbody tr:hover {
   box-shadow: var(--shadow-soft);
   display: block;
   padding: 0.9rem;
+}
+
+.portal-service-card-header,
+.portal-list-card-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
 }
 
 .portal-service-card:hover {
@@ -1102,6 +1140,17 @@ tbody tr:hover {
   color: var(--text-secondary);
   font-size: 0.85rem;
   margin-top: 0.1rem;
+}
+
+.portal-service-name {
+  background: #edf5ff;
+  border-radius: var(--radius-control);
+  color: var(--primary-strong) !important;
+  display: inline-flex;
+  font-size: 0.78rem !important;
+  font-weight: 750;
+  margin-top: 0.75rem !important;
+  padding: 0.35rem 0.55rem;
 }
 
 .portal-card-facts {
@@ -1124,6 +1173,223 @@ tbody tr:hover {
   font-size: 0.85rem;
   font-weight: 650;
   margin-top: 0.1rem;
+}
+
+.portal-card-alert {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: var(--radius-control);
+  color: #9a3412 !important;
+  font-size: 0.78rem !important;
+  font-weight: 750;
+  margin-top: 0.85rem !important;
+  padding: 0.5rem 0.6rem;
+}
+
+.portal-card-cta {
+  align-items: center;
+  background: var(--primary);
+  border-radius: var(--radius-control);
+  color: white;
+  display: flex;
+  font-size: 0.85rem;
+  font-weight: 800;
+  justify-content: center;
+  margin-top: 0.85rem;
+  min-height: 2.75rem;
+  width: 100%;
+}
+
+.portal-list,
+.portal-mini-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.portal-list-card,
+.portal-mini-list article {
+  background: #fbfdff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 0.85rem;
+}
+
+.portal-list-card p,
+.portal-mini-list span,
+.portal-mini-list small {
+  color: var(--text-secondary);
+  display: block;
+  font-size: 0.84rem;
+}
+
+.portal-list-card-title,
+.portal-mini-list article > strong {
+  color: var(--text-primary) !important;
+  font-weight: 800;
+}
+
+.portal-list-card small {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.76rem;
+  margin-top: 0.35rem;
+}
+
+.portal-finance-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.portal-finance-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 0.95rem;
+}
+
+.portal-finance-block > span {
+  color: var(--text-secondary);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.portal-finance-block > strong,
+.portal-money {
+  color: var(--text-primary);
+  display: block;
+  font-size: clamp(1.25rem, 6vw, 1.85rem);
+  font-weight: 850;
+  margin-top: 0.25rem;
+}
+
+.portal-finance-block > p,
+.portal-detail-card > p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin: 0.2rem 0 0.85rem;
+}
+
+.portal-mini-list {
+  margin-top: 0.85rem;
+}
+
+.portal-mini-list article {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.portal-detail-header {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.portal-detail-header h1 {
+  color: var(--text-primary);
+  font-size: clamp(1.55rem, 8vw, 2.15rem);
+  font-weight: 850;
+  margin-top: 0.45rem;
+}
+
+.portal-detail-header p {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.portal-detail-header small {
+  color: var(--text-secondary);
+  display: block;
+  margin-top: 0.2rem;
+}
+
+.portal-detail-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.portal-detail-card {
+  min-height: 100%;
+}
+
+.portal-detail-status {
+  color: var(--text-primary) !important;
+  font-size: 1.05rem !important;
+  font-weight: 850;
+}
+
+.portal-late-text {
+  color: var(--danger) !important;
+  font-weight: 850;
+}
+
+.portal-quantity-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.8rem;
+}
+
+.portal-quantity-grid dt {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.portal-quantity-grid dd {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.portal-timeline {
+  border-left: 2px solid #dbeafe;
+  display: grid;
+  gap: 0.85rem;
+  margin-left: 0.4rem;
+  padding-left: 1rem;
+}
+
+.portal-timeline li {
+  position: relative;
+}
+
+.portal-timeline li::before {
+  background: var(--primary);
+  border: 2px solid white;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px #bfdbfe;
+  content: "";
+  height: 0.7rem;
+  left: -1.43rem;
+  position: absolute;
+  top: 0.25rem;
+  width: 0.7rem;
+}
+
+.portal-timeline time {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.73rem;
+  font-weight: 750;
+}
+
+.portal-timeline strong {
+  color: var(--text-primary);
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 0.08rem;
+}
+
+.portal-timeline p {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
 }
 
 .home-dashboard {
@@ -1943,6 +2209,21 @@ tbody tr:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .portal-hero-grid,
+  .portal-finance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portal-detail-header {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .portal-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .page-header {
     align-items: flex-end;
     flex-direction: row;
@@ -2053,6 +2334,15 @@ tbody tr:hover {
   }
 
   .portal-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .portal-hero-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .portal-finance-grid,
+  .portal-detail-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
