@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Feedback } from "@/components/feedback";
+import { FinanceNav } from "@/components/finance-nav";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
+import { StatusChip } from "@/components/ui/status-chip";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { financialStatus, paidAmount, remainingAmount } from "@/modules/accounts-payable/domain";
@@ -35,7 +39,9 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   const status = financialStatus(account.originalAmount, account.dueDate, account.payments);
   return <>
     <PageHeader title="Conta a Pagar" description="Obrigação histórica por competência; pagamento permanece um fato separado." action={{ label: "Voltar às contas", href: "/financeiro/contas-a-pagar" }} />
+    <FinanceNav active="payables"/>
     <Feedback {...messages} />
+    <section className="finance-stat-grid"><StatCard label="Valor original" value={formatCurrency(account.originalAmount)} helper="Obrigação reconhecida"/><StatCard label="Pago efetivo" value={formatCurrency(paid)} helper="Pagamentos não estornados" variant="success"/><StatCard label="Saldo atual" value={formatCurrency(remaining)} helper="Após pagamentos e estornos" variant={remaining.gt(0) ? "warning" : "success"}/><StatCard label="Situação" value={status} helper={`Vence em ${formatDate(account.dueDate)}`}/></section>
     <section className="panel mb-5"><dl className="detail-grid">
       <div><dt>Empresa</dt><dd>{account.company.tradeName || account.company.name}</dd></div>
       <div><dt>Descrição</dt><dd>{account.description}</dd></div>
@@ -52,10 +58,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       <div><dt>Valor original</dt><dd>{formatCurrency(account.originalAmount)}</dd></div>
       <div><dt>Pago</dt><dd>{formatCurrency(paid)}</dd></div>
       <div><dt>Saldo</dt><dd>{formatCurrency(remaining)}</dd></div>
-      <div><dt>Situação</dt><dd>{status}</dd></div>
+      <div><dt>Situação</dt><dd><StatusChip variant={status === "Pago" ? "success" : status === "Vencida" ? "danger" : status === "Parcial" ? "warning" : "info"}>{status}</StatusChip></dd></div>
     </dl></section>
-    <section className="panel mb-5"><h2 className="section-title mb-3">Autoria financeira</h2>{account.payments.length ? account.payments.map(payment => <p className="mb-1 text-sm" key={payment.id}>Pagamento de {formatCurrency(payment.amount)}: {payment.createdBy?.name || "autor histórico não identificado"}{payment.reversal ? ` · Estornado por ${payment.reversal.createdBy?.name || "autor histórico não identificado"}` : ""}</p>) : <p className="empty-state">Nenhum pagamento registrado.</p>}</section>
-    <section className="panel mb-5"><h2 className="section-title mb-3">Situação dos pagamentos</h2>{account.payments.map(payment=><div className="mb-2 flex items-center justify-between" key={payment.id}><span>{formatDate(payment.paymentDate)} · {formatCurrency(payment.amount)} · {payment.reversal?`Estornado em ${formatDate(payment.reversal.reversalDate)} — ${payment.reversal.reason}`:"Ativo"}</span>{!payment.reversal?<Link className="link-button" href={`/financeiro/contas-a-pagar/${id}/pagamentos/${payment.id}/estornar`}>Estornar pagamento</Link>:null}</div>)}</section>
-    <section className="panel"><div className="mb-4 flex items-center justify-between"><h2 className="section-title">Pagamentos</h2>{remaining.gt(0) ? <Link className="button-primary" href={`/financeiro/contas-a-pagar/${id}/pagamentos/novo`}>Registrar pagamento</Link> : null}</div>{account.payments.length ? <div className="table-wrap"><table><thead><tr><th>Data</th><th>Valor</th><th>Observações</th><th>Criado em</th></tr></thead><tbody>{account.payments.map((payment) => <tr key={payment.id}><td>{formatDate(payment.paymentDate)}</td><td>{formatCurrency(payment.amount)}</td><td>{payment.notes || "—"}</td><td>{payment.createdAt.toLocaleString("pt-BR")}</td></tr>)}</tbody></table></div> : <p className="empty-state">Nenhum pagamento registrado.</p>}</section>
+    <section className="panel"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="section-title">Pagamentos e estornos</h2>{remaining.gt(0) ? <Button href={`/financeiro/contas-a-pagar/${id}/pagamentos/novo`}>Registrar pagamento</Button> : null}</div>{account.payments.length ? <div className="finance-card-list">{account.payments.map((payment) => <article className="finance-list-card" key={payment.id}><div className="finance-card-head"><div><strong>{formatCurrency(payment.amount)}</strong><p>{formatDate(payment.paymentDate)} • {payment.createdBy?.name || "autor histórico não identificado"}</p></div><StatusChip variant={payment.reversal ? "danger" : "success"}>{payment.reversal ? "Estornado" : "Ativo"}</StatusChip></div><p>{payment.notes || "Sem observação"}</p>{payment.reversal ? <p>Estornado em {formatDate(payment.reversal.reversalDate)} — {payment.reversal.reason}</p> : <Button href={`/financeiro/contas-a-pagar/${id}/pagamentos/${payment.id}/estornar`} variant="danger" size="sm">Estornar pagamento</Button>}</article>)}</div> : <p className="empty-state">Nenhum pagamento registrado.</p>}</section>
   </>;
 }

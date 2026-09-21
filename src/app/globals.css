@@ -1601,6 +1601,189 @@ tbody tr:hover {
   font-weight: 700;
 }
 
+.finance-nav {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding: 0.35rem;
+}
+
+.finance-nav a {
+  border-radius: var(--radius-control);
+  color: var(--text-secondary);
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0.55rem 0.75rem;
+}
+
+.finance-nav a.active {
+  background: var(--primary);
+  color: white;
+}
+
+.finance-stat-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+
+.finance-module-card,
+.finance-list-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  padding: 0.95rem;
+}
+
+.finance-module-card p,
+.finance-list-card p {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.finance-module-card strong {
+  color: var(--text-primary);
+  display: block;
+  font-size: 1.25rem;
+  margin: 0.35rem 0;
+}
+
+.finance-module-card span {
+  color: var(--text-secondary);
+  display: block;
+  font-size: 0.78rem;
+  margin-bottom: 0.75rem;
+}
+
+.finance-alert-grid,
+.finance-card-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.finance-alert-card {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: var(--radius-panel);
+  padding: 0.95rem;
+}
+
+.finance-card-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.finance-list-card.selected {
+  border-color: var(--primary);
+}
+
+.finance-check-row {
+  align-items: center;
+  display: flex;
+  gap: 0.55rem;
+}
+
+.finance-facts {
+  display: grid;
+  gap: 0.6rem 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0.85rem 0;
+}
+
+.finance-facts dt {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.finance-facts dd {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.finance-table-desktop {
+  display: none;
+}
+
+.finance-positive {
+  color: var(--success);
+  font-weight: 800;
+}
+
+.finance-negative {
+  color: var(--danger);
+  font-weight: 800;
+}
+
+.dre-table-wrap {
+  overflow-x: auto;
+}
+
+.dre-table,
+.budget-comparison-table,
+.annual-budget-table {
+  width: 100%;
+}
+
+.dre-table td,
+.budget-comparison-table td,
+.annual-budget-table td {
+  vertical-align: middle;
+}
+
+.dre-table td:nth-child(2),
+.dre-table td:nth-child(3),
+.budget-comparison-table td:not(:first-child),
+.annual-budget-table td:not(:first-child) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.dre-table td span {
+  color: var(--text-secondary);
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+.dre-row-subtotal {
+  background: #f8fafc;
+  font-weight: 800;
+}
+
+.dre-row-final {
+  background: #eef6ff;
+  color: var(--primary-strong);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.annual-budget-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.annual-budget-table th:first-child,
+.annual-budget-table td:first-child {
+  background: var(--surface);
+  left: 0;
+  position: sticky;
+  z-index: 1;
+}
+
 .home-dashboard {
   display: grid;
   gap: 1rem;
@@ -2444,6 +2627,12 @@ tbody tr:hover {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
+  .finance-stat-grid,
+  .finance-alert-grid,
+  .finance-card-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .page-header {
     align-items: flex-end;
     flex-direction: row;
@@ -2582,6 +2771,22 @@ tbody tr:hover {
   .outsourcing-table-desktop,
   .delivery-table-desktop {
     display: block;
+  }
+
+  .finance-stat-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .finance-card-list {
+    display: none;
+  }
+
+  .finance-table-desktop {
+    display: block;
+  }
+
+  .finance-alert-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .shell-main {

@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { FinanceNav } from "@/components/finance-nav";
 import { PageHeader } from "@/components/page-header";
+import { StatCard } from "@/components/ui/stat-card";
+import { StatusChip } from "@/components/ui/status-chip";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { flowTotals, groupByDay } from "@/modules/cash-flow/domain";
@@ -35,6 +38,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
         title="Fluxo de Caixa"
         description="Visão derivada dos fatos financeiros registrados; não representa saldo bancário."
       />
+      <FinanceNav active="cash"/>
       <form className="panel mb-5 form-grid">
         <label className="field">
           Empresa
@@ -70,37 +74,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
         </div>
       </form>
 
-      <section className="mb-5 grid gap-4 sm:grid-cols-3">
-        <article className="panel">
-          <p className="text-sm text-slate-500">
-            Entradas {view === "actual" ? "realizadas" : "previstas"}
-          </p>
-          <strong className="mt-2 block text-xl">{formatCurrency(totals.entries)}</strong>
-        </article>
-        <article className="panel">
-          <p className="text-sm text-slate-500">
-            Saídas {view === "actual" ? "realizadas" : "previstas"}
-          </p>
-          <strong className="mt-2 block text-xl">{formatCurrency(totals.exits)}</strong>
-        </article>
-        <article className="panel">
-          <p className="text-sm text-slate-500">Movimentação líquida do período</p>
-          <strong className="mt-2 block text-xl">{formatCurrency(totals.net)}</strong>
-        </article>
+      <section className="finance-stat-grid">
+        <StatCard label={`Entradas ${view === "actual" ? "realizadas" : "previstas"}`} value={formatCurrency(totals.entries)} helper={view === "actual" ? "Receipts e estornos inversos" : "A/R em aberto"} variant="success"/>
+        <StatCard label={`Saídas ${view === "actual" ? "realizadas" : "previstas"}`} value={formatCurrency(totals.exits)} helper={view === "actual" ? "Payments e estornos inversos" : "A/P em aberto"} variant="warning"/>
+        <StatCard label="Movimentação líquida" value={formatCurrency(totals.net)} helper="Entradas − saídas"/>
       </section>
 
       {view === "predicted" ? (
         <section className="mb-5 grid gap-4 sm:grid-cols-2">
-          <article className="panel">
-            <p className="text-sm text-slate-500">A receber vencido antes do período</p>
-            <strong className="mt-2 block text-xl">
-              {formatCurrency(data.overdueReceivable)}
-            </strong>
-          </article>
-          <article className="panel">
-            <p className="text-sm text-slate-500">A pagar vencido antes do período</p>
-            <strong className="mt-2 block text-xl">{formatCurrency(data.overduePayable)}</strong>
-          </article>
+          <StatCard label="A receber vencido antes do período" value={formatCurrency(data.overdueReceivable)} helper="Previsto em aberto" variant="danger"/>
+          <StatCard label="A pagar vencido antes do período" value={formatCurrency(data.overduePayable)} helper="Previsto em aberto" variant="danger"/>
         </section>
       ) : null}
 
@@ -164,7 +147,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
                   .map((item) => (
                     <tr key={`${item.direction}-${item.id}`}>
                       <td>{formatDate(item.date)}</td>
-                      <td>{item.type}</td>
+                      <td><StatusChip variant={item.direction === "OUT" ? "warning" : "success"}>{item.type}</StatusChip></td>
                       <td>{item.company}</td>
                       <td>{item.counterparty}</td>
                       <td>{item.description}</td>
@@ -174,7 +157,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
                           <td>{formatCurrency(item.settledAmount!)}</td>
                         </>
                       ) : null}
-                      <td>
+                      <td className={item.direction === "OUT" ? "finance-negative" : "finance-positive"}>
                         {item.direction === "OUT" ? "− " : "+ "}
                         {formatCurrency(item.amount)}
                       </td>

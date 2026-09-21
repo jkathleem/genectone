@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { FinanceNav } from "@/components/finance-nav";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { financialOverview } from "@/modules/finance/overview";
@@ -13,11 +16,11 @@ function fortalezaTodayKey() {
 }
 
 function moneyCard(title: string, value: Parameters<typeof formatCurrency>[0], description: string, href?: string) {
-  return <article className="panel">
-    <p className="text-sm font-medium text-slate-500">{title}</p>
-    <strong className="mt-2 block text-2xl">{formatCurrency(value)}</strong>
-    <p className="mt-2 text-xs text-slate-500">{description}</p>
-    {href ? <Link className="link-button mt-3 inline-block" href={href}>Abrir</Link> : null}
+  return <article className="finance-module-card">
+    <p>{title}</p>
+    <strong>{formatCurrency(value)}</strong>
+    <span>{description}</span>
+    {href ? <Button href={href} variant="secondary" size="sm">Abrir</Button> : null}
   </article>;
 }
 
@@ -33,6 +36,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
   return <>
     <PageHeader title="Visão Geral Financeira" description="Resumo executivo: carteira é previsão, faturamento é fato financeiro e caixa é recebimento/pagamento." />
+    <FinanceNav active="overview"/>
     <form className="panel mb-5 form-grid">
       <label className="field">Empresa<select defaultValue={params.companyId || ""} name="companyId"><option value="">Todas</option>{companies.map((company) => <option key={company.id} value={company.id}>{company.tradeName || company.name}</option>)}</select></label>
       <label className="field">Mês<select defaultValue={month} name="month">{monthNames.map((name, index) => <option key={name} value={index + 1}>{name}</option>)}</select></label>
@@ -40,10 +44,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
       <div className="flex items-end gap-2"><button className="button-primary">Atualizar</button><Link className="button-secondary" href="/financeiro">Limpar</Link></div>
     </form>
 
-    <section className="mb-5 grid gap-4 md:grid-cols-3">
-      {moneyCard("A pagar hoje", data.payableToday, "Saldo de contas vencendo hoje.", "/financeiro/contas-a-pagar")}
-      {moneyCard("A receber hoje", data.receivableToday, "Saldo de clientes vencendo hoje.", "/financeiro/contas-a-receber")}
-      {moneyCard("Caixa realizado no mês", data.cashActualNet, "Recebimentos − pagamentos, incluindo estornos.", "/financeiro/fluxo-de-caixa?view=actual")}
+    <section className="finance-stat-grid">
+      <StatCard label="A pagar hoje" value={formatCurrency(data.payableToday)} helper="Obrigações vencendo hoje" variant="warning"/>
+      <StatCard label="A receber hoje" value={formatCurrency(data.receivableToday)} helper="Direitos vencendo hoje" variant="info"/>
+      <StatCard label="Vencido a pagar" value={formatCurrency(data.payableOverdue)} helper="Saldo ainda aberto" variant={Number(data.payableOverdue) > 0 ? "danger" : "neutral"}/>
+      <StatCard label="Vencido a receber" value={formatCurrency(data.receivableOverdue)} helper="Saldo ainda aberto" variant={Number(data.receivableOverdue) > 0 ? "danger" : "neutral"}/>
+      <StatCard label="Caixa no mês" value={formatCurrency(data.cashActualNet)} helper="Recebimentos − pagamentos" variant="success"/>
     </section>
 
     <section className="mb-5 grid gap-4 md:grid-cols-3">
@@ -65,7 +71,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
     <section className="panel mb-5">
       <h2 className="section-title mb-4">Atenção financeira</h2>
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="finance-alert-grid">
         <Alert label="Contas a pagar vencidas" value={data.attention.overduePayableCount} href="/financeiro/contas-a-pagar?status=Vencida" />
         <Alert label="Contas a receber vencidas" value={data.attention.overdueReceivableCount} href="/financeiro/contas-a-receber?status=Vencida" />
         <Alert label="OPs concluídas sem faturamento" value={data.attention.completedToBillCount} href="/ops" />
@@ -74,14 +80,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<Par
 
     <section className="panel">
       <h2 className="section-title mb-4">OPs concluídas a faturar</h2>
-      {data.completedToBillOrders.length ? <div className="table-wrap"><table><thead><tr><th>OP</th><th>Cliente</th><th>Produto</th><th>Conclusão</th><th>Valor previsto</th><th /></tr></thead><tbody>{data.completedToBillOrders.slice(0, 20).map((order) => <tr key={order.id}><td>{order.number}</td><td>{order.customer.name}</td><td>{order.product.reference}</td><td>{order.completedAt ? formatDate(order.completedAt) : "—"}</td><td>{formatCurrency(productionOrderPredictedValue(order.quantity, order.unitPrice))}</td><td><Link className="link-button" href={`/ops/${order.id}`}>Abrir OP</Link></td></tr>)}</tbody></table></div> : <p className="empty-state">Nenhuma OP concluída aguardando faturamento.</p>}
+      {data.completedToBillOrders.length ? <><div className="finance-card-list">{data.completedToBillOrders.slice(0, 20).map((order) => <article className="finance-list-card" key={order.id}><div><strong>OP {order.number}</strong><p>{order.customer.name} • {order.product.reference}</p></div><dl className="finance-facts"><div><dt>Conclusão</dt><dd>{order.completedAt ? formatDate(order.completedAt) : "—"}</dd></div><div><dt>Valor previsto</dt><dd>{formatCurrency(productionOrderPredictedValue(order.quantity, order.unitPrice))}</dd></div></dl><Button href={`/ops/${order.id}`} variant="secondary" size="sm">Abrir OP</Button></article>)}</div><div className="finance-table-desktop table-wrap"><table><thead><tr><th>OP</th><th>Cliente</th><th>Produto</th><th>Conclusão</th><th>Valor previsto</th><th /></tr></thead><tbody>{data.completedToBillOrders.slice(0, 20).map((order) => <tr key={order.id}><td>{order.number}</td><td>{order.customer.name}</td><td>{order.product.reference}</td><td>{order.completedAt ? formatDate(order.completedAt) : "—"}</td><td>{formatCurrency(productionOrderPredictedValue(order.quantity, order.unitPrice))}</td><td><Link className="link-button" href={`/ops/${order.id}`}>Abrir OP</Link></td></tr>)}</tbody></table></div></> : <p className="empty-state">Nenhuma OP concluída aguardando faturamento.</p>}
       <p className="mt-4 text-sm text-slate-500">Concluir produção não cria receita nem Conta a Receber. O fato financeiro nasce no faturamento.</p>
     </section>
   </>;
 }
 
 function Alert({ label, value, href }: { label: string; value: number; href: string }) {
-  return <Link className="rounded-lg border border-amber-200 bg-amber-50 p-4 hover:bg-amber-100" href={href}>
+  return <Link className="finance-alert-card" href={href}>
     <strong className="block text-2xl text-amber-900">{value}</strong>
     <span className="text-sm font-medium text-amber-900">{label}</span>
   </Link>;
