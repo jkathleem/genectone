@@ -938,6 +938,30 @@ Dados derivados principais:
 
 Snapshot do vínculo de insumo na criação da OP. Preserva Insumo, nome, unidade, regra-base e quantidade planejada Decimal. Não representa estoque, baixa ou compra.
 
+## Estoque, Insumos e Compras
+
+`Supply` continua sendo o cadastro único de Insumo. Nesta base de estoque ele passa a poder armazenar código opcional, estoque mínimo opcional e observações, mantendo `unit` como texto para preservar os dados existentes.
+
+`SupplyPurchase` representa uma compra de insumos. Ela pertence a uma `Company`, entendida como a empresa interna/titular da compra e da obrigação financeira. O fornecedor não reutiliza `Company`; nesta versão ele é preservado como `supplierNameSnapshot`, sem criar entidade `Supplier`.
+
+`SupplyPurchaseItem` representa cada insumo comprado, com snapshots de nome e unidade, quantidade Decimal e preço unitário Decimal. O total da compra deve ser derivado dos itens.
+
+`StockMovement` é o livro razão físico de estoque. Ele registra entradas e saídas por Insumo, data, tipo, direção e quantidade, sem armazenar saldo acumulado. O saldo de estoque é derivado da soma dos movimentos.
+
+`ProductionOrderSupplyConsumption` representa o fato operacional de consumo real de insumo em uma OP. Ele é separado de `ProductionOrderSupply`, que continua sendo apenas previsão/snapshot, e separado de `StockMovement`, que representa o efeito físico no estoque.
+
+`AccountPayable` passa a aceitar a origem `SUPPLY_PURCHASE` para contas a pagar geradas por compras de insumos. A despesa gerencial continua sendo reconhecida pela Conta a Pagar e sua classificação financeira; o consumo físico não gera nova despesa na DRE.
+
+Relações principais:
+
+- Uma `SupplyPurchase` possui vários `SupplyPurchaseItem`.
+- Um `SupplyPurchaseItem` pode originar movimentos de entrada `StockMovement`.
+- Uma `ProductionOrderSupplyConsumption` pode apontar para o `StockMovement` de saída correspondente.
+- Uma `SupplyPurchase` pode possuir no máximo uma `AccountPayable` de origem `SUPPLY_PURCHASE`.
+- `Supply` se relaciona com composição de Produto, previsão de OP, itens de compra, movimentos e consumos reais.
+
+Ficam fora desta etapa: reserva de estoque, saldo editável, cancelamento completo de compra, cadastro próprio de fornecedor, UI completa de compras, UI de consumo pela OP e baixa automática pela previsão.
+
 ### InternalProductionService
 
 Atribuição operacional de um Serviço a um InternalSector habilitado. Pode possuir quantidade prevista e conclusão, mas não possui preço nem efeito contábil.

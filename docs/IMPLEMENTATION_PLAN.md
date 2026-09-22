@@ -483,3 +483,14 @@ Critério de aceite:
 - [x] DRE mantida como cálculo único por competência, com apresentação hierárquica e drill-down por categoria.
 - [x] Rótulos amigáveis para grupos e tipos financeiros nas telas principais.
 - [x] Nenhuma migration criada.
+
+## Etapa 10.2 pós-MVP - Estoque, Insumos e Compras
+
+- [x] Auditoria funcional de Estoque, Insumos e Compras concluída antes da implementação.
+- [x] Decisões de domínio fechadas: `Supply` reutilizado, unidade textual preservada, saldo derivado de movimentos e compra separando Company interna de fornecedor snapshot.
+- [x] Base de schema/migration criada para `SupplyPurchase`, `SupplyPurchaseItem`, `StockMovement` e `ProductionOrderSupplyConsumption`.
+- [x] `AccountPayableSource` preparado para `SUPPLY_PURCHASE`, preservando `CONTRACTOR_SETTLEMENT` e `MANUAL`.
+- [ ] Serviços de domínio para registrar compra e consumo real.
+- [ ] Interface de Estoque, Compras e Movimentações.
+- [ ] Integração de consumo real no workspace da OP.
+- [ ] Integração financeira da compra com Conta a Pagar.

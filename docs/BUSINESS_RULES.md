@@ -427,3 +427,18 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-303: Caixa realizado é derivado exclusivamente de Receipt, Payment e respectivos estornos no período financeiro.
 - BR-304: A DRE deve ser apresentada como uma tela única hierárquica por competência, com categorias amigáveis e drill-down por categoria, reutilizando a mesma consulta oficial.
 - BR-305: Interfaces financeiras não devem expor enums técnicos como experiência principal; devem usar rótulos de Categoria Financeira, Grupo da DRE e tipo amigável.
+
+## Estoque, Insumos e Compras
+
+- BR-306: `Supply` é o cadastro único de Insumo; não deve ser criada entidade paralela para representar o mesmo conceito.
+- BR-307: `Supply.unit` permanece textual nesta versão. A aplicação poderá restringir valores aceitos no futuro sem migration de enum agora.
+- BR-308: Saldo de estoque não é editável nem persistido em `Supply`; deve ser derivado da soma dos `StockMovement`.
+- BR-309: `ProductionOrderSupply` representa previsão/snapshot de insumos da OP e não gera movimentação física.
+- BR-310: Estoque só baixa quando houver consumo real confirmado, registrado separadamente de sua movimentação de estoque.
+- BR-311: `StockMovement` é o livro razão físico de estoque. Compras, consumo de OP, ajustes, retornos e reversões devem ser fatos auditáveis.
+- BR-312: Compra de insumo pertence a uma `Company`, que representa a empresa interna/titular da compra. O fornecedor da compra é preservado como `supplierNameSnapshot` nesta versão.
+- BR-313: Compra de insumo confirmada pode originar Conta a Pagar com `source = SUPPLY_PURCHASE`, vinculada exatamente à compra.
+- BR-314: A DRE continua reconhecendo despesa pela Conta a Pagar da compra e seus snapshots de classificação; consumo físico de estoque não cria nova despesa na DRE.
+- BR-315: Materiais e suprimentos produtivos reutilizam as classificações financeiras existentes `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES`; nenhuma nova classificação oficial foi criada nesta etapa.
+- BR-316: Ajustes e futuras reversões de estoque devem ser feitos por movimentos auditáveis, nunca por edição direta de saldo.
+- BR-317: Reserva de estoque, cancelamento completo de compra, cadastro próprio de fornecedor e cálculo de disponível considerando reserva permanecem fora desta versão.

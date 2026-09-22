@@ -33,6 +33,7 @@ model Company {
   accountsReceivable AccountReceivable[]
   receipts           Receipt[]
   budgets            Budget[]
+  supplyPurchases    SupplyPurchase[]
 }
 
 enum CustomerType {
@@ -49,31 +50,34 @@ enum UserRole {
 }
 
 model User {
-  id               String             @id @default(cuid())
-  name             String
-  email            String             @unique
-  passwordHash     String
-  role             UserRole
-  contractorId     String?
-  active           Boolean            @default(true)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  sessions         Session[]
-  approvedBudgets  Budget[]           @relation("BudgetApprovedBy")
-  closedBudgets    Budget[]           @relation("BudgetClosedBy")
-  payments         Payment[]
-  receipts         Receipt[]
-  manualPayables   AccountPayable[]
-  paymentReversals PaymentReversal[]
-  receiptReversals ReceiptReversal[]
-  contractor       Contractor?        @relation(fields: [contractorId], references: [id], onDelete: Restrict)
-  createdIssues    OperationalIssue[] @relation("OperationalIssueCreatedBy")
-  resolvedIssues   OperationalIssue[] @relation("OperationalIssueResolvedBy")
-  createdProductionOrders ProductionOrder[] @relation("ProductionOrderCreatedBy")
-  completedProductionOrders ProductionOrder[] @relation("ProductionOrderCompletedBy")
-  createdOutsourcedServices OutsourcedService[] @relation("OutsourcedServiceCreatedBy")
-  createdInternalServices   InternalProductionService[] @relation("InternalProductionServiceCreatedBy")
-  completedInternalServices InternalProductionService[] @relation("InternalProductionServiceCompletedBy")
+  id                        String                             @id @default(cuid())
+  name                      String
+  email                     String                             @unique
+  passwordHash              String
+  role                      UserRole
+  contractorId              String?
+  active                    Boolean                            @default(true)
+  createdAt                 DateTime                           @default(now())
+  updatedAt                 DateTime                           @updatedAt
+  sessions                  Session[]
+  approvedBudgets           Budget[]                           @relation("BudgetApprovedBy")
+  closedBudgets             Budget[]                           @relation("BudgetClosedBy")
+  payments                  Payment[]
+  receipts                  Receipt[]
+  manualPayables            AccountPayable[]
+  paymentReversals          PaymentReversal[]
+  receiptReversals          ReceiptReversal[]
+  contractor                Contractor?                        @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  createdIssues             OperationalIssue[]                 @relation("OperationalIssueCreatedBy")
+  resolvedIssues            OperationalIssue[]                 @relation("OperationalIssueResolvedBy")
+  createdProductionOrders   ProductionOrder[]                  @relation("ProductionOrderCreatedBy")
+  completedProductionOrders ProductionOrder[]                  @relation("ProductionOrderCompletedBy")
+  createdOutsourcedServices OutsourcedService[]                @relation("OutsourcedServiceCreatedBy")
+  createdInternalServices   InternalProductionService[]        @relation("InternalProductionServiceCreatedBy")
+  completedInternalServices InternalProductionService[]        @relation("InternalProductionServiceCompletedBy")
+  createdSupplyPurchases    SupplyPurchase[]
+  createdStockMovements     StockMovement[]
+  createdSupplyConsumptions ProductionOrderSupplyConsumption[]
 
   @@index([active, role])
   @@index([contractorId])
@@ -108,6 +112,21 @@ enum FinancialNature {
 enum AccountPayableSource {
   CONTRACTOR_SETTLEMENT
   MANUAL
+  SUPPLY_PURCHASE
+}
+
+enum StockMovementType {
+  PURCHASE
+  OP_CONSUMPTION
+  POSITIVE_ADJUSTMENT
+  NEGATIVE_ADJUSTMENT
+  RETURN
+  REVERSAL
+}
+
+enum StockMovementDirection {
+  IN
+  OUT
 }
 
 enum BudgetEntryType {
@@ -227,32 +246,34 @@ model Product {
 }
 
 model ProductionOrder {
-  id                     String              @id @default(cuid())
+  id                     String                             @id @default(cuid())
   number                 String
-  entryDate              DateTime            @db.Date
+  entryDate              DateTime                           @db.Date
   companyId              String
   customerId             String
   productId              String
   quantity               Int
-  unitPrice              Decimal             @db.Decimal(14, 4)
-  isUrgent               Boolean             @default(false)
-  expectedCompletionDate DateTime?           @db.Date
+  unitPrice              Decimal                            @db.Decimal(14, 4)
+  isUrgent               Boolean                            @default(false)
+  expectedCompletionDate DateTime?                          @db.Date
   completedAt            DateTime?
   createdByUserId        String?
   completedByUserId      String?
   notes                  String?
-  createdAt              DateTime            @default(now())
-  updatedAt              DateTime            @updatedAt
-  company                Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer               Customer            @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  product                Product             @relation(fields: [productId], references: [id], onDelete: Restrict)
+  createdAt              DateTime                           @default(now())
+  updatedAt              DateTime                           @updatedAt
+  company                Company                            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer               Customer                           @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  product                Product                            @relation(fields: [productId], references: [id], onDelete: Restrict)
   outsourcedServices     OutsourcedService[]
   billing                Billing?
   operationalIssues      OperationalIssue[]
   supplies               ProductionOrderSupply[]
   internalServices       InternalProductionService[]
-  createdBy              User?                 @relation("ProductionOrderCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
-  completedBy            User?                 @relation("ProductionOrderCompletedBy", fields: [completedByUserId], references: [id], onDelete: Restrict)
+  supplyConsumptions     ProductionOrderSupplyConsumption[]
+  stockMovements         StockMovement[]
+  createdBy              User?                              @relation("ProductionOrderCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  completedBy            User?                              @relation("ProductionOrderCompletedBy", fields: [completedByUserId], references: [id], onDelete: Restrict)
 
   @@unique([companyId, number])
   @@index([number])
@@ -382,12 +403,12 @@ model Contractor {
 }
 
 model Service {
-  id                         String                  @id @default(cuid())
+  id                         String                      @id @default(cuid())
   name                       String
   description                String?
-  active                     Boolean                 @default(true)
-  createdAt                  DateTime                @default(now())
-  updatedAt                  DateTime                @updatedAt
+  active                     Boolean                     @default(true)
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
   outsourcedServices         OutsourcedService[]
   internalSectorCapabilities ServiceInternalSector[]
   contractorCapabilities     ServiceContractor[]
@@ -395,13 +416,13 @@ model Service {
 }
 
 model InternalSector {
-  id                  String                  @id @default(cuid())
-  name                String                  @unique
-  active              Boolean                 @default(true)
-  displayOrder        Int                     @default(0)
+  id                  String                      @id @default(cuid())
+  name                String                      @unique
+  active              Boolean                     @default(true)
+  displayOrder        Int                         @default(0)
   notes               String?
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
+  createdAt           DateTime                    @default(now())
+  updatedAt           DateTime                    @updatedAt
   serviceCapabilities ServiceInternalSector[]
   productionServices  InternalProductionService[]
 
@@ -434,14 +455,20 @@ model ServiceContractor {
 }
 
 model Supply {
-  id        String          @id @default(cuid())
-  name      String          @unique
-  unit      String
-  active    Boolean         @default(true)
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  products  ProductSupply[]
-  productionOrders ProductionOrderSupply[]
+  id                String                             @id @default(cuid())
+  code              String?                            @unique
+  name              String                             @unique
+  unit              String
+  minimumStock      Decimal?                           @db.Decimal(14, 4)
+  notes             String?
+  active            Boolean                            @default(true)
+  createdAt         DateTime                           @default(now())
+  updatedAt         DateTime                           @updatedAt
+  products          ProductSupply[]
+  productionOrders  ProductionOrderSupply[]
+  purchaseItems     SupplyPurchaseItem[]
+  stockMovements    StockMovement[]
+  orderConsumptions ProductionOrderSupplyConsumption[]
 
   @@index([active, name])
 }
@@ -462,41 +489,139 @@ model ProductSupply {
 }
 
 model ProductionOrderSupply {
-  id                      String          @id @default(cuid())
+  id                      String                             @id @default(cuid())
   productionOrderId       String
   supplyId                String
   supplyNameSnapshot      String
   unitSnapshot            String
-  quantityPerBaseSnapshot Decimal?        @db.Decimal(14, 4)
+  quantityPerBaseSnapshot Decimal?                           @db.Decimal(14, 4)
   baseQuantitySnapshot    Int?
-  plannedQuantity         Decimal?        @db.Decimal(14, 4)
+  plannedQuantity         Decimal?                           @db.Decimal(14, 4)
   notes                   String?
-  createdAt               DateTime        @default(now())
-  updatedAt               DateTime        @updatedAt
-  productionOrder         ProductionOrder @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
-  supply                  Supply          @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+  createdAt               DateTime                           @default(now())
+  updatedAt               DateTime                           @updatedAt
+  productionOrder         ProductionOrder                    @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  supply                  Supply                             @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+  consumptions            ProductionOrderSupplyConsumption[]
+  stockMovements          StockMovement[]
 
   @@unique([productionOrderId, supplyId])
   @@index([supplyId])
 }
 
-model InternalProductionService {
+model SupplyPurchase {
+  id                   String               @id @default(cuid())
+  companyId            String
+  supplierNameSnapshot String
+  purchaseDate         DateTime             @db.Date
+  dueDate              DateTime?            @db.Date
+  documentNumber       String?
+  notes                String?
+  createdByUserId      String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  company              Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  createdBy            User?                @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  items                SupplyPurchaseItem[]
+  accountPayable       AccountPayable?
+
+  @@index([companyId, purchaseDate])
+  @@index([purchaseDate])
+  @@index([createdByUserId])
+}
+
+model SupplyPurchaseItem {
   id                 String          @id @default(cuid())
-  productionOrderId  String
-  serviceId          String
-  internalSectorId   String
-  plannedQuantity    Int?
+  supplyPurchaseId   String
+  supplyId           String
+  supplyNameSnapshot String
+  unitSnapshot       String
+  quantity           Decimal         @db.Decimal(14, 4)
+  unitPrice          Decimal         @db.Decimal(14, 4)
   notes              String?
-  createdByUserId    String?
-  completedAt        DateTime?
-  completedByUserId  String?
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
-  productionOrder    ProductionOrder @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
-  service            Service         @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  internalSector     InternalSector  @relation(fields: [internalSectorId], references: [id], onDelete: Restrict)
-  createdBy          User?           @relation("InternalProductionServiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
-  completedBy        User?           @relation("InternalProductionServiceCompletedBy", fields: [completedByUserId], references: [id], onDelete: Restrict)
+  supplyPurchase     SupplyPurchase  @relation(fields: [supplyPurchaseId], references: [id], onDelete: Restrict)
+  supply             Supply          @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+  stockMovements     StockMovement[]
+
+  @@index([supplyPurchaseId])
+  @@index([supplyId])
+}
+
+model StockMovement {
+  id                      String                            @id @default(cuid())
+  supplyId                String
+  type                    StockMovementType
+  direction               StockMovementDirection
+  quantity                Decimal                           @db.Decimal(14, 4)
+  movementDate            DateTime                          @db.Date
+  supplyPurchaseItemId    String?
+  productionOrderId       String?
+  productionOrderSupplyId String?
+  reversalOfMovementId    String?                           @unique
+  createdByUserId         String?
+  reason                  String?
+  notes                   String?
+  createdAt               DateTime                          @default(now())
+  supply                  Supply                            @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+  supplyPurchaseItem      SupplyPurchaseItem?               @relation(fields: [supplyPurchaseItemId], references: [id], onDelete: Restrict)
+  productionOrder         ProductionOrder?                  @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  productionOrderSupply   ProductionOrderSupply?            @relation(fields: [productionOrderSupplyId], references: [id], onDelete: Restrict)
+  reversalOfMovement      StockMovement?                    @relation("StockMovementReversal", fields: [reversalOfMovementId], references: [id], onDelete: Restrict)
+  reversedByMovements     StockMovement[]                   @relation("StockMovementReversal")
+  createdBy               User?                             @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  supplyConsumption       ProductionOrderSupplyConsumption?
+
+  @@index([supplyId, movementDate])
+  @@index([type, movementDate])
+  @@index([productionOrderId])
+  @@index([supplyPurchaseItemId])
+  @@index([createdByUserId])
+}
+
+model ProductionOrderSupplyConsumption {
+  id                      String                 @id @default(cuid())
+  productionOrderId       String
+  productionOrderSupplyId String?
+  supplyId                String
+  supplyNameSnapshot      String
+  unitSnapshot            String
+  quantity                Decimal                @db.Decimal(14, 4)
+  consumptionDate         DateTime               @db.Date
+  notes                   String?
+  createdByUserId         String?
+  stockMovementId         String?                @unique
+  createdAt               DateTime               @default(now())
+  productionOrder         ProductionOrder        @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  productionOrderSupply   ProductionOrderSupply? @relation(fields: [productionOrderSupplyId], references: [id], onDelete: Restrict)
+  supply                  Supply                 @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+  createdBy               User?                  @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  stockMovement           StockMovement?         @relation(fields: [stockMovementId], references: [id], onDelete: Restrict)
+
+  @@index([productionOrderId])
+  @@index([supplyId])
+  @@index([consumptionDate])
+  @@index([createdByUserId])
+}
+
+model InternalProductionService {
+  id                String          @id @default(cuid())
+  productionOrderId String
+  serviceId         String
+  internalSectorId  String
+  plannedQuantity   Int?
+  notes             String?
+  createdByUserId   String?
+  completedAt       DateTime?
+  completedByUserId String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  productionOrder   ProductionOrder @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  service           Service         @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  internalSector    InternalSector  @relation(fields: [internalSectorId], references: [id], onDelete: Restrict)
+  createdBy         User?           @relation("InternalProductionServiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  completedBy       User?           @relation("InternalProductionServiceCompletedBy", fields: [completedByUserId], references: [id], onDelete: Restrict)
 
   @@index([productionOrderId])
   @@index([serviceId])
@@ -506,26 +631,26 @@ model InternalProductionService {
 }
 
 model OutsourcedService {
-  id                String                     @id @default(cuid())
-  productionOrderId String
-  serviceId         String
-  contractorId      String
-  plannedQuantity   Int?
-  approvedQuantity  Int                        @default(0)
-  appliedUnitPrice  Decimal                    @db.Decimal(14, 4)
-  notes             String?
+  id                 String                     @id @default(cuid())
+  productionOrderId  String
+  serviceId          String
+  contractorId       String
+  plannedQuantity    Int?
+  approvedQuantity   Int                        @default(0)
+  appliedUnitPrice   Decimal                    @db.Decimal(14, 4)
+  notes              String?
   expectedReturnDate DateTime?                  @db.Date
-  createdByUserId   String?
-  createdAt         DateTime                   @default(now())
-  updatedAt         DateTime                   @updatedAt
-  productionOrder   ProductionOrder            @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
-  service           Service                    @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  contractor        Contractor                 @relation(fields: [contractorId], references: [id], onDelete: Restrict)
-  deliveryNoteItems DeliveryNoteItem[]
-  returns           OutsourcingReturn[]
-  settlementItems   ContractorSettlementItem[]
-  operationalIssues OperationalIssue[]
-  createdBy         User?                      @relation("OutsourcedServiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  createdByUserId    String?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  productionOrder    ProductionOrder            @relation(fields: [productionOrderId], references: [id], onDelete: Restrict)
+  service            Service                    @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  contractor         Contractor                 @relation(fields: [contractorId], references: [id], onDelete: Restrict)
+  deliveryNoteItems  DeliveryNoteItem[]
+  returns            OutsourcingReturn[]
+  settlementItems    ContractorSettlementItem[]
+  operationalIssues  OperationalIssue[]
+  createdBy          User?                      @relation("OutsourcedServiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@index([productionOrderId])
   @@index([serviceId])
@@ -606,6 +731,7 @@ model AccountPayable {
   id                         String                  @id @default(cuid())
   companyId                  String
   contractorSettlementId     String?                 @unique
+  supplyPurchaseId           String?                 @unique
   source                     AccountPayableSource
   classificationId           String
   classificationCodeSnapshot String
@@ -622,6 +748,7 @@ model AccountPayable {
   updatedAt                  DateTime                @updatedAt
   company                    Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
   contractorSettlement       ContractorSettlement?   @relation(fields: [contractorSettlementId], references: [id], onDelete: Restrict)
+  supplyPurchase             SupplyPurchase?         @relation(fields: [supplyPurchaseId], references: [id], onDelete: Restrict)
   classification             FinancialClassification @relation(fields: [classificationId], references: [id], onDelete: Restrict)
   payments                   Payment[]
   createdBy                  User?                   @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)

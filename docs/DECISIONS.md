@@ -690,3 +690,16 @@ Consequência:
 - A DRE permanece única, hierárquica e por competência, usando Billing e AccountPayable com snapshots históricos. Pagamentos, recebimentos e estornos não alteram DRE.
 - Categorias e grupos são apresentados com rótulos amigáveis. Enums técnicos continuam existindo no domínio e banco, mas não são a linguagem principal da UI.
 - Nenhuma migration foi criada nesta etapa.
+
+### DEC-062 - Base de Estoque, Insumos e Compras
+
+- `Supply` continua sendo o cadastro único de Insumo. Não existe entidade paralela de insumo.
+- `Supply.unit` permanece texto nesta versão; a aplicação poderá restringir valores amigáveis futuramente sem converter o banco agora.
+- Estoque não possui campo de saldo editável. O saldo físico será derivado exclusivamente de `StockMovement`.
+- `ProductionOrderSupply` permanece previsão/snapshot da OP e não movimenta estoque.
+- Estoque só baixa quando houver consumo real confirmado em `ProductionOrderSupplyConsumption`, com efeito de estoque em `StockMovement`.
+- Compra de insumo será representada por `SupplyPurchase` e `SupplyPurchaseItem`, preservando `supplierNameSnapshot` como fornecedor textual. `Company` continua sendo a empresa interna/titular da compra e da obrigação.
+- Compra confirmada poderá originar `AccountPayable` com `source = SUPPLY_PURCHASE`; a despesa da DRE continua reconhecida pela Conta a Pagar e sua classificação financeira, não pelo consumo físico.
+- As classificações financeiras existentes `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES` serão reutilizadas; nenhuma nova classificação oficial foi criada.
+- Ajustes e reversões de estoque devem ser auditáveis por novos movimentos, nunca por edição direta de saldo.
+- Reserva de estoque, cancelamento completo de compra, entidade Supplier, estoque disponível considerando reserva e UI completa de compras/consumo permanecem fora desta etapa.
