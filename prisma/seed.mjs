@@ -1,9 +1,12 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.js";
 import { randomBytes, scrypt as scryptCallback } from "node:crypto";
+import { existsSync } from "node:fs";
 import { promisify } from "node:util";
 
-process.loadEnvFile();
+if (existsSync(".env")) {
+  process.loadEnvFile(".env");
+}
 
 const databaseUrl = process.env.DATABASE_URL;
 
