@@ -16,35 +16,15 @@ const roleLabels: Record<AuthenticatedUser["role"], string> = {
 
 const navigationGroups: ShellNavGroup[] = [
   {
-    label: "Operação",
+    label: "Menu",
     items: [
       { label: "Início", href: "/" },
+      { label: "Cadastros", href: "/cadastros" },
       { label: "OPs", href: "/ops" },
+      { label: "Estoque", href: "/estoque" },
+      { label: "Terceirização", href: "/terceirizacao", matchPaths: ["/romaneios"] },
+      { label: "Financeiro", href: "/financeiro" },
     ],
-  },
-  {
-    label: "Terceirização",
-    items: [
-      { label: "Serviços", href: "/terceirizacao" },
-      { label: "Cobranças", href: "/terceirizacao/cobrancas" },
-      { label: "Romaneios", href: "/romaneios" },
-      { label: "Fechamentos", href: "/terceirizacao/fechamentos" },
-    ],
-  },
-  {
-    label: "Financeiro",
-    items: [
-      { label: "Visão Geral", href: "/financeiro" },
-      { label: "Contas a Pagar", href: "/financeiro/contas-a-pagar" },
-      { label: "Contas a Receber", href: "/financeiro/contas-a-receber" },
-      { label: "Fluxo de Caixa", href: "/financeiro/fluxo-de-caixa" },
-      { label: "DRE", href: "/financeiro/dre" },
-      { label: "Previsto x Realizado", href: "/financeiro/previsto-realizado" },
-    ],
-  },
-  {
-    label: "Administração",
-    items: [{ label: "Cadastros", href: "/cadastros" }],
   },
 ];
 

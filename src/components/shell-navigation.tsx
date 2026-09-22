@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 export type ShellNavItem = {
   label: string;
   href: string;
+  matchPaths?: string[];
 };
 
 export type ShellNavGroup = {
@@ -24,10 +25,14 @@ function matchesPath(pathname: string, href: string) {
   return pathname === path || pathname.startsWith(`${path}/`);
 }
 
+function matchesItem(pathname: string, item: ShellNavItem) {
+  return matchesPath(pathname, item.href) || item.matchPaths?.some((path) => matchesPath(pathname, path)) === true;
+}
+
 function findCurrentItem(groups: ShellNavGroup[], pathname: string) {
   return groups
     .flatMap((group) => group.items.map((item) => ({ group: group.label, item })))
-    .filter(({ item }) => matchesPath(pathname, item.href))
+    .filter(({ item }) => matchesItem(pathname, item))
     .sort((a, b) => hrefPath(b.item.href).length - hrefPath(a.item.href).length)[0];
 }
 

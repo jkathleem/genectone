@@ -105,7 +105,7 @@ textarea:disabled,
   z-index: 35;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
-  padding: 0.75rem;
+  padding: 0.65rem;
   box-shadow: 0 16px 30px rgb(23 33 43 / 0.1);
 }
 
@@ -244,12 +244,12 @@ textarea:disabled,
 
 .shell-nav {
   display: grid;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .shell-nav-group {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.45rem;
 }
 
 .shell-nav-group p {
@@ -263,16 +263,16 @@ textarea:disabled,
 
 .shell-nav-group > div {
   display: grid;
-  gap: 0.15rem;
+  gap: 0.28rem;
 }
 
 .shell-nav a {
-  border-radius: var(--radius-control);
+  border-radius: 999px;
   color: var(--text-secondary);
   display: block;
-  font-size: 0.88rem;
-  font-weight: 600;
-  padding: 0.48rem 0.65rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  padding: 0.6rem 0.75rem;
   position: relative;
 }
 
@@ -282,20 +282,19 @@ textarea:disabled,
 }
 
 .shell-nav a.active {
-  background: #e8f1f3;
-  color: var(--primary-hover);
-  font-weight: 750;
+  background: var(--primary);
+  box-shadow: 0 8px 18px rgb(33 91 99 / 0.16);
+  color: white;
+  font-weight: 800;
+}
+
+.shell-nav a.active:hover {
+  background: var(--primary-hover);
+  color: white;
 }
 
 .shell-nav a.active::before {
-  background: var(--primary);
-  border-radius: 999px;
-  bottom: 0.45rem;
-  content: "";
-  left: 0;
-  position: absolute;
-  top: 0.45rem;
-  width: 3px;
+  display: none;
 }
 
 .page-header {
