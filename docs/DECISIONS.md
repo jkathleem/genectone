@@ -711,3 +711,11 @@ Consequência:
 - Consumo real de OP é registrado separadamente do planejado por `ProductionOrderSupplyConsumption` e movimento `OP_CONSUMPTION`.
 - Saldo de estoque continua derivado de `StockMovement` e pode ficar negativo nesta versão, com aviso de domínio para futura sinalização na interface.
 - Ajustes manuais exigem perfil `ADMIN`, motivo obrigatório e movimento auditável; não existe edição direta de saldo.
+
+### DEC-064 - Interface inicial de Estoque
+
+- `/estoque` passa a ser a interface principal de Insumos, Compras e Movimentações, organizada em abas internas sem criar novas entradas no menu lateral.
+- Cadastro e edição de Insumo não permitem saldo inicial; qualquer saldo manual deve ser lançado como ajuste auditável.
+- A compra pela interface reutiliza o serviço transacional de estoque e gera a Conta a Pagar `SUPPLY_PURCHASE` no mesmo fluxo.
+- `OPERATIONS` e `VIEWER` consultam estoque físico sem ação de compra ou ajuste; valores financeiros de compras ficam restritos a `ADMIN` e `FINANCE`.
+- Consumo real dentro da OP, reserva, inventário completo, cancelamento/reversão de compra e fornecedor cadastral permanecem fora desta etapa.
