@@ -7,9 +7,10 @@ describe("permissões do perfil CONTRACTOR", () => {
     expect(hasPermission("CONTRACTOR", "OPERATION_MUTATE")).toBe(false);
     expect(hasPermission("CONTRACTOR", "FINANCE_MUTATE")).toBe(false);
     expect(hasPermission("CONTRACTOR", "REPORT_VIEW")).toBe(false);
+    expect(hasPermission("CONTRACTOR", "STOCK_VIEW")).toBe(false);
   });
 
-  it("fica restrito à página inicial enquanto o portal não existe", () => {
+  it("fica restrito à página inicial e ao portal", () => {
     expect(canAccessPath("CONTRACTOR", "/")).toBe(true);
     expect(canAccessPath("CONTRACTOR", "/portal")).toBe(true);
     expect(canAccessPath("CONTRACTOR", "/portal/ops/abc")).toBe(true);
@@ -17,6 +18,7 @@ describe("permissões do perfil CONTRACTOR", () => {
     expect(canAccessPath("CONTRACTOR", "/cadastros/terceirizados")).toBe(false);
     expect(canAccessPath("CONTRACTOR", "/cadastros")).toBe(false);
     expect(canAccessPath("CONTRACTOR", "/financeiro/dre")).toBe(false);
+    expect(canAccessPath("CONTRACTOR", "/estoque")).toBe(false);
   });
 
   it("permite abrir o ambiente de cadastros para perfis internos", () => {
@@ -28,5 +30,14 @@ describe("permissões do perfil CONTRACTOR", () => {
   it("permite ao VIEWER consultar OPs sem conceder mutação", () => {
     expect(canAccessPath("VIEWER", "/ops/qualquer-id")).toBe(true);
     expect(hasPermission("VIEWER", "OPERATION_MUTATE")).toBe(false);
+  });
+
+  it("aplica permissões específicas de estoque por papel", () => {
+    expect(hasPermission("ADMIN", "STOCK_ADJUST")).toBe(true);
+    expect(hasPermission("FINANCE", "STOCK_PURCHASE")).toBe(true);
+    expect(hasPermission("OPERATIONS", "STOCK_CONSUME")).toBe(true);
+    expect(hasPermission("VIEWER", "STOCK_VIEW")).toBe(true);
+    expect(hasPermission("VIEWER", "STOCK_PURCHASE")).toBe(false);
+    expect(canAccessPath("VIEWER", "/estoque")).toBe(true);
   });
 });

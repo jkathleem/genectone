@@ -442,3 +442,7 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-315: Materiais e suprimentos produtivos reutilizam as classificações financeiras existentes `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES`; nenhuma nova classificação oficial foi criada nesta etapa.
 - BR-316: Ajustes e futuras reversões de estoque devem ser feitos por movimentos auditáveis, nunca por edição direta de saldo.
 - BR-317: Reserva de estoque, cancelamento completo de compra, cadastro próprio de fornecedor e cálculo de disponível considerando reserva permanecem fora desta versão.
+- BR-318: Registro de compra de insumo é transacional: cria `SupplyPurchase`, seus itens, movimentos de entrada e uma Conta a Pagar `SUPPLY_PURCHASE`; falha em qualquer passo impede persistência parcial.
+- BR-319: Consumo real de insumo em OP cria `ProductionOrderSupplyConsumption` e movimento de saída `OP_CONSUMPTION`, sem alterar o snapshot planejado da OP e sem gerar Conta a Pagar.
+- BR-320: Saldo negativo é permitido nesta versão para preservar a auditoria física; a aplicação deve retornar aviso de domínio em vez de bloquear ou criar estoque inicial artificial.
+- BR-321: Ajuste manual de estoque é permitido somente para `ADMIN`, exige motivo e cria movimento auditável de ajuste positivo ou negativo.

@@ -490,7 +490,7 @@ Critério de aceite:
 - [x] Decisões de domínio fechadas: `Supply` reutilizado, unidade textual preservada, saldo derivado de movimentos e compra separando Company interna de fornecedor snapshot.
 - [x] Base de schema/migration criada para `SupplyPurchase`, `SupplyPurchaseItem`, `StockMovement` e `ProductionOrderSupplyConsumption`.
 - [x] `AccountPayableSource` preparado para `SUPPLY_PURCHASE`, preservando `CONTRACTOR_SETTLEMENT` e `MANUAL`.
-- [ ] Serviços de domínio para registrar compra e consumo real.
+- [x] Serviços de domínio para registrar compra, consumo real, ajustes, saldos e consultas de movimentação.
 - [ ] Interface de Estoque, Compras e Movimentações.
 - [ ] Integração de consumo real no workspace da OP.
 - [ ] Integração financeira da compra com Conta a Pagar.

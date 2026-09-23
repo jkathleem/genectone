@@ -1,12 +1,24 @@
 import type { UserRole } from "@/generated/prisma";
 
-export type Permission = "ADMIN" | "OPERATION_MUTATE" | "FINANCE_MUTATE" | "REPORT_VIEW";
+export type Permission =
+  | "ADMIN"
+  | "OPERATION_MUTATE"
+  | "FINANCE_MUTATE"
+  | "REPORT_VIEW"
+  | "STOCK_VIEW"
+  | "STOCK_PURCHASE"
+  | "STOCK_CONSUME"
+  | "STOCK_ADJUST";
 
 const grants: Record<Permission, readonly UserRole[]> = {
   ADMIN: ["ADMIN"],
   OPERATION_MUTATE: ["ADMIN", "OPERATIONS"],
   FINANCE_MUTATE: ["ADMIN", "FINANCE"],
   REPORT_VIEW: ["ADMIN", "FINANCE", "VIEWER"],
+  STOCK_VIEW: ["ADMIN", "FINANCE", "OPERATIONS", "VIEWER"],
+  STOCK_PURCHASE: ["ADMIN", "FINANCE"],
+  STOCK_CONSUME: ["ADMIN", "OPERATIONS"],
+  STOCK_ADJUST: ["ADMIN"],
 };
 
 export function hasPermission(role: UserRole, permission: Permission) {

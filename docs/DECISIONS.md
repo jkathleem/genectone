@@ -703,3 +703,11 @@ Consequência:
 - As classificações financeiras existentes `PRODUCTION_MATERIALS` e `PRODUCTION_SUPPLIES` serão reutilizadas; nenhuma nova classificação oficial foi criada.
 - Ajustes e reversões de estoque devem ser auditáveis por novos movimentos, nunca por edição direta de saldo.
 - Reserva de estoque, cancelamento completo de compra, entidade Supplier, estoque disponível considerando reserva e UI completa de compras/consumo permanecem fora desta etapa.
+
+### DEC-063 - Serviços transacionais de Estoque
+
+- Compra de insumo passa a ser registrada por serviço transacional que cria compra, itens, movimentos de entrada e Conta a Pagar `SUPPLY_PURCHASE` na mesma transação.
+- A Conta a Pagar da compra preserva snapshots da classificação financeira e é a única fonte de despesa para DRE; consumo físico não cria nova despesa.
+- Consumo real de OP é registrado separadamente do planejado por `ProductionOrderSupplyConsumption` e movimento `OP_CONSUMPTION`.
+- Saldo de estoque continua derivado de `StockMovement` e pode ficar negativo nesta versão, com aviso de domínio para futura sinalização na interface.
+- Ajustes manuais exigem perfil `ADMIN`, motivo obrigatório e movimento auditável; não existe edição direta de saldo.
