@@ -3,6 +3,11 @@ import { PrismaClient } from "../src/generated/prisma/client.js";
 import { randomBytes, scrypt as scryptCallback } from "node:crypto";
 import { existsSync } from "node:fs";
 import { promisify } from "node:util";
+import {
+  productionSectorCatalog,
+  productionSectorUpsertArgs,
+  serviceProductionSectorBackfill,
+} from "./seed-catalog.mjs";
 
 if (existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -121,8 +126,30 @@ async function ensureInitialOperationalStructure(tx) {
   }
 }
 
+async function ensureProductionSectors(tx) {
+  for (const sector of productionSectorCatalog) {
+    await tx.productionSector.upsert(productionSectorUpsertArgs(sector));
+  }
+}
+
+async function ensureServiceProductionSectors(tx) {
+  const sectors = await tx.productionSector.findMany();
+  const sectorByCode = new Map(sectors.map((sector) => [sector.code, sector]));
+
+  for (const item of serviceProductionSectorBackfill) {
+    const sector = sectorByCode.get(item.productionSectorCode);
+    if (!sector) continue;
+    await tx.service.updateMany({
+      where: { name: item.serviceName },
+      data: { productionSectorId: sector.id },
+    });
+  }
+}
+
 async function main() {
   await prisma.$transaction(async (tx) => {
+    await ensureProductionSectors(tx);
+
     for (const classification of financialClassifications) {
       await tx.financialClassification.upsert({
         where: { code: classification.code },
@@ -135,6 +162,7 @@ async function main() {
       await ensureService(tx, item.name);
     }
 
+    await ensureServiceProductionSectors(tx);
     await ensureInitialOperationalStructure(tx);
   });
 

@@ -406,13 +406,31 @@ model Service {
   id                         String                      @id @default(cuid())
   name                       String
   description                String?
+  productionSectorId         String?
   active                     Boolean                     @default(true)
   createdAt                  DateTime                    @default(now())
   updatedAt                  DateTime                    @updatedAt
+  productionSector           ProductionSector?           @relation(fields: [productionSectorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   outsourcedServices         OutsourcedService[]
   internalSectorCapabilities ServiceInternalSector[]
   contractorCapabilities     ServiceContractor[]
   internalProductionServices InternalProductionService[]
+
+  @@index([productionSectorId])
+}
+
+model ProductionSector {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  name         String    @unique
+  displayOrder Int       @default(0)
+  active       Boolean   @default(true)
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  services     Service[]
+
+  @@index([active, displayOrder])
 }
 
 model InternalSector {

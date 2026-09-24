@@ -970,6 +970,29 @@ Atribuição operacional de um Serviço a um InternalSector habilitado. Pode pos
 
 `OutsourcedService.expectedReturnDate` é o prazo específico externo. `ProductionOrder.unitPrice` continua snapshot comercial. Conclusão, Billing, AccountReceivable e Receipt continuam fatos separados.
 
+### ProductionSector
+
+Representa a etapa macro principal do fluxo produtivo para classificar Serviços e preparar visões macro de produção.
+
+Diferença conceitual:
+
+- `ProductionSector` = etapa macro do fluxo produtivo, como Stand by, Preparação, Frente, Costa, Montagem, Final e Revisão.
+- `InternalSector` = executor/capacidade interna, como Frente Interna, Carleano e Montagem.
+
+Cada `Service` pode apontar para um único `ProductionSector` por `Service.productionSectorId`. O vínculo é opcional durante a transição para preservar serviços existentes e evitar classificação incorreta. `ServiceInternalSector` e `ServiceContractor` continuam representando capacidades de execução e não são substituídos por `ProductionSector`.
+
+Setores oficiais iniciais:
+
+- `STANDBY` — Stand by.
+- `PREPARATION` — Preparação.
+- `FRONT` — Frente.
+- `BACK` — Costa.
+- `ASSEMBLY` — Montagem.
+- `FINAL` — Final.
+- `REVIEW` — Revisão.
+
+`STANDBY` é uma coluna conceitual derivada da ausência de atividade operacional e não recebe Serviços no backfill inicial. `ASSEMBLY` não altera a regra atual de `mountingAvailability`; uma OP pode ficar disponível para Montagem conforme os retornos terceirizados, sem exigir um Serviço de Montagem.
+
 ## Portal do Terceirizado
 
 O Portal do Terceirizado é uma projeção de leitura e uma pequena porta de entrada para `OperationalIssue`. Não cria entidade própria.

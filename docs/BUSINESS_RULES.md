@@ -451,3 +451,6 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-324: Consumo real de insumo não pode ser registrado em OP concluída; a validação deve existir no servidor e não apenas na interface.
 - BR-325: Dados financeiros da compra de insumos, incluindo valores, status financeiro e link para Conta a Pagar, ficam restritos a `ADMIN` e `FINANCE`.
 - BR-326: OP com Billing registrado não deve gerar alerta de previsão geral vencida em `Precisam de atenção`; outros alertas operacionais reais permanecem independentes do faturamento.
+- BR-327: `ProductionSector` representa a etapa macro principal de um Serviço no fluxo produtivo; `InternalSector` continua representando executor/capacidade interna.
+- BR-328: Cada `Service` pode possuir no máximo um `ProductionSector` principal, de forma opcional durante a transição. Serviços sem classificação macro permanecem como “Sem setor” e não devem ser classificados por heurística.
+- BR-329: `STANDBY` e `ASSEMBLY` são setores macro oficiais especiais. `STANDBY` não recebe serviços no backfill inicial, e `ASSEMBLY` não altera a regra derivada atual de disponibilidade para Montagem.

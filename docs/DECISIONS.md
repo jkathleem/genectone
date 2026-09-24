@@ -728,3 +728,12 @@ Consequência:
 - `ProductionOrderSupply.plannedQuantity` permanece previsão/snapshot ajustável da OP e não é alterado por consumo real.
 - Saldo negativo continua permitido com aviso, não bloqueio.
 - Consumo físico não gera Conta a Pagar, não altera Fluxo de Caixa e não reconhece despesa na DRE.
+# Decisões pós-MVP — Setores macro de produção
+
+- Decisão: criar `ProductionSector` como conceito separado de `InternalSector`.
+- Motivo: setor macro representa a etapa do fluxo produtivo; setor interno representa executor/capacidade interna.
+- Decisão: `Service.productionSectorId` é opcional nesta fase e cada Serviço possui no máximo um setor macro principal.
+- Decisão: `ServiceInternalSector` e `ServiceContractor` permanecem como vínculos de capacidade e não são removidos.
+- Decisão: `STANDBY` não recebe serviços no backfill inicial; sua presença futura no Kanban será derivada.
+- Decisão: `ASSEMBLY` não substitui nem altera a regra atual de disponibilidade para Montagem.
+- Decisão: serviços oficiais ambíguos ou customizados permanecem sem setor até classificação humana.
