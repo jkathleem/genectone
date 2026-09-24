@@ -235,7 +235,7 @@ export function buildOperationalDashboard(orders: DashboardOrder[], sectors: Das
     if (order.isUrgent && orderActive) {
       attention.set(`urgent-${order.id}`, { key: `urgent-${order.id}`, orderId: order.id, orderNumber: order.number, title: `OP urgente ${order.number}`, detail: `${order.product.reference ?? order.product.name} · ${order.customer.name}`, severity: "info", priority: 4 });
     }
-    if (order.expectedCompletionDate && !order.completedAt && fortalezaDay(order.expectedCompletionDate) < fortalezaDay(today)) {
+    if (order.expectedCompletionDate && !order.completedAt && !order.billing && fortalezaDay(order.expectedCompletionDate) < fortalezaDay(today)) {
       attention.set(`order-late-${order.id}`, { key: `order-late-${order.id}`, orderId: order.id, orderNumber: order.number, title: `Previsão geral vencida - OP ${order.number}`, detail: `Previsão ${fortalezaDay(order.expectedCompletionDate)}`, severity: "warning", priority: 6 });
     }
 

@@ -450,3 +450,4 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-323: A aba Insumos da OP deve separar visualmente previsão, consumo real, saldo físico e histórico; ajustar previsão não é o mesmo que registrar consumo.
 - BR-324: Consumo real de insumo não pode ser registrado em OP concluída; a validação deve existir no servidor e não apenas na interface.
 - BR-325: Dados financeiros da compra de insumos, incluindo valores, status financeiro e link para Conta a Pagar, ficam restritos a `ADMIN` e `FINANCE`.
+- BR-326: OP com Billing registrado não deve gerar alerta de previsão geral vencida em `Precisam de atenção`; outros alertas operacionais reais permanecem independentes do faturamento.

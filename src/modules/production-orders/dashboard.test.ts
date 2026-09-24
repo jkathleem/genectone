@@ -38,6 +38,49 @@ function external(id: string, contractorId: string, contractorName: string, serv
 }
 
 describe("buildOperationalDashboard", () => {
+  it("gera alerta de previsão geral vencida para OP aberta sem faturamento", () => {
+    const dashboard = buildOperationalDashboard([order({
+      expectedCompletionDate: new Date("2026-09-10T00:00:00Z"),
+    })], sectors, {}, today);
+
+    expect(dashboard.attention.some((item) => item.title.includes("Previsão geral vencida"))).toBe(true);
+  });
+
+  it("não gera alerta de previsão geral vencida para OP já faturada", () => {
+    const dashboard = buildOperationalDashboard([order({
+      expectedCompletionDate: new Date("2026-09-10T00:00:00Z"),
+      billing: { accountReceivable: null },
+    })], sectors, {}, today);
+
+    expect(dashboard.attention.some((item) => item.title.includes("Previsão geral vencida"))).toBe(false);
+  });
+
+  it("não gera alerta de previsão geral vencida para OP concluída", () => {
+    const dashboard = buildOperationalDashboard([order({
+      expectedCompletionDate: new Date("2026-09-10T00:00:00Z"),
+      completedAt: new Date("2026-09-12T00:00:00Z"),
+    })], sectors, {}, today);
+
+    expect(dashboard.attention.some((item) => item.title.includes("Previsão geral vencida"))).toBe(false);
+  });
+
+  it("mantém outros alertas operacionais mesmo quando a OP já foi faturada", () => {
+    const dashboard = buildOperationalDashboard([order({
+      expectedCompletionDate: new Date("2026-09-10T00:00:00Z"),
+      billing: { accountReceivable: null },
+      outsourcedServices: [external("late", "rafael", "Rafael", "Pala e Gancho", 100, 0, new Date("2026-09-10T00:00:00Z"))],
+    })], sectors, {}, today);
+
+    expect(dashboard.attention.some((item) => item.title.includes("Previsão geral vencida"))).toBe(false);
+    expect(dashboard.attention.some((item) => item.title.includes("Serviço atrasado"))).toBe(true);
+  });
+
+  it("não gera alerta de previsão geral quando a OP não possui previsão", () => {
+    const dashboard = buildOperationalDashboard([order()], sectors, {}, today);
+
+    expect(dashboard.attention.some((item) => item.title.includes("Previsão geral vencida"))).toBe(false);
+  });
+
   it("mostra a mesma OP em dois terceirizados enquanto os serviços estão pendentes", () => {
     const dashboard = buildOperationalDashboard([order({ outsourcedServices: [
       external("a", "pricila", "Pricila", "Frente Completa", 1200, 0),
