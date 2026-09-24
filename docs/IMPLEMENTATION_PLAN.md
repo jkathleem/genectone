@@ -492,5 +492,5 @@ Critério de aceite:
 - [x] `AccountPayableSource` preparado para `SUPPLY_PURCHASE`, preservando `CONTRACTOR_SETTLEMENT` e `MANUAL`.
 - [x] Serviços de domínio para registrar compra, consumo real, ajustes, saldos e consultas de movimentação.
 - [x] Interface de Estoque, Compras e Movimentações.
-- [ ] Integração de consumo real no workspace da OP.
-- [ ] Integração financeira da compra com Conta a Pagar.
+- [x] Integração de consumo real no workspace da OP.
+- [x] Integração financeira da compra com Conta a Pagar.

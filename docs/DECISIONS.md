@@ -719,3 +719,12 @@ Consequência:
 - A compra pela interface reutiliza o serviço transacional de estoque e gera a Conta a Pagar `SUPPLY_PURCHASE` no mesmo fluxo.
 - `OPERATIONS` e `VIEWER` consultam estoque físico sem ação de compra ou ajuste; valores financeiros de compras ficam restritos a `ADMIN` e `FINANCE`.
 - Consumo real dentro da OP, reserva, inventário completo, cancelamento/reversão de compra e fornecedor cadastral permanecem fora desta etapa.
+
+### DEC-065 - Consumo real de insumos no workspace da OP
+
+- A aba Insumos da OP passa a ser o ponto operacional para registrar consumo real, sem criar outra fonte de verdade.
+- Consumos planejados apontam para `ProductionOrderSupply`; consumos adicionais podem ficar sem esse vínculo e não criam previsão retroativa.
+- O serviço transacional de estoque continua sendo reutilizado para criar `ProductionOrderSupplyConsumption` e `StockMovement` de saída.
+- `ProductionOrderSupply.plannedQuantity` permanece previsão/snapshot ajustável da OP e não é alterado por consumo real.
+- Saldo negativo continua permitido com aviso, não bloqueio.
+- Consumo físico não gera Conta a Pagar, não altera Fluxo de Caixa e não reconhece despesa na DRE.

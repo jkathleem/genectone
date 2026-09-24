@@ -960,7 +960,9 @@ Relações principais:
 - Uma `SupplyPurchase` pode possuir no máximo uma `AccountPayable` de origem `SUPPLY_PURCHASE`.
 - `Supply` se relaciona com composição de Produto, previsão de OP, itens de compra, movimentos e consumos reais.
 
-Ficam fora desta etapa: reserva de estoque, saldo editável, cancelamento completo de compra, cadastro próprio de fornecedor, UI completa de compras, UI de consumo pela OP e baixa automática pela previsão.
+Ficam fora desta etapa: reserva de estoque, saldo editável, cancelamento completo de compra, cadastro próprio de fornecedor e baixa automática pela previsão.
+
+A UI de consumo pela OP reutiliza `ProductionOrderSupplyConsumption` e `StockMovement`: previsão planejada continua em `ProductionOrderSupply`, consumo real é registrado como fato separado e consumo adicional não cria previsão retroativa.
 
 ### InternalProductionService
 

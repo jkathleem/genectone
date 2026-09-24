@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Prisma } from "@/generated/prisma";
 import { Feedback } from "@/components/feedback";
 import { OpServiceForm } from "@/components/op-service-form";
 import { PageHeader } from "@/components/page-header";
@@ -16,10 +17,12 @@ import { dateInputValue, formatCurrency, formatDate, fortalezaDateInputValue } f
 import { receivableRemainingAmount, receivableStatus, receivedAmount } from "@/modules/accounts-receivable/domain";
 import { currentUser } from "@/modules/auth/session";
 import { hasPermission } from "@/modules/auth/permissions";
+import { getSupplyBalances } from "@/modules/inventory/queries";
+import { sumSupplyConsumptions, supplyConsumptionDifference, supplyConsumptionStatus, supplyConsumptionStatusLabels, supplyConsumptionStatusVariants } from "@/modules/inventory/consumption";
 import { derivedQuantities, mountingAvailability } from "@/modules/outsourcing/domain";
 import { externalServiceProgress, isOutsourcedServiceLate, productionOrderLifecycleStatus, serviceProgressSummary } from "@/modules/production-orders/domain";
 import { calculateOrderTotal } from "@/modules/production-orders/validation";
-import { completeProductionOrder, updateProductionOrder, updateProductionOrderSupply } from "@/modules/production-orders/actions";
+import { completeProductionOrder, registerProductionOrderSupplyConsumptionAction, updateProductionOrder, updateProductionOrderSupply } from "@/modules/production-orders/actions";
 import {
   addExternalServiceFromOrder,
   addInternalServiceFromOrder,
@@ -68,7 +71,18 @@ function mountingLabel(status: "NOT_AVAILABLE" | "PARTIALLY_AVAILABLE" | "FULLY_
   return "Não liberada";
 }
 
-export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; success?: string; error?: string }> }) {
+function decimalText(value: Prisma.Decimal | string | null | undefined) {
+  if (!value) return "—";
+  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 4 }).format(Number(value));
+}
+
+function supplyDifferenceText(value: Prisma.Decimal | null) {
+  if (!value) return "—";
+  if (value.lt(0)) return `Excesso ${decimalText(value.abs())}`;
+  return decimalText(value);
+}
+
+export default async function Page({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; success?: string; error?: string; consume?: string; extraSupply?: string }> }) {
   const { id } = await params;
   const [order, messages, user, capabilities] = await Promise.all([
     prisma.productionOrder.findUnique({
@@ -79,7 +93,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
         product: true,
         createdBy: { select: { name: true } },
         completedBy: { select: { name: true } },
-        supplies: { orderBy: { supplyNameSnapshot: "asc" } },
+        supplies: { include: { consumptions: { include: { createdBy: { select: { name: true } } }, orderBy: [{ consumptionDate: "desc" }, { createdAt: "desc" }] } }, orderBy: { supplyNameSnapshot: "asc" } },
+        supplyConsumptions: { where: { productionOrderSupplyId: null }, include: { createdBy: { select: { name: true } } }, orderBy: [{ consumptionDate: "desc" }, { createdAt: "desc" }] },
         internalServices: { include: { service: true, internalSector: true, createdBy: { select: { name: true } }, completedBy: { select: { name: true } } }, orderBy: { createdAt: "asc" } },
         outsourcedServices: {
           include: {
@@ -103,6 +118,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
       prisma.internalSector.findMany({ where: { active: true }, orderBy: [{ displayOrder: "asc" }, { name: "asc" }], select: { id: true, name: true } }),
       prisma.serviceContractor.findMany({ where: { active: true, unitPrice: { not: null }, service: { active: true }, contractor: { active: true } }, select: { serviceId: true, contractorId: true, unitPrice: true } }),
       prisma.serviceInternalSector.findMany({ where: { service: { active: true }, internalSector: { active: true } }, select: { serviceId: true, internalSectorId: true } }),
+      prisma.supply.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true, unit: true } }),
     ]),
   ]);
 
@@ -110,9 +126,18 @@ export default async function Page({ params, searchParams }: { params: Promise<{
 
   const canOperate = hasPermission(user.role, "OPERATION_MUTATE");
   const canFinance = hasPermission(user.role, "FINANCE_MUTATE");
+  const canViewStock = hasPermission(user.role, "STOCK_VIEW");
+  const canConsumeStock = hasPermission(user.role, "STOCK_CONSUME");
   const tab = tabs.some((item) => item.id === messages.tab) ? messages.tab! : "summary";
-  const [services, contractors, sectors, externalCapabilities, internalCapabilities] = capabilities;
+  if (tab === "supplies" && !canViewStock) notFound();
+  const [services, contractors, sectors, externalCapabilities, internalCapabilities, activeSupplies] = capabilities;
   const today = fortalezaDateInputValue();
+  const supplyIds = [...new Set([
+    ...order.supplies.map((item) => item.supplyId),
+    ...order.supplyConsumptions.map((item) => item.supplyId),
+    ...activeSupplies.map((item) => item.id),
+  ])];
+  const supplyBalances = await getSupplyBalances(prisma, supplyIds);
 
   const external = order.outsourcedServices.map((item) => ({ item, quantities: derivedQuantities(item.deliveryNoteItems, item.returns) }));
   const statuses = [
@@ -159,6 +184,22 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     }
   }
   timeline.sort((a, b) => b.at.getTime() - a.at.getTime());
+  const plannedSupplyRows = order.supplies.map((item) => {
+    const consumed = sumSupplyConsumptions(item.consumptions);
+    const difference = supplyConsumptionDifference(item.plannedQuantity, consumed);
+    const consumptionStatus = supplyConsumptionStatus(item.plannedQuantity, consumed);
+    return {
+      item,
+      consumed,
+      difference,
+      consumptionStatus,
+      stockBalance: supplyBalances.get(item.supplyId) ?? new Prisma.Decimal(0),
+    };
+  });
+  const consumptionHistory = [
+    ...order.supplies.flatMap((item) => item.consumptions.map((consumption) => ({ ...consumption, sourceLabel: item.supplyNameSnapshot }))),
+    ...order.supplyConsumptions.map((consumption) => ({ ...consumption, sourceLabel: consumption.supplyNameSnapshot })),
+  ].sort((a, b) => b.consumptionDate.getTime() - a.consumptionDate.getTime() || b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
     <>
@@ -520,32 +561,77 @@ export default async function Page({ params, searchParams }: { params: Promise<{
         <section className="panel">
           <div className="op-section-heading">
             <div>
-              <h2 className="section-title">Insumos registrados nesta OP</h2>
-              <p>Registro histórico criado com a OP. Ajustes aqui não alteram o Produto.</p>
+              <h2 className="section-title">Consumo de insumos desta OP</h2>
+              <p>Previsão não movimenta estoque. Somente consumo confirmado gera baixa física.</p>
             </div>
           </div>
+          {messages.consume && canConsumeStock && !order.completedAt ? plannedSupplyRows.filter(({ item }) => item.id === messages.consume).map(({ item, consumed, stockBalance }) => (
+            <form action={registerProductionOrderSupplyConsumptionAction} className="mb-5 rounded-lg border border-blue-100 bg-blue-50/60 p-4" key={item.id}>
+              <input name="orderId" type="hidden" value={id} />
+              <input name="productionOrderSupplyId" type="hidden" value={item.id} />
+              <input name="supplyId" type="hidden" value={item.supplyId} />
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-slate-900">Registrar consumo — {item.supplyNameSnapshot}</h3>
+                <p className="text-sm text-slate-600">Previsto {decimalText(item.plannedQuantity)} {item.unitSnapshot} • Já consumido {decimalText(consumed)} • Estoque atual {decimalText(stockBalance)}</p>
+                {stockBalance.lte(0) ? <p className="mt-1 text-sm text-amber-700">Este consumo pode deixar o estoque negativo. O registro não será bloqueado.</p> : null}
+              </div>
+              <div className="form-grid">
+                <label className="field">Quantidade<input inputMode="decimal" name="quantity" required /></label>
+                <label className="field">Data<input defaultValue={today} name="consumptionDate" required type="date" /></label>
+                <label className="field sm:col-span-2">Observação<textarea maxLength={2000} name="notes" rows={2} /></label>
+                <div className="sm:col-span-2"><SubmitButton>Registrar consumo</SubmitButton></div>
+              </div>
+            </form>
+          )) : null}
+          {messages.extraSupply && canConsumeStock && !order.completedAt ? (
+            <form action={registerProductionOrderSupplyConsumptionAction} className="mb-5 rounded-lg border border-slate-200 p-4">
+              <input name="orderId" type="hidden" value={id} />
+              <input name="productionOrderSupplyId" type="hidden" value="" />
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-slate-900">Registrar consumo de insumo não previsto</h3>
+                <p className="text-sm text-slate-600">O consumo será registrado como fato real adicional, sem criar previsão automaticamente.</p>
+              </div>
+              <div className="form-grid">
+                <label className="field">Insumo<select name="supplyId" required><option value="">Selecione</option>{activeSupplies.map((supply) => <option key={supply.id} value={supply.id}>{supply.name} ({supply.unit}) — saldo {decimalText(supplyBalances.get(supply.id) ?? new Prisma.Decimal(0))}</option>)}</select></label>
+                <label className="field">Quantidade<input inputMode="decimal" name="quantity" required /></label>
+                <label className="field">Data<input defaultValue={today} name="consumptionDate" required type="date" /></label>
+                <label className="field sm:col-span-2">Observação<textarea maxLength={2000} name="notes" rows={2} /></label>
+                <div className="sm:col-span-2"><SubmitButton>Registrar consumo adicional</SubmitButton></div>
+              </div>
+            </form>
+          ) : null}
+          {canConsumeStock && !order.completedAt ? <div className="mb-4"><Button href={`/ops/${id}?tab=supplies&extraSupply=1`} variant="secondary" size="sm">Registrar outro insumo consumido</Button></div> : null}
           {!order.supplies.length ? (
-            <EmptyState title="Sem insumos registrados" description="O Produto não possuía insumos configurados na criação desta OP." />
+            <EmptyState title="Nenhum insumo previsto para esta OP" description="O Produto não possuía insumos configurados na criação desta OP. Ainda é possível registrar consumo adicional." />
           ) : (
             <DataTable>
               <table>
-                <thead><tr><th>Insumo</th><th>Unidade</th><th>Base preservada</th><th>Previsto nesta OP</th><th>Observação / ajuste</th></tr></thead>
+                <thead><tr><th>Insumo</th><th>Unidade</th><th>Previsto</th><th>Consumido</th><th>Diferença</th><th>Saldo em estoque</th><th>Situação</th><th>Ação</th></tr></thead>
                 <tbody>
-                  {order.supplies.map((item) => (
+                  {plannedSupplyRows.map(({ item, consumed, difference, consumptionStatus, stockBalance }) => (
                     <tr key={item.id}>
-                      <td>{item.supplyNameSnapshot}</td>
+                      <td><strong>{item.supplyNameSnapshot}</strong><span className="block text-slate-500">{item.quantityPerBaseSnapshot && item.baseQuantitySnapshot ? `${item.quantityPerBaseSnapshot.toFixed(4)} / ${item.baseQuantitySnapshot.toLocaleString("pt-BR")} peças` : "Sem regra de consumo"}</span></td>
                       <td>{item.unitSnapshot}</td>
-                      <td>{item.quantityPerBaseSnapshot && item.baseQuantitySnapshot ? `${item.quantityPerBaseSnapshot.toFixed(4)} / ${item.baseQuantitySnapshot.toLocaleString("pt-BR")} peças` : "Sem regra de consumo"}</td>
-                      <td><strong>{item.plannedQuantity?.toFixed(4) ?? "Não calculado"}</strong></td>
+                      <td>{decimalText(item.plannedQuantity)}</td>
+                      <td>{decimalText(consumed)}</td>
+                      <td>{supplyDifferenceText(difference)}</td>
+                      <td>{decimalText(stockBalance)}{stockBalance.lt(0) ? <span className="block text-xs text-amber-700">Estoque negativo</span> : null}</td>
+                      <td><StatusChip variant={supplyConsumptionStatusVariants[consumptionStatus]}>{supplyConsumptionStatusLabels[consumptionStatus]}</StatusChip></td>
                       <td>
-                        {canOperate && !order.completedAt ? (
-                          <form action={updateProductionOrderSupply} className="op-inline-form">
-                            <input name="orderId" type="hidden" value={id} />
-                            <input name="itemId" type="hidden" value={item.id} />
-                            <input defaultValue={item.plannedQuantity?.toFixed(4) ?? ""} name="plannedQuantity" required />
-                            <button className="link-button">Salvar</button>
-                          </form>
-                        ) : "—"}
+                        <div className="flex flex-col gap-2">
+                          {canConsumeStock && !order.completedAt ? <Button href={`/ops/${id}?tab=supplies&consume=${item.id}`} variant="secondary" size="sm">Registrar consumo</Button> : null}
+                          {canOperate && !order.completedAt ? (
+                            <details>
+                              <summary className="link-button">Ajustar previsão</summary>
+                              <form action={updateProductionOrderSupply} className="op-inline-form mt-2">
+                                <input name="orderId" type="hidden" value={id} />
+                                <input name="itemId" type="hidden" value={item.id} />
+                                <input defaultValue={item.plannedQuantity?.toFixed(4) ?? ""} name="plannedQuantity" required />
+                                <button className="link-button">Salvar</button>
+                              </form>
+                            </details>
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -553,6 +639,31 @@ export default async function Page({ params, searchParams }: { params: Promise<{
               </table>
             </DataTable>
           )}
+          {order.supplyConsumptions.length ? (
+            <div className="mt-6">
+              <h3 className="op-subsection-title">Consumos adicionais</h3>
+              <p className="mb-3 text-sm text-slate-500">Insumos consumidos que não estavam na previsão original da OP.</p>
+              <DataTable>
+                <table>
+                  <thead><tr><th>Data</th><th>Insumo</th><th>Unidade</th><th>Quantidade</th><th>Responsável</th><th>Observação</th></tr></thead>
+                  <tbody>{order.supplyConsumptions.map((item) => <tr key={item.id}><td>{formatDate(item.consumptionDate)}</td><td>{item.supplyNameSnapshot}</td><td>{item.unitSnapshot}</td><td>{decimalText(item.quantity)}</td><td>{item.createdBy?.name || "—"}</td><td>{item.notes || "—"}</td></tr>)}</tbody>
+                </table>
+              </DataTable>
+            </div>
+          ) : null}
+          <details className="mt-6">
+            <summary className="section-title">Histórico de consumo</summary>
+            <div className="mt-4">
+              {!consumptionHistory.length ? <p className="empty-state">Nenhum consumo real registrado nesta OP.</p> : (
+                <DataTable>
+                  <table>
+                    <thead><tr><th>Data</th><th>Insumo</th><th>Quantidade</th><th>Responsável</th><th>Observação</th></tr></thead>
+                    <tbody>{consumptionHistory.map((item) => <tr key={item.id}><td>{formatDate(item.consumptionDate)}</td><td>{item.sourceLabel}</td><td>{decimalText(item.quantity)} {item.unitSnapshot}</td><td>{item.createdBy?.name || "—"}</td><td>{item.notes || "—"}</td></tr>)}</tbody>
+                  </table>
+                </DataTable>
+              )}
+            </div>
+          </details>
         </section>
       ) : null}
 

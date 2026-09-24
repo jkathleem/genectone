@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { redirectWithMessage } from "@/lib/form";
 import { requireUser } from "@/modules/auth/session";
+import { registerProductionOrderSupplyConsumption } from "@/modules/inventory/service";
 import { completeProductionOrderRecord, createProductionOrderWorkspace, updateOrderSupplyPlan } from "./service";
 import { parseMoneyInput, productionOrderOperationalUpdateSchema, productionOrderSchema } from "./validation";
 
@@ -80,5 +81,30 @@ export async function updateProductionOrderSupply(data: FormData) {
   } catch (error) {
     if (error && typeof error === "object" && "digest" in error) throw error;
     redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível ajustar o insumo.");
+  }
+}
+
+export async function registerProductionOrderSupplyConsumptionAction(data: FormData) {
+  const user = await requireUser("STOCK_CONSUME");
+  const orderId = z.string().cuid().parse(data.get("orderId"));
+  const path = `/ops/${orderId}?tab=supplies`;
+  try {
+    const productionOrderSupplyIdText = String(data.get("productionOrderSupplyId") ?? "").trim();
+    const consumptionDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).parse(data.get("consumptionDate"));
+    const result = await registerProductionOrderSupplyConsumption(prisma, {
+      productionOrderId: orderId,
+      productionOrderSupplyId: productionOrderSupplyIdText ? z.string().cuid().parse(productionOrderSupplyIdText) : null,
+      supplyId: z.string().cuid().parse(data.get("supplyId")),
+      quantity: parseMoneyInput(String(data.get("quantity") ?? "")),
+      consumptionDate: new Date(`${consumptionDate}T00:00:00.000Z`),
+      notes: String(data.get("notes") ?? "").trim() || null,
+    }, { role: user.role, userId: user.id });
+    revalidatePath(`/ops/${orderId}`);
+    revalidatePath("/estoque");
+    const warning = result.warnings[0]?.message;
+    redirectWithMessage(path, "success", warning ? `Consumo registrado. ${warning}` : "Consumo registrado e estoque atualizado.");
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    redirectWithMessage(path, "error", error instanceof Error ? error.message : "Não foi possível registrar o consumo.");
   }
 }

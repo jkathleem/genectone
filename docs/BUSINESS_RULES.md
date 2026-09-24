@@ -446,3 +446,5 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-319: Consumo real de insumo em OP cria `ProductionOrderSupplyConsumption` e movimento de saída `OP_CONSUMPTION`, sem alterar o snapshot planejado da OP e sem gerar Conta a Pagar.
 - BR-320: Saldo negativo é permitido nesta versão para preservar a auditoria física; a aplicação deve retornar aviso de domínio em vez de bloquear ou criar estoque inicial artificial.
 - BR-321: Ajuste manual de estoque é permitido somente para `ADMIN`, exige motivo e cria movimento auditável de ajuste positivo ou negativo.
+- BR-322: O workspace da OP pode registrar consumo real de insumos previstos ou adicionais; consumo adicional não cria previsão retroativa em `ProductionOrderSupply`.
+- BR-323: A aba Insumos da OP deve separar visualmente previsão, consumo real, saldo físico e histórico; ajustar previsão não é o mesmo que registrar consumo.

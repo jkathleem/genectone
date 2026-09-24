@@ -37,6 +37,8 @@ describe("permissões do perfil CONTRACTOR", () => {
     expect(hasPermission("FINANCE", "STOCK_PURCHASE")).toBe(true);
     expect(hasPermission("OPERATIONS", "STOCK_CONSUME")).toBe(true);
     expect(hasPermission("VIEWER", "STOCK_VIEW")).toBe(true);
+    expect(hasPermission("VIEWER", "STOCK_CONSUME")).toBe(false);
+    expect(hasPermission("CONTRACTOR", "STOCK_CONSUME")).toBe(false);
     expect(hasPermission("VIEWER", "STOCK_PURCHASE")).toBe(false);
     expect(canAccessPath("VIEWER", "/estoque")).toBe(true);
   });
