@@ -448,3 +448,5 @@ Este documento registra apenas as regras conhecidas nesta etapa. Pontos não inf
 - BR-321: Ajuste manual de estoque é permitido somente para `ADMIN`, exige motivo e cria movimento auditável de ajuste positivo ou negativo.
 - BR-322: O workspace da OP pode registrar consumo real de insumos previstos ou adicionais; consumo adicional não cria previsão retroativa em `ProductionOrderSupply`.
 - BR-323: A aba Insumos da OP deve separar visualmente previsão, consumo real, saldo físico e histórico; ajustar previsão não é o mesmo que registrar consumo.
+- BR-324: Consumo real de insumo não pode ser registrado em OP concluída; a validação deve existir no servidor e não apenas na interface.
+- BR-325: Dados financeiros da compra de insumos, incluindo valores, status financeiro e link para Conta a Pagar, ficam restritos a `ADMIN` e `FINANCE`.

@@ -139,7 +139,7 @@ describe("serviços transacionais de estoque", () => {
 
   it("registra consumo real de OP sem alterar o planejado e sem Conta a Pagar", async () => {
     const tx = {
-      productionOrder: { findUnique: vi.fn().mockResolvedValue({ id: "op-1" }) },
+      productionOrder: { findUnique: vi.fn().mockResolvedValue({ id: "op-1", completedAt: null }) },
       supply: { findUnique: vi.fn().mockResolvedValue({ id: "supply-1", name: "Linha", unit: "cone" }) },
       productionOrderSupply: { findFirst: vi.fn().mockResolvedValue({ id: "pos-1" }) },
       stockMovement: {
@@ -176,7 +176,7 @@ describe("serviços transacionais de estoque", () => {
 
   it("permite estoque negativo e retorna aviso de domínio", async () => {
     const tx = {
-      productionOrder: { findUnique: vi.fn().mockResolvedValue({ id: "op-1" }) },
+      productionOrder: { findUnique: vi.fn().mockResolvedValue({ id: "op-1", completedAt: null }) },
       supply: { findUnique: vi.fn().mockResolvedValue({ id: "supply-1", name: "Linha", unit: "cone" }) },
       stockMovement: {
         findMany: vi.fn().mockResolvedValue([]),
@@ -197,6 +197,36 @@ describe("serviços transacionais de estoque", () => {
 
     expect(result.warnings[0]).toMatchObject({ code: "NEGATIVE_STOCK", supplyId: "supply-1" });
     expect(result.warnings[0].balance.toString()).toBe("-5");
+  });
+
+  it("bloqueia consumo de insumo em OP concluída sem persistência parcial", async () => {
+    const tx = {
+      productionOrder: { findUnique: vi.fn().mockResolvedValue({ id: "op-1", completedAt: new Date("2026-09-13T00:00:00.000Z") }) },
+      supply: { findUnique: vi.fn().mockResolvedValue({ id: "supply-1", name: "Linha", unit: "cone" }) },
+      productionOrderSupply: { findFirst: vi.fn() },
+      stockMovement: {
+        findMany: vi.fn(),
+        create: vi.fn(),
+      },
+      productionOrderSupplyConsumption: {
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+    };
+
+    await expect(registerProductionOrderSupplyConsumption(transactionDb(tx) as never, {
+      productionOrderId: "op-1",
+      productionOrderSupplyId: "pos-1",
+      supplyId: "supply-1",
+      quantity: "1",
+      consumptionDate: new Date("2026-09-11T00:00:00.000Z"),
+    }, { role: "OPERATIONS", userId: "user-1" })).rejects.toThrow("OP concluída");
+
+    expect(tx.productionOrderSupply.findFirst).not.toHaveBeenCalled();
+    expect(tx.stockMovement.findMany).not.toHaveBeenCalled();
+    expect(tx.stockMovement.create).not.toHaveBeenCalled();
+    expect(tx.productionOrderSupplyConsumption.create).not.toHaveBeenCalled();
+    expect(tx.productionOrderSupplyConsumption.update).not.toHaveBeenCalled();
   });
 
   it("registra ajuste manual somente para ADMIN", async () => {

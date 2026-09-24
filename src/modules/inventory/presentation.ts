@@ -1,4 +1,4 @@
-import { Prisma, type StockMovementType } from "@/generated/prisma";
+import { Prisma, type StockMovementType, type UserRole } from "@/generated/prisma";
 
 export const supplyUnitOptions = ["UNIDADE", "CONE", "KG", "METRO", "ROLO", "LITRO", "PACOTE"] as const;
 
@@ -37,4 +37,17 @@ export function supplySituation(balance: Prisma.Decimal | string, minimumStock?:
 
 export function decimalInputValue(value?: Prisma.Decimal | null) {
   return value ? value.toFixed(4).replace(/\.?0+$/, "").replace(".", ",") : "";
+}
+
+export function canSeeInventoryFinancialDetails(role: UserRole) {
+  return role === "ADMIN" || role === "FINANCE";
+}
+
+export function purchaseFinancialVisibility(role: UserRole) {
+  const canSeeFinancialDetails = canSeeInventoryFinancialDetails(role);
+  return {
+    showValues: canSeeFinancialDetails,
+    showFinancialStatus: canSeeFinancialDetails,
+    showPayableLink: canSeeFinancialDetails,
+  };
 }

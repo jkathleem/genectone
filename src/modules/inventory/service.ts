@@ -191,10 +191,11 @@ export async function registerProductionOrderSupplyConsumption(
 
   return db.$transaction(async (tx) => {
     const [productionOrder, supply] = await Promise.all([
-      tx.productionOrder.findUnique({ where: { id: input.productionOrderId }, select: { id: true } }),
+      tx.productionOrder.findUnique({ where: { id: input.productionOrderId }, select: { id: true, completedAt: true } }),
       tx.supply.findUnique({ where: { id: input.supplyId }, select: { id: true, name: true, unit: true } }),
     ]);
     if (!productionOrder) throw new Error("OP não encontrada.");
+    if (productionOrder.completedAt) throw new Error("Não é possível registrar consumo em uma OP concluída.");
     if (!supply) throw new Error("Insumo não encontrado.");
 
     if (input.productionOrderSupplyId) {

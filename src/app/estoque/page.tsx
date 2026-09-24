@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Prisma, type StockMovementType } from "@/generated/prisma";
+import { Prisma, type StockMovementType, type UserRole } from "@/generated/prisma";
 import { Feedback } from "@/components/feedback";
 import { InventoryPurchaseForm } from "@/components/inventory-purchase-form";
 import { PageHeader } from "@/components/page-header";
@@ -16,6 +16,7 @@ import { registerInventoryAdjustment, registerInventoryPurchase, saveInventorySu
 import { getSupplyBalances, listStockMovements, listSupplyPurchases } from "@/modules/inventory/queries";
 import {
   decimalInputValue,
+  purchaseFinancialVisibility,
   stockMovementTypeLabels,
   supplySituation,
   supplySituationLabels,
@@ -63,6 +64,14 @@ function balanceText(value: Prisma.Decimal | string) {
 
 function SupplyStatus({ situation }: { situation: SupplySituation }) {
   return <StatusChip variant={supplySituationVariants[situation]}>{supplySituationLabels[situation]}</StatusChip>;
+}
+
+function PurchaseItemsSummary({ items }: { items: { id: string; supplyNameSnapshot: string; unitSnapshot: string; quantity: Prisma.Decimal }[] }) {
+  return (
+    <ul className="space-y-1 text-sm">
+      {items.map((item) => <li key={item.id}>{item.supplyNameSnapshot}: {balanceText(item.quantity)} {item.unitSnapshot}</li>)}
+    </ul>
+  );
 }
 
 function SupplyForm({ supply }: { supply?: { id: string; code: string | null; name: string; unit: string; minimumStock: Prisma.Decimal | null; notes: string | null; active: boolean } }) {
@@ -153,7 +162,7 @@ async function SuppliesTab({ params, canManage }: { params: Params; canManage: b
   );
 }
 
-async function PurchasesTab({ params, canBuy, canSeeValues }: { params: Params; canBuy: boolean; canSeeValues: boolean }) {
+async function PurchasesTab({ params, role, canBuy, canSeeValues }: { params: Params; role: UserRole; canBuy: boolean; canSeeValues: boolean }) {
   const [companies, supplies, classifications, purchases] = await Promise.all([
     prisma.company.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.supply.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
@@ -162,28 +171,29 @@ async function PurchasesTab({ params, canBuy, canSeeValues }: { params: Params; 
   ]);
   const from = safeDate(params.from);
   const to = safeDate(params.to);
+  const financialVisibility = purchaseFinancialVisibility(role);
   const filtered = purchases.filter((purchase) => {
     if (params.supplier && !purchase.supplierNameSnapshot.toLowerCase().includes(params.supplier.toLowerCase())) return false;
     if (from && purchase.purchaseDate < from) return false;
     if (to && purchase.purchaseDate > to) return false;
-    if (params.status && purchase.accountPayableStatus?.status !== params.status) return false;
+    if (canSeeValues && params.status && purchase.accountPayableStatus?.status !== params.status) return false;
     return true;
   });
   const categories = classifications.filter((item) => item.active && item.financialNature !== "NON_DRE" && item.dreGroup !== "FINANCIAL_REVENUE");
   return (
     <>
       {params.form === "purchase" && canBuy ? <section className="mb-5"><InventoryPurchaseForm action={registerInventoryPurchase} today={fortalezaDateInputValue()} companies={companies.map((item) => ({ id: item.id, label: item.tradeName || item.name }))} supplies={supplies.map((item) => ({ id: item.id, label: item.name, unit: item.unit }))} classifications={categories.map((item) => ({ id: item.id, label: item.name }))} /></section> : null}
-      {params.payableId ? <div className="mb-5 rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">Conta a pagar criada. <Link className="link-button" href={`/financeiro/contas-a-pagar/${params.payableId}`}>Ver conta a pagar</Link></div> : null}
+      {params.payableId && financialVisibility.showPayableLink ? <div className="mb-5 rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">Conta a pagar criada. <Link className="link-button" href={`/financeiro/contas-a-pagar/${params.payableId}`}>Ver conta a pagar</Link></div> : null}
       <form className="panel mb-5 form-grid">
         <input name="tab" type="hidden" value="purchases" />
         <label className="field">Período de<input defaultValue={params.from ?? ""} name="from" type="date" /></label>
         <label className="field">Até<input defaultValue={params.to ?? ""} name="to" type="date" /></label>
         <label className="field">Fornecedor<input defaultValue={params.supplier ?? ""} name="supplier" /></label>
-        <label className="field">Status financeiro<select defaultValue={params.status ?? ""} name="status"><option value="">Todos</option>{["Em aberto", "Vencida", "Parcial", "Pago"].map((item) => <option key={item}>{item}</option>)}</select></label>
+        {financialVisibility.showFinancialStatus ? <label className="field">Status financeiro<select defaultValue={params.status ?? ""} name="status"><option value="">Todos</option>{["Em aberto", "Vencida", "Parcial", "Pago"].map((item) => <option key={item}>{item}</option>)}</select></label> : null}
         <div className="flex items-end gap-2"><button className="button-primary">Filtrar</button><Link className="button-secondary" href="/estoque?tab=purchases">Limpar</Link></div>
       </form>
       <section className="panel">
-        {!filtered.length ? <EmptyState title="Nenhuma compra encontrada." description="Registre uma compra ou ajuste os filtros." /> : <div className="table-wrap"><table><thead><tr><th>Data</th><th>Fornecedor</th><th>Documento</th><th>Itens</th>{canSeeValues ? <th>Total</th> : null}<th>Vencimento</th><th>Status financeiro</th><th>Ação</th></tr></thead><tbody>{filtered.map((item) => <tr key={item.id}><td>{formatDate(item.purchaseDate)}</td><td>{item.supplierNameSnapshot}</td><td>{item.documentNumber || "—"}</td><td>{item.items.length}</td>{canSeeValues ? <td>{formatCurrency(item.total)}</td> : null}<td>{item.accountPayableStatus ? formatDate(item.accountPayableStatus.dueDate) : "—"}</td><td>{item.accountPayableStatus ? <StatusChip variant={item.accountPayableStatus.status === "Pago" ? "success" : item.accountPayableStatus.status === "Vencida" ? "danger" : item.accountPayableStatus.status === "Parcial" ? "warning" : "info"}>{item.accountPayableStatus.status}</StatusChip> : "—"}</td><td>{item.accountPayableStatus ? <Link className="link-button" href={`/financeiro/contas-a-pagar/${item.accountPayableStatus.id}`}>Ver A/P</Link> : "—"}</td></tr>)}</tbody></table></div>}
+        {!filtered.length ? <EmptyState title="Nenhuma compra encontrada." description="Registre uma compra ou ajuste os filtros." /> : <div className="table-wrap"><table><thead><tr><th>Data</th><th>Fornecedor</th><th>Documento</th><th>Itens</th>{financialVisibility.showValues ? <th>Total</th> : null}{financialVisibility.showFinancialStatus ? <th>Vencimento</th> : null}{financialVisibility.showFinancialStatus ? <th>Status financeiro</th> : null}{financialVisibility.showPayableLink ? <th>Ação</th> : null}</tr></thead><tbody>{filtered.map((item) => <tr key={item.id}><td>{formatDate(item.purchaseDate)}</td><td>{item.supplierNameSnapshot}</td><td>{item.documentNumber || "—"}</td><td><PurchaseItemsSummary items={item.items} /></td>{financialVisibility.showValues ? <td>{formatCurrency(item.total)}</td> : null}{financialVisibility.showFinancialStatus ? <td>{item.accountPayableStatus ? formatDate(item.accountPayableStatus.dueDate) : "—"}</td> : null}{financialVisibility.showFinancialStatus ? <td>{item.accountPayableStatus ? <StatusChip variant={item.accountPayableStatus.status === "Pago" ? "success" : item.accountPayableStatus.status === "Vencida" ? "danger" : item.accountPayableStatus.status === "Parcial" ? "warning" : "info"}>{item.accountPayableStatus.status}</StatusChip> : "—"}</td> : null}{financialVisibility.showPayableLink ? <td>{item.accountPayableStatus ? <Link className="link-button" href={`/financeiro/contas-a-pagar/${item.accountPayableStatus.id}`}>Ver A/P</Link> : "—"}</td> : null}</tr>)}</tbody></table></div>}
       </section>
     </>
   );
@@ -239,7 +249,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
   const content = activeTab === "supplies"
     ? <SuppliesTab params={params} canManage={canManage} />
     : activeTab === "purchases"
-      ? <PurchasesTab params={params} canBuy={canBuy} canSeeValues={canSeeValues} />
+      ? <PurchasesTab params={params} role={user.role} canBuy={canBuy} canSeeValues={canSeeValues} />
       : <MovementsTab params={params} canAdjust={canManage} />;
 
   return (
